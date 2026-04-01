@@ -10,6 +10,7 @@ use serde::Serialize;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 
+pub mod ai_contract;
 pub mod auth;
 pub mod cache;
 pub mod marketplace;
