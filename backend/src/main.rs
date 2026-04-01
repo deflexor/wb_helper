@@ -1,6 +1,8 @@
 //! WB Helper API server entrypoint.
 
-use backend::create_app;
+use std::sync::Arc;
+
+use backend::{app_state_from_env, create_app};
 
 #[tokio::main]
 async fn main() {
@@ -10,6 +12,10 @@ async fn main() {
                 .unwrap_or_else(|_| "backend=info,tower_http=info".into()),
         )
         .init();
+
+    let state: Arc<_> = app_state_from_env()
+        .await
+        .unwrap_or_else(|e| panic!("failed to init app state: {e}"));
 
     let addr: std::net::SocketAddr = std::env::var("BIND_ADDR")
         .unwrap_or_else(|_| "0.0.0.0:8080".to_string())
@@ -22,7 +28,7 @@ async fn main() {
 
     tracing::info!(%addr, "listening");
 
-    axum::serve(listener, create_app())
+    axum::serve(listener, create_app(state))
         .await
         .expect("server terminated with error");
 }

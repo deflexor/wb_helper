@@ -39,10 +39,14 @@ services:
       - "8080:8080"
     environment:
       DATABASE_URL: postgres://wb:wb@postgres:5432/wb_helper
+      JWT_SECRET: ${JWT_SECRET:-0123456789abcdef0123456789abcdef0123456789abcdef}
+      REDIS_URL: redis://redis:6379
       RUST_LOG: info
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   ai-service:
     build:
