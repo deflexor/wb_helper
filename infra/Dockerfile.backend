@@ -1,0 +1,17 @@
+# Lightweight production image for the Rust API.
+FROM rust:1-bookworm AS builder
+WORKDIR /app
+COPY backend/Cargo.toml backend/Cargo.lock ./
+COPY backend/src ./src
+COPY backend/tests ./tests
+RUN cargo build --release
+
+FROM debian:bookworm-slim
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /app/target/release/backend /usr/local/bin/backend
+ENV BIND_ADDR=0.0.0.0:8080
+EXPOSE 8080
+USER nobody
+CMD ["backend"]

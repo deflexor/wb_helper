@@ -2,6 +2,16 @@
 
 This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
 
+## Monorepo map
+
+- **`backend/`** — Rust Axum API (`cargo test`, `cargo run`), Postgres via **sqlx** (set `DATABASE_URL` when using the DB).
+- **`frontend/`** — Vite + React + Tailwind + shadcn/ui; `npm run dev`, `npm test`, `npm run build`.
+- **`ai-service/`** — FastAPI; `pytest`, `uvicorn app.main:app`.
+- **`tests/e2e/`** — Playwright; `npm run test:e2e` from that directory.
+- **`infra/docker-compose.yml`** — Postgres, Redis, Qdrant, optional API containers.
+
+Use **`bd`** for every task: create or claim an issue before substantive work, close it when done. The epic **MVP Launch** holds high-level phases.
+
 ## Quick Reference
 
 ```bash
