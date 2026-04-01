@@ -17,6 +17,7 @@ pub mod models;
 pub mod rate_limit;
 pub mod retry;
 pub mod state;
+pub mod sync;
 
 pub use state::AppState;
 
@@ -41,6 +42,8 @@ pub fn create_app(state: Arc<AppState>) -> Router<()> {
     let protected = Router::new()
         .route("/me", get(handlers::me))
         .route("/keys", post(handlers::create_api_key))
+        .route("/credentials", get(sync::list_credentials).post(sync::upsert_credential))
+        .route("/sync", post(sync::run_sync))
         .route_layer(from_fn_with_state(auth_state, jwt_auth_middleware));
 
     Router::new()
@@ -99,10 +102,16 @@ pub async fn app_state_from_env() -> Result<Arc<AppState>, std::io::Error> {
     let wb_rates = Arc::new(MarketplaceRateConfig::default());
     let ozon_rates = Arc::new(MarketplaceRateConfig::default());
 
+    let http_client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(60))
+        .build()
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+
     Ok(Arc::new(AppState {
         pool,
         jwt,
         redis,
+        http_client,
         limits: state::SubscriptionLimits::default(),
         wb_rates,
         ozon_rates,
@@ -126,6 +135,7 @@ mod tests {
             pool,
             jwt,
             redis: None,
+            http_client: reqwest::Client::new(),
             limits: state::SubscriptionLimits::default(),
             wb_rates: Arc::new(MarketplaceRateConfig::default()),
             ozon_rates: Arc::new(MarketplaceRateConfig::default()),

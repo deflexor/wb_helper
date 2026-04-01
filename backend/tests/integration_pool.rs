@@ -6,6 +6,10 @@
 //! REDIS_URL=redis://127.0.0.1:6379 \
 //! cargo test -p backend --test integration_pool -- --ignored --nocapture
 //! ```
+//!
+//! After register/login, you can exercise marketplace sync:
+//! `POST /api/credentials` (Bearer) with `{"marketplace":"wildberries","wb_api_token":"..."}` then
+//! `POST /api/sync` to pull seller info into `product_snapshots` (and Ozon products into snapshots + `pricing_history`).
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -37,6 +41,7 @@ async fn state_from_urls() -> Arc<AppState> {
         pool,
         jwt,
         redis: Some(redis),
+        http_client: reqwest::Client::new(),
         limits: backend::state::SubscriptionLimits::default(),
         wb_rates: Arc::new(MarketplaceRateConfig::default()),
         ozon_rates: Arc::new(MarketplaceRateConfig::default()),

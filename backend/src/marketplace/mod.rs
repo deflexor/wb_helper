@@ -3,8 +3,8 @@
 mod ozon;
 mod wb;
 
-pub use ozon::OzonClient;
-pub use wb::WbClient;
+pub use ozon::{OzonClient, OzonError};
+pub use wb::{WbClient, WbError};
 
 /// Conservative defaults; tune from env or config using official limit tables.
 #[derive(Debug, Clone)]

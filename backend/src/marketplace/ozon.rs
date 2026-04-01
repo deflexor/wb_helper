@@ -53,12 +53,13 @@ impl OzonClient {
         })
     }
 
-    /// Minimal product list call (`POST /v2/product/list`) — see Ozon Seller API reference.
+    /// Product list (`POST /v2/product/list`) — see Ozon Seller API reference.
     pub async fn list_products_page(
         &self,
         rate_key: &str,
         client_id: &str,
         api_key: &str,
+        limit: u32,
     ) -> Result<Value, OzonError> {
         self.limiter.acquire_one(rate_key.to_string()).await;
         let url = self.base.join("v2/product/list")?;
@@ -67,17 +68,19 @@ impl OzonClient {
         let url_clone = url.clone();
         let cid = client_id.to_string();
         let key = api_key.to_string();
+        let limit = limit.min(1000);
         let response = execute_with_retry(
             || {
                 let http = http.clone();
                 let url = url_clone.clone();
                 let cid = cid.clone();
                 let key = key.clone();
+                let limit = limit;
                 async move {
                     let body = json!({
                         "filter": {},
                         "last_id": "",
-                        "limit": 1
+                        "limit": limit
                     });
                     http.post(url)
                         .header("Client-Id", cid)

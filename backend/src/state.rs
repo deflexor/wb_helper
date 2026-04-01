@@ -27,6 +27,7 @@ pub struct AppState {
     pub pool: PgPool,
     pub jwt: JwtConfig,
     pub redis: Option<ConnectionManager>,
+    pub http_client: reqwest::Client,
     pub limits: SubscriptionLimits,
     pub wb_rates: Arc<MarketplaceRateConfig>,
     pub ozon_rates: Arc<MarketplaceRateConfig>,

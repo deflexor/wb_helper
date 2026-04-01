@@ -69,6 +69,8 @@ pub enum CacheError {
     Redis(#[from] redis::RedisError),
     #[error("json: {0}")]
     Json(#[from] serde_json::Error),
+    #[error("upstream: {0}")]
+    Upstream(String),
 }
 
 #[cfg(test)]

@@ -13,7 +13,7 @@ pub enum SubscriptionTier {
     Paid,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, sqlx::Type, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, sqlx::Type, Serialize, Deserialize)]
 #[sqlx(type_name = "marketplace", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
 pub enum Marketplace {
@@ -34,6 +34,19 @@ pub struct SubscriptionRow {
     pub user_id: Uuid,
     pub tier: SubscriptionTier,
     pub valid_until: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct MarketplaceCredentialRow {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub marketplace: Marketplace,
+    pub label: String,
+    pub wb_api_token: Option<String>,
+    pub ozon_client_id: Option<String>,
+    pub ozon_api_key: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, FromRow)]

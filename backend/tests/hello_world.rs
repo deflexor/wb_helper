@@ -23,6 +23,7 @@ fn test_state() -> Arc<AppState> {
         pool,
         jwt,
         redis: None,
+        http_client: reqwest::Client::new(),
         limits: backend::state::SubscriptionLimits::default(),
         wb_rates: Arc::new(MarketplaceRateConfig::default()),
         ozon_rates: Arc::new(MarketplaceRateConfig::default()),

@@ -39,7 +39,7 @@ async fn ozon_list_products_parses_json() {
 
     let client = OzonClient::with_base(reqwest::Client::new(), fast_rates(), &srv.uri()).unwrap();
     let v = client
-        .list_products_page("user-1", "cid", "key")
+        .list_products_page("user-1", "cid", "key", 1)
         .await
         .unwrap();
     assert!(v.get("result").is_some());
