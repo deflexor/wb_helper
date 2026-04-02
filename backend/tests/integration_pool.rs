@@ -47,6 +47,7 @@ async fn state_from_urls() -> Arc<AppState> {
         ozon_rates: Arc::new(MarketplaceRateConfig::default()),
         ai_service_url: None,
         ai_service_internal_key: None,
+        runtime_config_cache: backend::state::RuntimeConfigCache::new(Duration::from_secs(1)),
     })
 }
 

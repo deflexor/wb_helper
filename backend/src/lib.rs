@@ -14,18 +14,21 @@ pub mod ai_contract;
 pub mod ai_proxy;
 pub mod auth;
 pub mod cache;
+pub mod config;
 pub mod marketplace;
 pub mod models;
 pub mod rate_limit;
 pub mod retry;
 pub mod state;
 pub mod sync;
+pub mod usage_quota;
 
 pub use state::AppState;
 
 use auth::handlers;
 use auth::jwt_auth_middleware;
 use marketplace::MarketplaceRateConfig;
+use state::RuntimeConfigCache;
 
 #[derive(Serialize)]
 struct HelloResponse {
@@ -120,7 +123,9 @@ pub async fn app_state_from_env() -> Result<Arc<AppState>, std::io::Error> {
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty());
 
-    Ok(Arc::new(AppState {
+    let runtime_config_cache = RuntimeConfigCache::new(Duration::from_secs(30));
+
+    let state = Arc::new(AppState {
         pool,
         jwt,
         redis,
@@ -130,7 +135,12 @@ pub async fn app_state_from_env() -> Result<Arc<AppState>, std::io::Error> {
         ozon_rates,
         ai_service_url,
         ai_service_internal_key,
-    }))
+        runtime_config_cache,
+    });
+    state.runtime_config().await.map_err(|e| {
+        std::io::Error::new(std::io::ErrorKind::Other, format!("runtime config load: {e}"))
+    })?;
+    Ok(state)
 }
 
 #[cfg(test)]
@@ -156,6 +166,7 @@ mod tests {
             ozon_rates: Arc::new(MarketplaceRateConfig::default()),
             ai_service_url: None,
             ai_service_internal_key: None,
+            runtime_config_cache: RuntimeConfigCache::new(Duration::from_secs(30)),
         });
         let _ = create_app(state);
     }

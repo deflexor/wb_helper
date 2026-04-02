@@ -72,6 +72,22 @@ pub struct NicheAnalysisProxyResponse {
     pub summary: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct QuotaExceededPayload {
+    pub code: String,
+    pub message: String,
+    pub used: u32,
+    pub limit: u32,
+    pub resets_at_utc: String,
+    pub upgrade_url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct QuotaBackendUnavailablePayload {
+    pub code: String,
+    pub message: String,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

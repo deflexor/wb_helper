@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 
+import type { QuotaExceededError, QuotaUsageSnapshot } from '@/api/types'
 import i18n from '@/i18n'
 
 export type MonitoringRiskFilter = 'all' | 'high' | 'optimal'
@@ -15,6 +16,12 @@ export type UiState = {
   language: 'en' | 'ru'
   setLanguage: (lng: 'en' | 'ru') => void
   syncLanguageFromI18n: () => void
+  quotaState: QuotaExceededError | null
+  setQuotaState: (quota: QuotaExceededError) => void
+  clearQuotaState: () => void
+  usageState: QuotaUsageSnapshot | null
+  setUsageState: (usage: QuotaUsageSnapshot) => void
+  clearUsageState: () => void
 }
 
 function detectLanguage(): 'en' | 'ru' {
@@ -36,6 +43,12 @@ export const useUiStore = create<UiState>((set) => ({
     set({ language: lng })
   },
   syncLanguageFromI18n: () => set({ language: detectLanguage() }),
+  quotaState: null,
+  setQuotaState: (quotaState) => set({ quotaState }),
+  clearQuotaState: () => set({ quotaState: null }),
+  usageState: null,
+  setUsageState: (usageState) => set({ usageState }),
+  clearUsageState: () => set({ usageState: null }),
 }))
 
 i18n.on('languageChanged', () => {

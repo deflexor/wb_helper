@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ChevronDown, UserRound } from 'lucide-react'
 
 import { useTranslation } from '@/hooks/useTranslation'
+import { formatQuotaResetAt, sanitizeUpgradeUrl } from '@/lib/quota'
 import { useSessionStore } from '@/stores/sessionStore'
 import { useUiStore } from '@/stores/uiStore'
 import {
@@ -45,8 +46,16 @@ export function AppTopBar() {
   const clearSession = useSessionStore((s) => s.clearSession)
   const language = useUiStore((s) => s.language)
   const setLanguage = useUiStore((s) => s.setLanguage)
+  const quotaState = useUiStore((s) => s.quotaState)
+  const usageState = useUiStore((s) => s.usageState)
+  const clearQuotaState = useUiStore((s) => s.clearQuotaState)
+  const clearUsageState = useUiStore((s) => s.clearUsageState)
 
   const crumbKey = pathKeyMap[location.pathname] ?? 'breadcrumb.dashboard'
+
+  const resetAtLabel = quotaState
+    ? formatQuotaResetAt(quotaState.resets_at_utc, navigator.language)
+    : null
 
   return (
     <header className="bg-card/40 supports-backdrop-filter:backdrop-blur-xs sticky top-0 z-20 border-b">
@@ -65,8 +74,35 @@ export function AppTopBar() {
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-muted-foreground border-border bg-muted/40 rounded-lg border px-2.5 py-1 text-xs font-medium">
-            {t('usage.label', { used: 12, limit: 500 })}
+            {quotaState
+              ? t('usage.label', {
+                  used: quotaState.used,
+                  limit: quotaState.limit,
+                })
+              : usageState
+                ? t('usage.label', {
+                    used: usageState.used,
+                    limit: usageState.limit,
+                  })
+              : t('usage.placeholder')}
           </span>
+          {quotaState ? (
+            <>
+              <a
+                href={sanitizeUpgradeUrl(quotaState.upgrade_url)}
+                target="_blank"
+                rel="noreferrer"
+                className={cn(buttonVariants({ variant: 'default', size: 'sm' }))}
+              >
+                {t('usage.upgrade_cta')}
+              </a>
+              {resetAtLabel ? (
+                <span className="text-muted-foreground text-xs">
+                  {t('usage.resets_at', { time: resetAtLabel })}
+                </span>
+              ) : null}
+            </>
+          ) : null}
           <span
             className={cn(
               buttonVariants({ variant: 'secondary', size: 'sm' }),
@@ -131,6 +167,8 @@ export function AppTopBar() {
                 variant="destructive"
                 onClick={() => {
                   clearSession()
+                  clearQuotaState()
+                  clearUsageState()
                   navigate('/login', { replace: true })
                 }}
               >

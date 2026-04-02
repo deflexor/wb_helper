@@ -1,5 +1,11 @@
-import { apiPostJsonAuth } from '@/api/client'
-import type { ChatCompletionResult, NicheAnalysisResult } from '@/api/types'
+import { apiPostJsonAuthWithHeaders } from '@/api/client'
+import type {
+  ChatCompletionResult,
+  NicheAnalysisResult,
+  QuotaUsageSnapshot,
+} from '@/api/types'
+export { isQuotaExceededApiError } from '@/api/client'
+export type { QuotaExceededError } from '@/api/types'
 
 export async function postAiChat(
   token: string,
@@ -9,17 +15,19 @@ export async function postAiChat(
     context?: Record<string, unknown>
   },
 ): Promise<ChatCompletionResult> {
-  const raw = await apiPostJsonAuth<{
+  const { data: raw, headers } = await apiPostJsonAuthWithHeaders<{
     content: string
     model_used: string
     warnings?: string[]
     usage?: TokenUsageDto | null
   }>('/api/ai/chat', body, token)
+  const quotaUsage = quotaUsageFromHeaders(headers)
   return {
     content: raw.content,
     model_used: raw.model_used,
     warnings: raw.warnings ?? [],
     usage: normalizeUsage(raw.usage),
+    quota_usage: quotaUsage,
   }
 }
 
@@ -42,5 +50,22 @@ export async function postNicheAnalysis(
   token: string,
   body: { query: string; limit?: number },
 ): Promise<NicheAnalysisResult> {
-  return apiPostJsonAuth<NicheAnalysisResult>('/api/ai/niche', body, token)
+  const { data, headers } = await apiPostJsonAuthWithHeaders<NicheAnalysisResult>(
+    '/api/ai/niche',
+    body,
+    token,
+  )
+  return {
+    ...data,
+    quota_usage: quotaUsageFromHeaders(headers),
+  }
+}
+
+function quotaUsageFromHeaders(headers: Headers): QuotaUsageSnapshot | null {
+  const usedRaw = headers.get('x-quota-used')
+  const limitRaw = headers.get('x-quota-limit')
+  const used = usedRaw ? Number(usedRaw) : Number.NaN
+  const limit = limitRaw ? Number(limitRaw) : Number.NaN
+  if (!Number.isFinite(used) || !Number.isFinite(limit)) return null
+  return { used, limit }
 }

@@ -2,6 +2,7 @@
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -58,4 +59,11 @@ pub struct ApiKeyRow {
     pub key_hash: String,
     pub created_at: DateTime<Utc>,
     pub last_used_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct AppConfigRow {
+    pub key: String,
+    pub value_json: Value,
+    pub updated_at: DateTime<Utc>,
 }

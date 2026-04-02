@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
 
-import { postNicheAnalysis } from '@/api/ai'
+import { isQuotaExceededApiError, postNicheAnalysis } from '@/api/ai'
 import { ChartWrapper } from '@/components/charts/ChartWrapper'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -10,9 +10,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import { PremiumToolGate } from '@/components/tools/PremiumToolGate'
 import { ToolErrorBoundary } from '@/components/tools/ToolErrorBoundary'
 import { useLocaleFormat } from '@/hooks/useLocaleFormat'
 import { useTranslation } from '@/hooks/useTranslation'
+import { formatQuotaResetAt, sanitizeUpgradeUrl } from '@/lib/quota'
 import {
   averagePriceFromTexts,
   buildCompetitorScatter,
@@ -20,6 +22,7 @@ import {
   extractGapBullets,
 } from '@/lib/nicheTransform'
 import { useSessionStore } from '@/stores/sessionStore'
+import { useUiStore } from '@/stores/uiStore'
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -43,7 +46,10 @@ export function NicheAnalysisPage() {
   const { t } = useTranslation()
   const { formatCurrency } = useLocaleFormat()
   const token = useSessionStore((s) => s.token)
-  const paid = useSessionStore((s) => s.tier) === 'paid'
+  const quotaState = useUiStore((s) => s.quotaState)
+  const setQuotaState = useUiStore((s) => s.setQuotaState)
+  const clearQuotaState = useUiStore((s) => s.clearQuotaState)
+  const setUsageState = useUiStore((s) => s.setUsageState)
   const [query, setQuery] = useState('')
 
   const mutation = useMutation({
@@ -51,7 +57,21 @@ export function NicheAnalysisPage() {
       if (!token) throw new Error('Not signed in')
       return postNicheAnalysis(token, { query: q, limit: 15 })
     },
+    onSuccess: (res) => {
+      clearQuotaState()
+      if (res.quota_usage) setUsageState(res.quota_usage)
+    },
+    onError: (error) => {
+      if (isQuotaExceededApiError(error)) {
+        setQuotaState(error.quota)
+        setUsageState({ used: error.quota.used, limit: error.quota.limit })
+      }
+    },
   })
+  const quotaLocked = quotaState != null
+  const resetAtLabel = quotaState
+    ? formatQuotaResetAt(quotaState.resets_at_utc, navigator.language)
+    : null
 
   const texts = useMemo(
     () => textsFromMatches(mutation.data?.matches ?? []),
@@ -99,40 +119,55 @@ export function NicheAnalysisPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('tools.niche_placeholder')}
-                disabled={!paid}
+                disabled={quotaLocked}
               />
             </div>
             <Button
               type="button"
-              disabled={!paid || !query.trim() || mutation.isPending || !token}
+              disabled={quotaLocked || !query.trim() || mutation.isPending || !token}
               onClick={() => mutation.mutate(query.trim())}
             >
               {mutation.isPending ? t('tools.niche_running') : t('tools.niche_run')}
             </Button>
           </CardContent>
-          {!paid ? (
+          {quotaLocked ? (
             <CardContent className="pt-0">
-              <p className="text-muted-foreground text-xs">{t('tools.niche_free_hint')}</p>
+              <p className="text-muted-foreground text-xs">{t('tools.quota_exhausted_gate')}</p>
+              <a
+                href={sanitizeUpgradeUrl(quotaState.upgrade_url)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary mt-1 inline-block text-xs font-medium underline underline-offset-4"
+              >
+                {t('tools.upgrade_cta')}
+              </a>
+              {resetAtLabel ? (
+                <p className="text-muted-foreground mt-1 text-xs">
+                  {t('tools.quota_resets_at', { time: resetAtLabel })}
+                </p>
+              ) : null}
             </CardContent>
           ) : null}
         </Card>
 
-        {mutation.isPending ? (
-          <div data-testid="niche-loading" className="space-y-3" aria-busy="true">
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-48 w-full" />
-          </div>
-        ) : null}
-
-        {mutation.isError ? (
-          <Alert variant="destructive" data-testid="niche-error">
-            <AlertTitle>{t('tools.niche_error_title')}</AlertTitle>
-            <AlertDescription>{(mutation.error as Error).message}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        {mutation.data ? (
+        <PremiumToolGate locked={quotaLocked} quotaExceeded={quotaState}>
           <div className="space-y-6">
+            {mutation.isPending ? (
+              <div data-testid="niche-loading" className="space-y-3" aria-busy="true">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-48 w-full" />
+              </div>
+            ) : null}
+
+            {mutation.isError ? (
+              <Alert variant="destructive" data-testid="niche-error">
+                <AlertTitle>{t('tools.niche_error_title')}</AlertTitle>
+                <AlertDescription>{(mutation.error as Error).message}</AlertDescription>
+              </Alert>
+            ) : null}
+
+            {mutation.data ? (
+              <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                   <CardHeader className="pb-2">
@@ -250,8 +285,16 @@ export function NicheAnalysisPage() {
                   </CardContent>
                 </Card>
               ) : null}
-            </div>
-        ) : null}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="py-8">
+                  <p className="text-muted-foreground text-sm">{t('tools.niche_run')}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </PremiumToolGate>
       </div>
     </ToolErrorBoundary>
   )

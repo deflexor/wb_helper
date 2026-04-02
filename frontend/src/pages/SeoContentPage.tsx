@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
 
-import { postAiChat } from '@/api/ai'
+import { isQuotaExceededApiError, postAiChat } from '@/api/ai'
 import { MONITORING_SAMPLE_PRODUCTS } from '@/api/monitoring'
 import type { MonitoringRow } from '@/api/types'
 import { Button } from '@/components/ui/button'
@@ -25,6 +25,7 @@ import {
 import { PremiumToolGate } from '@/components/tools/PremiumToolGate'
 import { ToolErrorBoundary } from '@/components/tools/ToolErrorBoundary'
 import { useTranslation } from '@/hooks/useTranslation'
+import { formatQuotaResetAt, sanitizeUpgradeUrl } from '@/lib/quota'
 import {
   estimateUsdFromUsage,
   parseSeoJsonFromModel,
@@ -32,6 +33,7 @@ import {
   type SeoContent,
 } from '@/lib/seoGeneration'
 import { useSessionStore } from '@/stores/sessionStore'
+import { useUiStore } from '@/stores/uiStore'
 
 function productDefaults(p: MonitoringRow): SeoContent {
   return {
@@ -44,8 +46,10 @@ function productDefaults(p: MonitoringRow): SeoContent {
 export function SeoContentPage() {
   const { t } = useTranslation()
   const token = useSessionStore((s) => s.token)
-  const tier = useSessionStore((s) => s.tier)
-  const paid = tier === 'paid'
+  const quotaState = useUiStore((s) => s.quotaState)
+  const setQuotaState = useUiStore((s) => s.setQuotaState)
+  const clearQuotaState = useUiStore((s) => s.clearQuotaState)
+  const setUsageState = useUiStore((s) => s.setUsageState)
 
   const [productId, setProductId] = useState(MONITORING_SAMPLE_PRODUCTS[0]?.id ?? '')
   const selected = useMemo(
@@ -86,6 +90,8 @@ export function SeoContentPage() {
       })
     },
     onSuccess: (res) => {
+      clearQuotaState()
+      if (res.quota_usage) setUsageState(res.quota_usage)
       const parsed = parseSeoJsonFromModel(res.content)
       if (!parsed) {
         setParseError(t('tools.seo_parse_error'))
@@ -94,6 +100,12 @@ export function SeoContentPage() {
       }
       setParseError(null)
       setGenerated(parsed)
+    },
+    onError: (error) => {
+      if (isQuotaExceededApiError(error)) {
+        setQuotaState(error.quota)
+        setUsageState({ used: error.quota.used, limit: error.quota.limit })
+      }
     },
   })
 
@@ -128,6 +140,11 @@ export function SeoContentPage() {
     (mutation.data?.content
       ? roughTokenEstimateFromText(mutation.data.content)
       : null)
+
+  const quotaLocked = quotaState != null
+  const resetAtLabel = quotaState
+    ? formatQuotaResetAt(quotaState.resets_at_utc, navigator.language)
+    : null
 
   return (
     <ToolErrorBoundary fallbackTitle={t('tools.error_boundary_title')}>
@@ -208,13 +225,27 @@ export function SeoContentPage() {
               </div>
               <Button
                 type="button"
-                disabled={!paid || mutation.isPending || !token}
+                disabled={quotaLocked || mutation.isPending || !token}
                 onClick={() => mutation.mutate()}
               >
                 {mutation.isPending ? t('tools.generating') : t('tools.seo_generate')}
               </Button>
-              {!paid ? (
-                <p className="text-muted-foreground text-xs">{t('tools.seo_free_hint')}</p>
+              {quotaLocked ? (
+                <div>
+                  <a
+                    href={sanitizeUpgradeUrl(quotaState.upgrade_url)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary inline-block text-xs font-medium underline underline-offset-4"
+                  >
+                    {t('tools.upgrade_cta')}
+                  </a>
+                  {resetAtLabel ? (
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      {t('tools.quota_resets_at', { time: resetAtLabel })}
+                    </p>
+                  ) : null}
+                </div>
               ) : null}
               {mutation.isError ? (
                 <p className="text-destructive text-sm">
@@ -230,7 +261,7 @@ export function SeoContentPage() {
               <CardDescription>{t('tools.seo_compare_desc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <PremiumToolGate locked={!paid}>
+              <PremiumToolGate locked={quotaLocked} quotaExceeded={quotaState}>
                 <div className="space-y-4">
                   {parseError ? (
                     <p className="text-destructive text-sm">{parseError}</p>
@@ -268,7 +299,7 @@ export function SeoContentPage() {
                       )}
                     </div>
                   </div>
-                  {generated && paid ? (
+                  {generated ? (
                     <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"

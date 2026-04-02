@@ -2,7 +2,7 @@ import { Fragment, useMemo, useState } from 'react'
 
 import { useMutation, useQuery } from '@tanstack/react-query'
 
-import { postAiChat } from '@/api/ai'
+import { isQuotaExceededApiError, postAiChat } from '@/api/ai'
 import { fetchMonitoringRows } from '@/api/monitoring'
 import type { MonitoringRow } from '@/api/types'
 import { ChartWrapper } from '@/components/charts/ChartWrapper'
@@ -18,8 +18,10 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ToolErrorBoundary } from '@/components/tools/ToolErrorBoundary'
+import { PremiumToolGate } from '@/components/tools/PremiumToolGate'
 import { useLocaleFormat } from '@/hooks/useLocaleFormat'
 import { useTranslation } from '@/hooks/useTranslation'
+import { formatQuotaResetAt, sanitizeUpgradeUrl } from '@/lib/quota'
 import {
   buildReturnsHeatmap,
   buildReturnsTrendSeries,
@@ -28,6 +30,7 @@ import {
   type ReturnsInsightRow,
 } from '@/lib/returnsForecast'
 import { useSessionStore } from '@/stores/sessionStore'
+import { useUiStore } from '@/stores/uiStore'
 import {
   Brush,
   CartesianGrid,
@@ -43,7 +46,10 @@ export function ReturnsForecastPage() {
   const { t } = useTranslation()
   const { formatPercent } = useLocaleFormat()
   const token = useSessionStore((s) => s.token)
-  const paid = useSessionStore((s) => s.tier) === 'paid'
+  const quotaState = useUiStore((s) => s.quotaState)
+  const setQuotaState = useUiStore((s) => s.setQuotaState)
+  const clearQuotaState = useUiStore((s) => s.clearQuotaState)
+  const setUsageState = useUiStore((s) => s.setUsageState)
 
   const query = useQuery({
     queryKey: ['monitoring', 'products'],
@@ -79,10 +85,22 @@ export function ReturnsForecastPage() {
       })
     },
     onSuccess: (res) => {
+      clearQuotaState()
+      if (res.quota_usage) setUsageState(res.quota_usage)
       const parsed = parseReturnsInsightsJson(res.content)
       setAiRows(parsed)
     },
+    onError: (error) => {
+      if (isQuotaExceededApiError(error)) {
+        setQuotaState(error.quota)
+        setUsageState({ used: error.quota.used, limit: error.quota.limit })
+      }
+    },
   })
+  const quotaLocked = quotaState != null
+  const resetAtLabel = quotaState
+    ? formatQuotaResetAt(quotaState.resets_at_utc, navigator.language)
+    : null
 
   const displayRows = useMemo(() => {
     const base = defaultHighRiskRows(products)
@@ -153,131 +171,150 @@ export function ReturnsForecastPage() {
           </div>
         </ChartWrapper>
 
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader>
-            <CardTitle>{t('tools.returns_heatmap_title')}</CardTitle>
-            <CardDescription>{t('tools.returns_heatmap_desc')}</CardDescription>
-          </CardHeader>
-          <CardContent className="overflow-x-auto">
-            <div
-              className="grid gap-1"
-              style={{
-                gridTemplateColumns: `minmax(140px,1fr) repeat(${6}, minmax(36px,1fr))`,
-              }}
-            >
-              <div />
-              {['W1', 'W2', 'W3', 'W4', 'W5', 'W6'].map((w) => (
+        <PremiumToolGate locked={quotaLocked} quotaExceeded={quotaState}>
+          <div className="space-y-6">
+            <Card className="border-border/80 shadow-sm">
+              <CardHeader>
+                <CardTitle>{t('tools.returns_heatmap_title')}</CardTitle>
+                <CardDescription>{t('tools.returns_heatmap_desc')}</CardDescription>
+              </CardHeader>
+              <CardContent className="overflow-x-auto">
                 <div
-                  key={w}
-                  className="text-muted-foreground text-center text-[10px] font-medium"
+                  className="grid gap-1"
+                  style={{
+                    gridTemplateColumns: `minmax(140px,1fr) repeat(${6}, minmax(36px,1fr))`,
+                  }}
                 >
-                  {w}
+                  <div />
+                  {['W1', 'W2', 'W3', 'W4', 'W5', 'W6'].map((w) => (
+                    <div
+                      key={w}
+                      className="text-muted-foreground text-center text-[10px] font-medium"
+                    >
+                      {w}
+                    </div>
+                  ))}
+                  {products.slice(0, 6).map((p) => (
+                    <Fragment key={p.id}>
+                      <div className="truncate py-1 text-xs font-medium" title={p.name}>
+                        {p.name}
+                      </div>
+                      {['W1', 'W2', 'W3', 'W4', 'W5', 'W6'].map((w) => {
+                        const cell = heatCells.find(
+                          (c) => c.row === p.name.slice(0, 24) && c.col === w,
+                        )
+                        const int = cell?.intensity ?? 0
+                        const alpha = 0.15 + (int / maxHeat) * 0.75
+                        return (
+                          <div
+                            key={`${p.id}-${w}`}
+                            className="h-8 rounded-sm border border-border/40"
+                            style={{
+                              backgroundColor: `hsl(var(--primary) / ${alpha.toFixed(2)})`,
+                            }}
+                            title={t('tools.returns_cell_hint', {
+                              product: p.name,
+                              week: w,
+                            })}
+                          />
+                        )
+                      })}
+                    </Fragment>
+                  ))}
                 </div>
-              ))}
-              {products.slice(0, 6).map((p) => (
-                <Fragment key={p.id}>
-                  <div className="truncate py-1 text-xs font-medium" title={p.name}>
-                    {p.name}
-                  </div>
-                  {['W1', 'W2', 'W3', 'W4', 'W5', 'W6'].map((w) => {
-                    const cell = heatCells.find(
-                      (c) => c.row === p.name.slice(0, 24) && c.col === w,
-                    )
-                    const int = cell?.intensity ?? 0
-                    const alpha = 0.15 + (int / maxHeat) * 0.75
-                    return (
-                      <div
-                        key={`${p.id}-${w}`}
-                        className="h-8 rounded-sm border border-border/40"
-                        style={{
-                          backgroundColor: `hsl(var(--primary) / ${alpha.toFixed(2)})`,
-                        }}
-                        title={t('tools.returns_cell_hint', {
-                          product: p.name,
-                          week: w,
-                        })}
-                      />
-                    )
-                  })}
-                </Fragment>
+              </CardContent>
+            </Card>
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="font-heading text-lg font-semibold">
+                {t('tools.returns_high_risk')}
+              </h2>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={quotaLocked || insightsMutation.isPending || !token}
+                onClick={() => insightsMutation.mutate()}
+              >
+                {insightsMutation.isPending
+                  ? t('tools.returns_ai_loading')
+                  : t('tools.returns_ai_refresh')}
+              </Button>
+            </div>
+            {quotaLocked ? (
+              <div>
+                <p className="text-muted-foreground text-xs">{t('tools.quota_exhausted_gate')}</p>
+                <a
+                  href={sanitizeUpgradeUrl(quotaState.upgrade_url)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary mt-1 inline-block text-xs font-medium underline underline-offset-4"
+                >
+                  {t('tools.upgrade_cta')}
+                </a>
+                {resetAtLabel ? (
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    {t('tools.quota_resets_at', { time: resetAtLabel })}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
+            <Card className="border-border/80 shadow-sm">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('tools.returns_col_product')}</TableHead>
+                      <TableHead>{t('tools.returns_col_reasons')}</TableHead>
+                      <TableHead>{t('tools.returns_col_actions')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {displayRows.map((row) => (
+                      <TableRow key={row.productId}>
+                        <TableCell className="max-w-[200px] font-medium">
+                          {row.productName}
+                        </TableCell>
+                        <TableCell>
+                          <ul className="text-muted-foreground list-inside list-disc text-sm">
+                            {row.reasons.map((r) => (
+                              <li key={r}>{r}</li>
+                            ))}
+                          </ul>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            {row.recommendations.map((r) => (
+                              <Badge key={r} variant="secondary" className="w-fit font-normal">
+                                {r}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <div className="flex flex-wrap gap-2">
+              <span className="text-muted-foreground text-xs">{t('tools.returns_pick_series')}</span>
+              {products.map((p: MonitoringRow) => (
+                <Button
+                  key={p.id}
+                  type="button"
+                  size="sm"
+                  variant={trendProductId === p.id ? 'default' : 'outline'}
+                  onClick={() => setSelectedId(p.id)}
+                >
+                  {p.name}
+                </Button>
               ))}
             </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-heading text-lg font-semibold">
-            {t('tools.returns_high_risk')}
-          </h2>
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            disabled={!paid || insightsMutation.isPending || !token}
-            onClick={() => insightsMutation.mutate()}
-          >
-            {insightsMutation.isPending
-              ? t('tools.returns_ai_loading')
-              : t('tools.returns_ai_refresh')}
-          </Button>
-        </div>
-        {!paid ? (
-          <p className="text-muted-foreground text-xs">{t('tools.returns_free_hint')}</p>
-        ) : null}
-
-        <Card className="border-border/80 shadow-sm">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('tools.returns_col_product')}</TableHead>
-                  <TableHead>{t('tools.returns_col_reasons')}</TableHead>
-                  <TableHead>{t('tools.returns_col_actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {displayRows.map((row) => (
-                  <TableRow key={row.productId}>
-                    <TableCell className="max-w-[200px] font-medium">
-                      {row.productName}
-                    </TableCell>
-                    <TableCell>
-                      <ul className="text-muted-foreground list-inside list-disc text-sm">
-                        {row.reasons.map((r) => (
-                          <li key={r}>{r}</li>
-                        ))}
-                      </ul>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        {row.recommendations.map((r) => (
-                          <Badge key={r} variant="secondary" className="w-fit font-normal">
-                            {r}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-wrap gap-2">
-          <span className="text-muted-foreground text-xs">{t('tools.returns_pick_series')}</span>
-          {products.map((p: MonitoringRow) => (
-            <Button
-              key={p.id}
-              type="button"
-              size="sm"
-              variant={trendProductId === p.id ? 'default' : 'outline'}
-              onClick={() => setSelectedId(p.id)}
-            >
-              {p.name}
-            </Button>
-          ))}
-        </div>
+          </div>
+        </PremiumToolGate>
       </div>
     </ToolErrorBoundary>
   )

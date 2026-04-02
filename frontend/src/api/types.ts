@@ -35,9 +35,30 @@ export type ChatCompletionResult = {
   model_used: string
   warnings: string[]
   usage: TokenUsage | null
+  quota_usage?: QuotaUsageSnapshot | null
 }
 
 export type NicheAnalysisResult = {
   matches: Record<string, unknown>[]
   summary: string | null
+  quota_usage?: QuotaUsageSnapshot | null
+}
+
+export type QuotaExceededError = {
+  code: 'daily_quota_exceeded'
+  message: string
+  used: number
+  limit: number
+  resets_at_utc: string
+  upgrade_url: string
+}
+
+export type ApiErrorCode =
+  | 'daily_quota_exceeded'
+  | 'quota_backend_unavailable'
+  | 'unknown'
+
+export type QuotaUsageSnapshot = {
+  used: number
+  limit: number
 }
