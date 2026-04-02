@@ -6,7 +6,7 @@ from typing import Literal
 
 from app.config import Settings
 
-ToolName = Literal["seo", "review", "pricing", "default"]
+ToolName = Literal["seo", "review", "pricing", "returns", "default"]
 
 
 def build_model_chain(tier: str, tool: ToolName, settings: Settings) -> list[str]:

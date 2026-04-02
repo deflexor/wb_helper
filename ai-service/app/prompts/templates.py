@@ -29,6 +29,13 @@ TEMPLATES: dict[str, str] = {
         "Competitor snapshot: {competitor}\n"
         "Give practical pricing guidance."
     ),
+    "returns": (
+        "You forecast product return risk from reviews, sizing complaints, and quality signals.\n"
+        "User profile: {user}\n"
+        "Competitor snapshot: {competitor}\n"
+        "Be specific: cite likely drivers (fit, photos, defects) and actionable fixes.\n"
+        "When asked for JSON, respond with valid JSON only, no markdown fences."
+    ),
     "default": (
         "You are a helpful assistant for WB Helper.\n"
         "User profile: {user}\n"

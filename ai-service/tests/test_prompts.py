@@ -17,6 +17,11 @@ def test_missing_context_keys_are_empty() -> None:
     assert "User profile:" in text
 
 
+def test_returns_prompt_includes_json_hint() -> None:
+    text = build_system_prompt("returns", {"user": "u", "competitor": "c"})
+    assert "return" in text.lower() or "JSON" in text
+
+
 def test_build_messages_prepends_system() -> None:
     msgs = build_messages_for_tool(
         "pricing",

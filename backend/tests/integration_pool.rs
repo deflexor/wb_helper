@@ -45,6 +45,8 @@ async fn state_from_urls() -> Arc<AppState> {
         limits: backend::state::SubscriptionLimits::default(),
         wb_rates: Arc::new(MarketplaceRateConfig::default()),
         ozon_rates: Arc::new(MarketplaceRateConfig::default()),
+        ai_service_url: None,
+        ai_service_internal_key: None,
     })
 }
 

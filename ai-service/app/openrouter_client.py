@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Literal
 
 import httpx
@@ -17,6 +18,12 @@ def classify_http_status(status_code: int) -> Classification:
     if status_code in (408, 429) or 500 <= status_code < 600:
         return "retry"
     return "fatal"
+
+
+@dataclass(frozen=True)
+class ChatCompletionOutcome:
+    content: str
+    usage: dict[str, int] | None = None
 
 
 class OpenRouterHttpError(Exception):
@@ -40,13 +47,24 @@ def _headers(settings: Settings) -> dict[str, str]:
     return h
 
 
+def _normalize_usage(raw: Any) -> dict[str, int] | None:
+    if not isinstance(raw, dict):
+        return None
+    out: dict[str, int] = {}
+    for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+        v = raw.get(key)
+        if isinstance(v, int) and v >= 0:
+            out[key] = v
+    return out or None
+
+
 async def fetch_chat_completion(
     client: httpx.AsyncClient,
     settings: Settings,
     *,
     model: str,
     messages: list[dict[str, Any]],
-) -> str:
+) -> ChatCompletionOutcome:
     url = f"{settings.openrouter_base_url.rstrip('/')}/chat/completions"
     try:
         r = await client.post(
@@ -68,7 +86,8 @@ async def fetch_chat_completion(
     msg = (choices[0].get("message") or {}).get("content")
     if msg is None:
         raise OpenRouterHttpError(502, "missing message content")
-    return str(msg)
+    usage = _normalize_usage(data.get("usage"))
+    return ChatCompletionOutcome(content=str(msg), usage=usage)
 
 
 async def fetch_embeddings(

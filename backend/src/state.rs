@@ -31,6 +31,9 @@ pub struct AppState {
     pub limits: SubscriptionLimits,
     pub wb_rates: Arc<MarketplaceRateConfig>,
     pub ozon_rates: Arc<MarketplaceRateConfig>,
+    /// Base URL for the Python AI service (e.g. `http://127.0.0.1:8000`). When unset, AI proxy routes return 503.
+    pub ai_service_url: Option<String>,
+    pub ai_service_internal_key: Option<String>,
 }
 
 impl AppState {

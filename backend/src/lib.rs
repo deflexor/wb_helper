@@ -11,6 +11,7 @@ use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 
 pub mod ai_contract;
+pub mod ai_proxy;
 pub mod auth;
 pub mod cache;
 pub mod marketplace;
@@ -45,6 +46,8 @@ pub fn create_app(state: Arc<AppState>) -> Router<()> {
         .route("/keys", post(handlers::create_api_key))
         .route("/credentials", get(sync::list_credentials).post(sync::upsert_credential))
         .route("/sync", post(sync::run_sync))
+        .route("/ai/chat", post(ai_proxy::proxy_chat))
+        .route("/ai/niche", post(ai_proxy::proxy_niche))
         .route_layer(from_fn_with_state(auth_state, jwt_auth_middleware));
 
     Router::new()
@@ -108,6 +111,15 @@ pub async fn app_state_from_env() -> Result<Arc<AppState>, std::io::Error> {
         .build()
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
+    let ai_service_url = std::env::var("AI_SERVICE_URL")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty());
+    let ai_service_internal_key = std::env::var("AI_SERVICE_INTERNAL_KEY")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty());
+
     Ok(Arc::new(AppState {
         pool,
         jwt,
@@ -116,6 +128,8 @@ pub async fn app_state_from_env() -> Result<Arc<AppState>, std::io::Error> {
         limits: state::SubscriptionLimits::default(),
         wb_rates,
         ozon_rates,
+        ai_service_url,
+        ai_service_internal_key,
     }))
 }
 
@@ -140,6 +154,8 @@ mod tests {
             limits: state::SubscriptionLimits::default(),
             wb_rates: Arc::new(MarketplaceRateConfig::default()),
             ozon_rates: Arc::new(MarketplaceRateConfig::default()),
+            ai_service_url: None,
+            ai_service_internal_key: None,
         });
         let _ = create_app(state);
     }

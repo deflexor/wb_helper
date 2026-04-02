@@ -21,6 +21,7 @@ from app.schemas import (
     EmbeddingResponse,
     NicheAnalysisRequest,
     NicheAnalysisResponse,
+    TokenUsage,
     VectorSearchRequest,
     VectorSearchResponse,
     VectorUpsertRequest,
@@ -83,11 +84,20 @@ async def chat_completions(body: ChatCompletionRequest, request: Request) -> Cha
             status_code=502,
             detail={"message": str(e), "events": e.events},
         ) from e
+    usage: TokenUsage | None = None
+    if result.usage:
+        usage = TokenUsage(
+            prompt_tokens=int(result.usage.get("prompt_tokens", 0)),
+            completion_tokens=int(result.usage.get("completion_tokens", 0)),
+            total_tokens=int(result.usage.get("total_tokens", 0)),
+        )
+
     return ChatCompletionResponse(
         content=result.content,
         model_used=result.model_used,
         warnings=result.warnings,
         events=result.events,
+        usage=usage,
     )
 
 

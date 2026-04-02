@@ -49,7 +49,14 @@ def test_v1_chat_completions_success(monkeypatch) -> None:
     respx.post("https://openrouter.ai/api/v1/chat/completions").mock(
         return_value=httpx.Response(
             200,
-            json={"choices": [{"message": {"content": "done"}}]},
+            json={
+                "choices": [{"message": {"content": "done"}}],
+                "usage": {
+                    "prompt_tokens": 1,
+                    "completion_tokens": 2,
+                    "total_tokens": 3,
+                },
+            },
         )
     )
 
@@ -67,3 +74,5 @@ def test_v1_chat_completions_success(monkeypatch) -> None:
     data = r.json()
     assert data["content"] == "done"
     assert data["model_used"] == "m1"
+    assert data.get("usage") is not None
+    assert data["usage"]["total_tokens"] == 3

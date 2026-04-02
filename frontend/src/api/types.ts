@@ -23,3 +23,21 @@ export type MonitoringRow = {
   status: 'high_risk' | 'optimal'
   updatedAt: string
 }
+
+export type TokenUsage = {
+  prompt_tokens: number
+  completion_tokens: number
+  total_tokens: number
+}
+
+export type ChatCompletionResult = {
+  content: string
+  model_used: string
+  warnings: string[]
+  usage: TokenUsage | null
+}
+
+export type NicheAnalysisResult = {
+  matches: Record<string, unknown>[]
+  summary: string | null
+}

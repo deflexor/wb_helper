@@ -26,3 +26,23 @@ export async function apiPostJson<TResponse>(
   }
   return res.json() as Promise<TResponse>
 }
+
+export async function apiPostJsonAuth<TResponse>(
+  path: string,
+  body: unknown,
+  token: string,
+): Promise<TResponse> {
+  const url = `${API_PREFIX}${path}`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    throw new Error(await parseError(res))
+  }
+  return res.json() as Promise<TResponse>
+}

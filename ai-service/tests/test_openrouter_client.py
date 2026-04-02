@@ -30,17 +30,27 @@ async def test_fetch_chat_completion_parses_message() -> None:
             json={
                 "choices": [{"message": {"role": "assistant", "content": "hello"}}],
                 "model": "x",
+                "usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 3,
+                    "total_tokens": 13,
+                },
             },
         )
     )
     async with httpx.AsyncClient() as client:
-        text = await fetch_chat_completion(
+        out = await fetch_chat_completion(
             client,
             settings,
             model="m1",
             messages=[{"role": "user", "content": "hi"}],
         )
-    assert text == "hello"
+    assert out.content == "hello"
+    assert out.usage == {
+        "prompt_tokens": 10,
+        "completion_tokens": 3,
+        "total_tokens": 13,
+    }
     assert route.called
 
 

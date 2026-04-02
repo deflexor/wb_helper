@@ -24,6 +24,7 @@ class ChatOrchestrationResult:
     model_used: str
     warnings: list[str] = field(default_factory=list)
     events: list[dict[str, Any]] = field(default_factory=list)
+    usage: dict[str, int] | None = None
 
 
 class AllModelsFailedError(Exception):
@@ -90,7 +91,7 @@ async def run_chat_orchestration(
 
         for attempt in range(settings.chat_max_retries):
             try:
-                content = await fetch_chat_completion(
+                outcome = await fetch_chat_completion(
                     client,
                     settings,
                     model=model,
@@ -104,10 +105,11 @@ async def run_chat_orchestration(
                     attempt + 1,
                 )
                 return ChatOrchestrationResult(
-                    content=content,
+                    content=outcome.content,
                     model_used=model,
                     warnings=warnings,
                     events=events,
+                    usage=outcome.usage,
                 )
             except OpenRouterHttpError as e:
                 last_err = str(e)

@@ -9,9 +9,15 @@ from pydantic import BaseModel, Field
 
 class ChatCompletionRequest(BaseModel):
     subscription_tier: Literal["free", "paid"]
-    tool: Literal["seo", "review", "pricing", "default"]
+    tool: Literal["seo", "review", "pricing", "returns", "default"]
     messages: list[dict[str, Any]]
     context: dict[str, Any] = Field(default_factory=dict)
+
+
+class TokenUsage(BaseModel):
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
 
 
 class ChatCompletionResponse(BaseModel):
@@ -19,6 +25,7 @@ class ChatCompletionResponse(BaseModel):
     model_used: str
     warnings: list[str] = Field(default_factory=list)
     events: list[dict[str, Any]] = Field(default_factory=list)
+    usage: TokenUsage | None = None
 
 
 class EmbeddingRequest(BaseModel):

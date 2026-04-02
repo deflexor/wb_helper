@@ -1,6 +1,7 @@
 import type { MonitoringRow } from '@/api/types'
 
-const MOCK: MonitoringRow[] = [
+/** Sample catalog rows (shared by monitoring + advanced tools). */
+export const MONITORING_SAMPLE_PRODUCTS: MonitoringRow[] = [
   {
     id: '1',
     name: 'Thermal mug 500ml',
@@ -35,5 +36,5 @@ const MOCK: MonitoringRow[] = [
 
 export async function fetchMonitoringRows(): Promise<MonitoringRow[]> {
   await new Promise((r) => setTimeout(r, 450))
-  return structuredClone(MOCK)
+  return structuredClone(MONITORING_SAMPLE_PRODUCTS)
 }
