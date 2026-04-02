@@ -1,6 +1,9 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173'
+// Dedicated port avoids clashing with unrelated Vite apps on 5173 when reusing a dev server.
+const e2ePort = process.env.PLAYWRIGHT_E2E_PORT ?? '5174'
+const baseURL =
+  process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${e2ePort}`
 
 export default defineConfig({
   testDir: '.',
@@ -14,7 +17,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5173',
+    command: `npm run dev -- --host 127.0.0.1 --port ${e2ePort}`,
     cwd: '../../frontend',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
