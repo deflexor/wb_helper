@@ -1,0 +1,55 @@
+cabal-version:      3.0
+name:                wbhelper
+version:            0.1.0.0
+synopsis:           Marketplace Seller Optimizer (WB/Ozon)
+description:         Haskell backend for seller optimization
+license:             MIT
+author:              dfr
+build-type:          Simple
+
+common shared
+  default-language:  GHC2021
+  ghc-options:
+    -Wall
+    -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+  build-depends:
+    base >= 4.17 && < 5
+
+library
+  import:           shared
+  exposed-modules:
+    Config
+    App
+    App.Hello
+  other-modules:
+    Main
+  hs-source-dirs:   src
+  build-depends:
+    effectful
+    , lens
+    , aeson
+    , text
+    , bytestring
+
+executable wbhelper
+  import:           shared
+  main-is:          Main.hs
+  hs-source-dirs:   src
+  build-depends:
+    wbhelper
+    , effectful
+    , text
+    , bytestring
+    , aeson
+
+test-suite spec
+  import:           shared
+  type:             exitcode-stdio-1.0
+  main-is:          Spec.hs
+  hs-source-dirs:   test
+  build-depends:
+    wbhelper
+    , hspec
+    , aeson
+    , text
