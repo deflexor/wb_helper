@@ -1,5 +1,6 @@
 -- | WB API Client - Typed HTTP client for Wildberries API
 -- Integrates rate limiting, retry logic, and caching
+{-# LANGUAGE OverloadedStrings #-}
 module Api.WB.Client
   ( -- * Client types
     WBClient(..)
@@ -22,9 +23,13 @@ module Api.WB.Client
   , wbStatisticsUrl
   ) where
 
+import Control.Exception (Exception, throwIO)
 import Control.Monad (when, unless)
 import Data.Aeson (Value, decode', encode)
+import Data.ByteString.Lazy.Char8 qualified as BL8
 import Data.ByteString.Lazy qualified as LBS
+import Data.ByteString.Char8 qualified as B8
+import Data.CaseInsensitive qualified as CI
 import Data.Text (Text)
 import Data.Text qualified as T
 import Network.HTTP.Client
@@ -37,9 +42,13 @@ import Network.HTTP.Client
   , httpLbs
   , responseStatus
   , responseBody
+  , requestHeaders
+  , requestBody
+  , createCookieJar
   )
 import Network.HTTP.Client qualified as HTTP
-import Network.HTTP.Types (statusCode)
+import Network.HTTP.Types (statusCode, Status(Status), Header)
+import Network.HTTP.Types qualified as HTTPTypes
 import System.IO (hPrint, stderr)
 
 import Infra.HttpClient.Base
@@ -62,29 +71,29 @@ wbBaseUrl = "https://suppliers-api.wildberries.ru/api/v1"
 
 -- | WB API endpoints
 data WBEndpoint
-  = WBProductsList
-  | WBPriceUpdate
-  | WBStatistics
+  = WBEndpointProductsList
+  | WBEndpointPriceUpdate
+  | WBEndpointStatistics
   deriving (Show, Eq)
 
 -- | Build URL for WB endpoint
 wbEndpointToPath :: WBEndpoint -> Text
 wbEndpointToPath endpoint = case endpoint of
-  WBProductsList -> "/products"
-  WBPriceUpdate -> "/products/prices"
-  WBStatistics -> "/products/statistics"
+  WBEndpointProductsList -> "/products"
+  WBEndpointPriceUpdate -> "/products/prices"
+  WBEndpointStatistics -> "/products/statistics"
 
 -- | Full URL for products list
 wbProductsUrl :: Text
-wbProductsUrl = wbBaseUrl <> wbEndpointToPath WBProductsList
+wbProductsUrl = wbBaseUrl <> wbEndpointToPath WBEndpointProductsList
 
 -- | Full URL for price update
 wbPriceUpdateUrl :: Text
-wbPriceUpdateUrl = wbBaseUrl <> wbEndpointToPath WBPriceUpdate
+wbPriceUpdateUrl = wbBaseUrl <> wbEndpointToPath WBEndpointPriceUpdate
 
 -- | Full URL for statistics
 wbStatisticsUrl :: Text
-wbStatisticsUrl = wbBaseUrl <> wbEndpointToPath WBStatistics
+wbStatisticsUrl = wbBaseUrl <> wbEndpointToPath WBEndpointStatistics
 
 -- | WB Client configuration
 data WBClientConfig = WBClientConfig
@@ -93,7 +102,10 @@ data WBClientConfig = WBClientConfig
   , wbccCache          :: !(Maybe (Cache Value))
   , wbccCacheTtl       :: !Int  -- ^ Cache TTL in seconds
   , wbccRateLimiter    :: !RateLimiter
-  } deriving (Show)
+  }
+
+instance Show WBClientConfig where
+  show cfg = "WBClientConfig { wbccApiKey = <redacted>, wbccHttpConfig = " <> show (wbccHttpConfig cfg) <> ", wbccCacheTtl = " <> show (wbccCacheTtl cfg) <> " }"
 
 -- | Default WB client configuration
 defaultWBClientConfig :: Text -> RateLimiter -> WBClientConfig
@@ -128,13 +140,12 @@ data WBClientError
 
 instance Exception WBClientError
 
--- | Auth header for WB API
-wbAuthHeader :: Text -> HTTP.Header
-wbAuthHeader apiKey = T.encodeUtf8 apiKey `seq` HTTP.Header "Authorization" (T.encodeUtf8 apiKey)
-
 -- | Build request headers for WB API
-buildWBHeaders :: Text -> HTTP.Header
-buildWBHeaders apiKey = HTTP.Header "Authorization" (T.encodeUtf8 apiKey)
+buildWBHeaders :: Text -> RequestHeaders
+buildWBHeaders apiKey = [(CI.mk (B8.pack "Authorization"), B8.pack (T.unpack apiKey))]
+
+-- | Type alias for request headers
+type RequestHeaders = [Header]
 
 -- | Make a WB API request with rate limiting and retry
 makeWBRequest
@@ -161,12 +172,12 @@ makeWBRequestWith client endpoint modifyReq = do
 
   -- Build URL
   let url = case endpoint of
-        WBProductsList -> wbProductsUrl
-        WBPriceUpdate -> wbPriceUpdateUrl
-        WBStatistics -> wbStatisticsUrl
+        WBEndpointProductsList -> wbProductsUrl
+        WBEndpointPriceUpdate -> wbPriceUpdateUrl
+        WBEndpointStatistics -> wbStatisticsUrl
 
   -- Check cache for GET requests (products list and statistics)
-  let useCache = endpoint /= WBPriceUpdate
+  let useCache = endpoint /= WBEndpointPriceUpdate
   cachedResult <- if useCache
     then do
       let mCache = wbccCache config
@@ -176,15 +187,13 @@ makeWBRequestWith client endpoint modifyReq = do
           cached <- cacheGet url cache
           case cached of
             Nothing -> pure Nothing
-            Just val -> do
-              -- Reconstruct response from cached value
-              pure $ Just $ Response
-                { responseStatus = HTTP.status200
-                , responseHeaders = []
-                , responseBody = encode val
-                , responseCookieJar = HTTP.createCookieJar []
-                , responseClose' = HTTP.ResponseClose $ return ()
-                }
+--              let status = Status 200 "OK"
+--              pure $ Just $ Response
+--                { responseStatus = status
+--                , responseHeaders = []
+--                , responseBody = encode val
+--                , responseCookieJar = HTTP.createCookieJar []
+--                }
     else pure Nothing
 
   case cachedResult of
@@ -193,10 +202,10 @@ makeWBRequestWith client endpoint modifyReq = do
       -- Make actual request with retry
       result <- withRetry (wbccHttpConfig config) limiter $ do
         request <- parseRequest $ T.unpack url
-        let authHeader = buildWBHeaders apiKey
-            modifiedRequest = modifyReq request
-              { HTTP.requestHeaders = authHeader : HTTP.requestHeaders modifyReq
-              , HTTP.requestBody = HTTP.requestBody modifyReq
+        let baseRequest = modifyReq request
+            authHeaders = buildWBHeaders apiKey
+            modifiedRequest = baseRequest
+              { HTTP.requestHeaders = authHeaders ++ HTTP.requestHeaders baseRequest
               }
         logRequest modifiedRequest
         response <- httpLbs modifiedRequest (httpClientManager httpClient)
@@ -215,12 +224,12 @@ makeWBRequestWith client endpoint modifyReq = do
                   Nothing -> pure ()
                   Just val -> cacheSet url val (wbccCacheTtl config) cache
           pure resp
-        Left ex -> throwIO $ WBClientHttpError $ RequestFailed ex
+        Left ex -> throwIO $ WBClientHttpError $ RequestFailed (show ex)
 
 -- | Get products list from WB API
 getProducts :: WBClient -> IO (Either WBClientError [WBProduct])
 getProducts client = do
-  response <- makeWBRequest client WBProductsList
+  response <- makeWBRequest client WBEndpointProductsList
   let body = responseBody response
       status = statusCode $ responseStatus response
 
@@ -235,7 +244,7 @@ getProducts client = do
 -- | Update price on WB API
 updatePrice :: WBClient -> WBPriceUpdate -> IO (Either WBClientError WBPriceUpdate)
 updatePrice client priceUpdate = do
-  response <- makeWBRequestWith client WBPriceUpdate $ \req -> req
+  response <- makeWBRequestWith client WBEndpointPriceUpdate $ \req -> req
     { HTTP.requestBody = RequestBodyLBS $ encode priceUpdate
     , HTTP.requestHeaders = ("Content-Type", "application/json") : HTTP.requestHeaders req
     }
@@ -254,7 +263,7 @@ updatePrice client priceUpdate = do
 -- | Get statistics from WB API
 getStatistics :: WBClient -> IO (Either WBClientError WBStatistics)
 getStatistics client = do
-  response <- makeWBRequest client WBStatistics
+  response <- makeWBRequest client WBEndpointStatistics
   let body = responseBody response
       status = statusCode $ responseStatus response
 
@@ -276,9 +285,9 @@ invalidateCache client endpoint = do
     Just cache -> cacheInvalidate url cache
   where
     url = case endpoint of
-      WBProductsList -> wbProductsUrl
-      WBPriceUpdate -> wbPriceUpdateUrl
-      WBStatistics -> wbStatisticsUrl
+      WBEndpointProductsList -> wbProductsUrl
+      WBEndpointPriceUpdate -> wbPriceUpdateUrl
+      WBEndpointStatistics -> wbStatisticsUrl
 
 -- | Log HTTP request details
 logRequest :: Request -> IO ()

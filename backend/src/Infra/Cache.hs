@@ -27,7 +27,7 @@ newtype Cache a = Cache (TVar (Map Text (CachedValue a)))
 
 -- | Create a new empty cache
 newCache :: IO (Cache a)
-newCache = Cache <$> atomically (Map.empty >>= newTVar)
+newCache = Cache <$> atomically (newTVar Map.empty)
 
 -- | Get a value from the cache
 --

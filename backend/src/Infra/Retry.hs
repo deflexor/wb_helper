@@ -9,12 +9,12 @@ module Infra.Retry
   , retryWithBackoff
   ) where
 
-import Network.HTTP.Client
-  ( HttpException(..)
-  , ResponseTimeout(..)
-  )
+import Network.HTTP.Client (HttpException(..))
+import Network.HTTP.Client qualified as HTTP
+import Network.HTTP.Types (Status, statusCode)
 import System.Random (randomRIO)
 import Control.Concurrent (threadDelay)
+import Control.Exception (try, SomeException(..), fromException)
 
 -- | Configuration for retry behavior
 data RetryConfig = RetryConfig
@@ -44,23 +44,22 @@ calculateDelays config
     exponentialDelays :: [Int]
     exponentialDelays = map (min (rcMaxDelay config)) $ iterate (*2) (rcBaseDelay config)
 
--- | Check if an HttpException represents a transient failure that should be retried
-isRetryable :: HttpException -> Bool
-isRetryable ex = case ex of
-  StatusCodeException status _ _ ->
-    let code = statusCode status
+-- | Check if a SomeException wraps an HttpException that represents a transient failure
+--   Note: Only matches on universally available constructors in http-client
+isRetryable :: SomeException -> Bool
+isRetryable e = case fromException e of
+  Just (HTTP.HttpExceptionRequest _ (HTTP.StatusCodeException resp _)) ->
+    let code = statusCode (HTTP.responseStatus resp)
     in code >= 500 && code < 600  -- 5xx errors are retryable
-  ResponseTimeout -> True
-  ConnectionError _ -> True
-  InvalidStatusCode _ -> True
+  Just (HTTP.HttpExceptionRequest _ HTTP.ResponseTimeout) -> True
   _ -> False
 
 -- | Apply jitter to a delay value
 --   Jitter spreads retry attempts to avoid thundering herd
 --   Returns a delay in range [delay * (1-jitter), delay * (1+jitter)]
-applyJitter :: Int -> Double -> Int
+applyJitter :: Int -> Double -> IO Int
 applyJitter delay jitter
-  | jitter <= 0 = delay
+  | jitter <= 0 = pure delay
   | jitter >= 1 = do
       -- Full jitter: [0, 2*delay]
       factor <- randomRIO (0.0, 2.0 :: Double)
@@ -81,7 +80,7 @@ retryConfigValid config
   | otherwise = True
 
 -- | Retry an IO action with exponential backoff
-retryWithBackoff :: RetryConfig -> IO a -> IO (Either HttpException a)
+retryWithBackoff :: RetryConfig -> IO a -> IO (Either SomeException a)
 retryWithBackoff config action = go 0
   where
     delays = calculateDelays config

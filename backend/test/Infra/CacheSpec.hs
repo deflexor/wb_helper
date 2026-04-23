@@ -1,8 +1,10 @@
 -- | Tests for Cache infrastructure
+{-# LANGUAGE OverloadedStrings #-}
 module Infra.CacheSpec where
 
 import Test.Hspec
 import Data.Time (UTCTime, getCurrentTime, addUTCTime, diffUTCTime)
+import Data.Text (Text)
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (async, wait)
 import Control.Monad (forM_, replicateM)

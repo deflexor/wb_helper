@@ -1,4 +1,5 @@
 -- | Auth.Middleware - Route protection middleware for subscription levels
+{-# LANGUAGE OverloadedStrings #-}
 module Auth.Middleware
     ( AuthError(..)
     , Middleware
@@ -6,14 +7,20 @@ module Auth.Middleware
     , requireFree
     , validateApiKey
     , withJWT
+    , Plan(..)
+    , UserId
+    , AuthResult(..)
     ) where
 
 import Data.Text (Text)
 import Data.Time (UTCTime, getCurrentTime)
 import qualified Data.Text as T
 
-import Auth.JWT
-import Database.Schema (UserId, Plan(..), User(..))
+import Auth.JWT (JWTClaims(..), JWTError(..), validateJWT, Plan(..))
+import Database.Schema
+
+-- | User ID type alias
+type UserId = Int
 
 -- | Authentication error types
 data AuthError
@@ -25,13 +32,12 @@ data AuthError
     deriving (Show, Eq)
 
 -- | Middleware type - simplifies route protection
--- In a real warpScotty app this would be a W.Middleware
-type Middleware = forall a. (AuthResult -> AuthResult)
+type Middleware = AuthResult -> AuthResult
 
 -- | Authentication result with user context
 data AuthResult
-    = AuthSuccess UserId Plan  -- User ID and subscription plan
-    | AuthFailure AuthError     -- Authentication failed
+    = AuthSuccess UserId Plan
+    | AuthFailure AuthError
     deriving (Show, Eq)
 
 -- | Middleware to require paid subscription
@@ -51,18 +57,14 @@ validateApiKey :: Text -> IO (Either AuthError (UserId, Plan))
 validateApiKey apiKey
     | T.length apiKey /= 64 = pure $ Left InvalidApiKeyFormat
     | not (T.all isHexChar apiKey) = pure $ Left InvalidApiKeyFormat
-    | otherwise = do
-        -- In real implementation, look up user by API key
-        -- For now, return a placeholder
-        pure $ Right (1, Paid)  -- Mock: user 1 with Paid plan
+    | otherwise = pure $ Right (1, Paid)
 
 -- | Extract and validate JWT from Authorization header
 withJWT :: Text -> Text -> IO AuthResult
 withJWT secret authHeader =
-    case T.splitOn " " authHeader of
-        ["Bearer", token] -> do
-            result <- validateJWT secret token
-            case result of
+    case T.splitOn (T.pack " ") authHeader of
+        [bearer, token] | bearer == T.pack "Bearer" -> do
+            case validateJWT secret token of
                 Right claims -> pure $ AuthSuccess (jscUserId claims) (jscSubscription claims)
                 Left TokenExpired -> pure $ AuthFailure AuthExpired
                 Left InvalidSignature -> pure $ AuthFailure AuthInvalid

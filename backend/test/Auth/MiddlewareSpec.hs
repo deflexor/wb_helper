@@ -1,9 +1,10 @@
 -- | Tests for Auth.Middleware - Route protection middleware
+{-# LANGUAGE OverloadedStrings #-}
 module Auth.MiddlewareSpec where
 
 import Test.Hspec
 import Data.Text (Text)
-import Data.Time (getCurrentTime, addHours)
+import Data.Time (getCurrentTime)
 
 import Auth.Middleware
 import Auth.JWT

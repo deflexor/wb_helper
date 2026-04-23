@@ -1,4 +1,5 @@
 -- | Marketplace Integration - Unified interface for WB and Ozon operations
+{-# LANGUAGE OverloadedStrings #-}
 module Integration.Marketplace
     ( -- * Marketplace clients
       MarketplaceClient(..)
@@ -25,8 +26,8 @@ import GHC.Generics (Generic)
 
 import Effect.AppEffect
 import Effect.Error
-import Database.Schema (UserId, ProductId, Marketplace(..), Plan(..))
-import Auth.JWT (UserId)
+import Database.Schema (Marketplace(..))
+import Auth.JWT (Plan(..), UserId)
 import Api.WB.Client (WBClient, getProducts, updatePrice)
 import Api.Ozon.Client (OzonClient, getProducts, updatePrices)
 import Domain.Margin (calcMargin, calcRequiredPrice)
@@ -41,15 +42,13 @@ data MarketplaceClient = MarketplaceClient
     { mcWBClient :: Maybe WBClient
     , mcOzonClient :: Maybe OzonClient
     , mcUserId :: UserId
-    } deriving (Show, Eq)
+    }
 
 -- | WB-specific integration client
 newtype WBMarketplaceClient = WBMarketplaceClient WBClient
-    deriving (Show, Eq)
 
 -- | Ozon-specific integration client
 newtype OzonMarketplaceClient = OzonMarketplaceClient OzonClient
-    deriving (Show, Eq)
 
 -- =============================================================================
 -- Product Types
@@ -104,7 +103,11 @@ data PriceGapAnalysis = PriceGapAnalysis
 
 -- | Build marketplace client for a user
 buildMarketplaceClient :: UserId -> Maybe WBClient -> Maybe OzonClient -> MarketplaceClient
-buildMarketplaceClient = MarketplaceClient
+buildMarketplaceClient userId mbClient moClient = MarketplaceClient
+    { mcWBClient = mbClient
+    , mcOzonClient = moClient
+    , mcUserId = userId
+    }
 
 -- | Execute operations with marketplace clients
 withMarketplaceClients
@@ -201,7 +204,7 @@ mockOzonProducts uid =
 syncProductPrices :: (AppE es) => MarketplaceClient -> [ProductPriceSync] -> Eff es [PriceUpdateResult]
 syncProductPrices client syncs = do
     results <- forM syncs $ \sync -> do
-        case productMarketplace sync of
+        case pssMarketplace sync of
             WB -> syncWBPrice client sync
             Ozon -> syncOzonPrice client sync
     pure results
@@ -294,7 +297,7 @@ compareMarketplacePrices client productId = do
     let product = filter (\p -> mpId p == productId) products
     case product of
         [] -> throwError $ NotFound "Product not found"
-        [p] -> pure $ analyzeProductGap p
+        [p] -> pure [analyzeProductGap p]
         ps -> pure $ map analyzeProductGap ps
   where
     analyzeProductGap :: MarketplaceProduct -> PriceGapAnalysis

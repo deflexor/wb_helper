@@ -1,4 +1,11 @@
 -- | Ozon API types
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
+-- | Ozon API types
+{-# LANGUAGE OverloadedStrings #-}
 module Api.Ozon.Types
   ( -- * Configuration
     OzonApiConfig(..)
@@ -20,10 +27,13 @@ module Api.Ozon.Types
   , renderOzonApiError
   ) where
 
+import Data.Aeson (ToJSON(..), FromJSON)
+import Data.Text qualified as T (Text, null, pack)
 import Data.Text (Text)
 import Data.Time (UTCTime)
-import Data.Decimal (Decimal)
-import Network.HTTP.Types (StdMethod)
+import Data.Int (Int64)
+import GHC.Exts (IsString(..))
+import GHC.Generics (Generic)
 
 -- | Ozon API configuration
 data OzonApiConfig = OzonApiConfig
@@ -36,9 +46,9 @@ data OzonApiConfig = OzonApiConfig
 -- | Validate Ozon API configuration
 ozonApiConfigValid :: OzonApiConfig -> Bool
 ozonApiConfigValid config
-  | null (oacClientId config) = False
-  | null (oacApiKey config) = False
-  | null (oacBaseUrl config) = False
+  | T.null (oacClientId config) = False
+  | T.null (oacApiKey config) = False
+  | T.null (oacBaseUrl config) = False
   | oacRateLimit config <= 0 = False
   | otherwise = True
 
@@ -50,30 +60,33 @@ data OzonAuth = OzonAuth
 
 -- | Ozon product from API
 data OzonProduct = OzonProduct
-  { opId :: Int64
+  { opId :: Int
   , opName :: Text
   , opCategory :: Text
-  , opPrice :: Decimal
-  , opCost :: Decimal
+  , opPrice :: Double
+  , opCost :: Double
   , opStock :: Int
   , opFboStock :: Int
   , opFbsStock :: Int
   , opVisible :: Bool
   , opSku :: Text
   , opOfferId :: Text
-  } deriving (Show, Eq)
+  } deriving (Show, Eq, Generic)
+    deriving anyclass ToJSON
 
 -- | Ozon price update
 data OzonPrice = OzonPrice
   { ozpOfferId :: Text
-  , ozpPrice :: Decimal
-  } deriving (Show, Eq)
+  , ozpPrice :: Double
+  } deriving (Show, Eq, Generic)
+    deriving anyclass ToJSON
 
 -- | Ozon stock information
 data OzonStock = OzonStock
   { ozsOfferId :: Text
   , ozsStock :: Int
-  } deriving (Show, Eq)
+  } deriving (Show, Eq, Generic)
+    deriving anyclass ToJSON
 
 -- | Ozon API endpoints
 data OzonEndpoint
@@ -103,12 +116,14 @@ data OzonProductsRequest = OzonProductsRequest
   , oprOffset :: Int
   , oprCategoryId :: Maybe Int64
   , oprVisibility :: Maybe Text
-  } deriving (Show, Eq)
+  } deriving (Show, Eq, Generic)
+    deriving anyclass ToJSON
 
 -- | Request to update prices
 data OzonPriceUpdateRequest = OzonPriceUpdateRequest
   { opurItems :: [OzonPrice]
-  } deriving (Show, Eq)
+  } deriving (Show, Eq, Generic)
+    deriving anyclass ToJSON
 
 -- | Ozon API errors
 data OzonApiError
@@ -131,7 +146,4 @@ renderOzonApiError err = case err of
   OzonParseError msg -> "Parse error: " <> msg
 
 tshow :: Show a => a -> Text
-tshow = Data.Text.pack . show
-
--- | Type aliases for clarity
-type Int64 = Int  -- Using Int for simplicity, can use Int64 if needed
+tshow = T.pack . show

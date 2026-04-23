@@ -1,4 +1,5 @@
 -- | Ozon API client with typed HTTP requests, rate limiting, retry, and caching
+{-# LANGUAGE OverloadedStrings #-}
 module Api.Ozon.Client
   ( -- * Client creation
     OzonClient(..)
@@ -17,17 +18,21 @@ module Api.Ozon.Client
   , ozonBaseUrl
   ) where
 
-import Control.Exception (Exception, bracket_, throwIO, try)
-import Control.Monad (unless)
+import Control.Exception (Exception, SomeException, bracket_, throwIO, try)
+import Control.Monad (unless, forM_)
 import Data.Aeson (encode, decode, FromJSON(parseJSON), ToJSON, Value)
-import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.ByteString.Lazy as BL (ByteString, fromStrict, null)
+import Data.ByteString (fromStrict)
+import Data.ByteString.Lazy as BL (ByteString, null)
+import Data.CaseInsensitive qualified as CI
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Encoding qualified as TE
+import Data.Int (Int64)
 import Network.HTTP.Client
   ( HttpException(..)
   , Manager
+  , method
   , parseRequest
   , httpLbs
   , responseStatus
@@ -93,11 +98,11 @@ ozonAuthHeaders auth =
   ]
 
 -- | Convert headers to HTTP header list
-textHeadersToBs :: [(Text, Text)] -> [(ByteString, ByteString)]
+textHeadersToBs :: [(Text, Text)] -> [(CI.CI BS.ByteString, BS.ByteString)]
 textHeadersToBs headers = map convert headers
   where
-    convert (k, v) = (encodeText k, encodeText v)
-    encodeText = BL.toStrict . Data.Text.Encoding.encodeUtf8
+    convert :: (Text, Text) -> (CI.CI BS.ByteString, BS.ByteString)
+    convert (k, v) = (CI.mk (TE.encodeUtf8 k), TE.encodeUtf8 v)
 
 -- | Build Ozon API URL
 buildOzonUrl :: OzonEndpoint -> Text
@@ -129,9 +134,10 @@ ozonRequest client endpoint body = do
           , ("Api-Key", oacApiKey config)
           , ("Content-Type", "application/json")
           ]
-        modifiedRequest = HTTP.requestHeaders .~ authHeaders
-                       $ HTTP.method .~ HTTP.POST
-                       $ request
+        modifiedRequest = request
+          { HTTP.requestHeaders = authHeaders
+          , HTTP.requestBody = HTTP.requestBody request
+          }
     logRequest modifiedRequest
     response <- httpLbs modifiedRequest (httpClientManager httpClient)
     logResponse response
@@ -139,7 +145,7 @@ ozonRequest client endpoint body = do
 
   case result of
     Right resp -> pure resp
-    Left ex -> throwIO $ RequestFailed ex
+    Left ex -> throwIO $ RequestFailed (show ex)
 
 -- | Get products list from Ozon
 getProducts :: OzonClient -> OzonProductsRequest -> IO (Either OzonApiError [OzonProduct])
@@ -150,8 +156,8 @@ getProducts client request = do
     Just (Just cached) | not (BL.null cached) -> do
       liftEither $ parseOzonProducts =<< maybeDecode cached
     _ -> do
-      response <- try $ ozonRequest client EndpointProducts request
-      case response of
+      result <- try @SomeException $ ozonRequest client EndpointProducts request
+      case result of
         Left ex -> pure $ Left $ OzonNetworkError (T.pack $ show ex)
         Right resp -> do
           let body = responseBody resp
@@ -161,8 +167,7 @@ getProducts client request = do
               forM_ (ocCache client) $ \c -> cacheSet cacheKey body 300 c
               liftEither $ parseOzonProducts =<< maybeDecode body
             else do
-              let err = decode body >>= validateOzonResponse
-              pure $ maybe (Left $ OzonServerError status "Unknown error") Left err
+              pure $ Left $ OzonServerError status "API error"
 
 -- | Get single product info
 getProductInfo :: OzonClient -> Int64 -> IO (Either OzonApiError OzonProduct)
@@ -173,24 +178,23 @@ getProductInfo client productId = do
     Just (Just cached) | not (BL.null cached) -> do
       liftEither $ parseOzonProduct =<< maybeDecode cached
     _ -> do
-      response <- try $ ozonRequest client EndpointProductInfo productId
+      response <- try @SomeException $ ozonRequest client EndpointProductInfo productId
       case response of
         Left ex -> pure $ Left $ OzonNetworkError (T.pack $ show ex)
-        Right resp -> do
-          let body = responseBody resp
-              status = statusCode $ responseStatus resp
+        Right response -> do
+          let body = responseBody response
+              status = statusCode $ responseStatus response
           if status >= 200 && status < 300
             then do
               forM_ (ocCache client) $ \c -> cacheSet cacheKey body 300 c
               liftEither $ parseOzonProduct =<< maybeDecode body
             else do
-              let err = decode body >>= validateOzonResponse
-              pure $ maybe (Left $ OzonServerError status "Unknown error") Left err
+              pure $ Left $ OzonServerError status "API error"
 
 -- | Update product prices
 updatePrices :: OzonClient -> OzonPriceUpdateRequest -> IO (Either OzonApiError Bool)
 updatePrices client request = do
-  response <- try $ ozonRequest client EndpointPricesUpdate request
+  response <- try @SomeException $ ozonRequest client EndpointPricesUpdate request
   case response of
     Left ex -> pure $ Left $ OzonNetworkError (T.pack $ show ex)
     Right resp -> do
@@ -201,14 +205,13 @@ updatePrices client request = do
           forM_ (ocCache client) $ \c -> cacheInvalidate "ozon_products_" c
           pure $ Right True
         else do
-          let err = decode body >>= validateOzonResponse
-          pure $ maybe (Left $ OzonServerError status "Unknown error") Left err
+          pure $ Left $ OzonServerError status "API error"
 
 -- | Update product stocks
 updateStocks :: OzonClient -> [OzonStock] -> IO (Either OzonApiError Bool)
 updateStocks client stocks = do
   let cacheKey = "ozon_stocks"
-  response <- try $ ozonRequest client EndpointStocksUpdate stocks
+  response <- try @SomeException $ ozonRequest client EndpointStocksUpdate stocks
   case response of
     Left ex -> pure $ Left $ OzonNetworkError (T.pack $ show ex)
     Right resp -> do
@@ -219,8 +222,7 @@ updateStocks client stocks = do
           forM_ (ocCache client) $ \c -> cacheInvalidate (T.pack cacheKey) c
           pure $ Right True
         else do
-          let err = decode body >>= validateOzonResponse
-          pure $ maybe (Left $ OzonServerError status "Unknown error") Left err
+          pure $ Left $ OzonServerError status "API error"
 
 -- | Get product statistics
 getStatistics :: OzonClient -> IO (Either OzonApiError Value)
@@ -231,19 +233,18 @@ getStatistics client = do
     Just (Just cached) | not (BL.null cached) -> do
       liftEither $ maybeDecode cached
     _ -> do
-      response <- try $ ozonRequest client EndpointStatistics ()
+      response <- try @SomeException $ ozonRequest client EndpointStatistics ()
       case response of
         Left ex -> pure $ Left $ OzonNetworkError (T.pack $ show ex)
-        Right resp -> do
-          let body = responseBody resp
-              status = statusCode $ responseStatus resp
+        Right response -> do
+          let body = responseBody response
+              status = statusCode $ responseStatus response
           if status >= 200 && status < 300
             then do
               forM_ (ocCache client) $ \c -> cacheSet (T.pack cacheKey) body 60 c
               liftEither $ maybeDecode body
             else do
-              let err = decode body >>= validateOzonResponse
-              pure $ maybe (Left $ OzonServerError status "Unknown error") Left err
+              pure $ Left $ OzonServerError status "API error"
 
 -- Helper functions
 liftEither :: Either Text a -> IO (Either OzonApiError a)

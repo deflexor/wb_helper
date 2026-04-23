@@ -6,6 +6,10 @@ import App.Hello
 import qualified Data.Text as T
 import Domain.MarginSpec
 import Domain.PriceAnalysisSpec
+import AI.OpenRouterSpec
+import AI.QdrantSpec
+import AI.PromptsSpec
+import AI.OrchestratorSpec
 
 main :: IO ()
 main = hspec $ do
@@ -22,3 +26,7 @@ main = hspec $ do
 
   Domain.MarginSpec.spec
   Domain.PriceAnalysisSpec.spec
+  AI.OpenRouterSpec.spec
+  AI.QdrantSpec.spec
+  AI.PromptsSpec.spec
+  AI.OrchestratorSpec.spec

@@ -1,184 +1,75 @@
--- | Response transformation using lens for WB API
--- Transforms raw JSON responses to domain types using lens operators
+-- | Response transformation for WB API
+{-# LANGUAGE OverloadedStrings #-}
 module Api.WB.Response
-  ( -- * Response Parsing
-    parseProductsList
+  ( parseProductsList
   , parsePriceUpdate
   , parseStatistics
-    -- * Lens-based transformations
-  , transformProducts
-  , transformToDomain
-    -- * Helper lenses
-  , productsL
-  , dataL
-  , errorL
   ) where
 
 import Data.Aeson (Value)
-import Data.Aeson.Lens (key, _Array, _String, _Number, _Bool)
+import Data.Aeson qualified as A
+import Data.Aeson.Key (Key)
+import Data.Aeson.Key qualified as K
+import Data.Aeson.Types (parseEither)
 import Data.Text (Text)
-import Data.Maybe (mapMaybe)
-import Control.Lens (Lens', lens, Traversal', (^?), (^..), folded)
-import Control.Monad (unless)
+import Data.Text qualified as T
+import Data.Vector (toList)
+
 import Api.WB.Types
 
--- | Lens for accessing products array in response
-productsL :: Traversal' Value Value
-productsL = key "products" . _Array
+convertEither :: Either String a -> Either Text a
+convertEither (Left e) = Left $ T.pack e
+convertEither (Right v) = Right v
 
--- | Lens for accessing data field in response
-dataL :: Traversal' Value Value
-dataL = key "data"
-
--- | Lens for accessing error message
-errorL :: Traversal' Value Text
-errorL = key "error" . _String
-
--- | Parse WB products list response using lens
---
--- Expected JSON structure:
--- {
---   "products": [
---     { "id": "123", "name": "Product", "price": 100.00, "cost": 50.00, "stock": 10 },
---     ...
---   ]
--- }
+-- | Parse WB products list response
 parseProductsList :: Value -> Either Text [WBProduct]
-parseProductsList val = do
-  productsValue <- case val ^? productsL of
-    Nothing -> Left "Missing 'products' field"
-    Just arr -> Right arr
+parseProductsList val = case val of
+  A.Object obj -> do
+    productsValue <- convertEither $ parseEither (obj A..:) (K.fromText "products")
+    case productsValue of
+      A.Array arr -> traverse parseProductFromValue (toList arr)
+      _ -> Left "Products field is not an array"
+  _ -> Left "Not an object"
 
-  products <- case traverse (^? _Array) productsValue of
-    Just productsArr -> Right $ concat productsArr
-    Nothing -> case val ^? productsL of
-      Just arr -> parseProductArray arr
-      Nothing -> Left "Invalid products format"
+parseProductFromValue :: Value -> Either Text WBProduct
+parseProductFromValue v = case v of
+  A.Object obj -> do
+    pid <- getField obj "id"
+    name <- getField obj "name"
+    price <- getField obj "price"
+    cost <- getField obj "cost"
+    stock <- getField obj "stock"
+    Right $ WBProduct pid name price cost stock
+  _ -> Left "Not an object"
 
-  let results = mapMaybe parseProductFromValue products
-  if length results /= length products
-    then Left "Failed to parse some products"
-    else Right results
-  where
-    parseProductArray :: Value -> Either Text [Value]
-    parseProductArray arr = Right $ arr ^.. folded
-
--- | Parse a single product from a Value using lens
-parseProductFromValue :: Value -> Maybe WBProduct
-parseProductFromValue val = do
-  idStr <- val ^? key "id" . _String
-  nameStr <- val ^? key "name" . _String
-  priceNum <- val ^? key "price" . _Number
-  costNum <- val ^? key "cost" . _Number
-  stockNum <- val ^? key "stock" . _Number
-
-  let price = realToFrac priceNum :: Double
-      cost = realToFrac costNum :: Double
-      stock = round stockNum
-
-  Just $ WBProduct idStr nameStr price cost stock
-
--- | Parse price update response using lens
---
--- Expected JSON structure:
--- {
---   "data": { "id": "123", "price": 100.00 },
---   "success": true,
---   "message": ""
--- }
+-- | Parse price update response
 parsePriceUpdate :: Value -> Either Text WBPriceUpdate
-parsePriceUpdate val = do
-  success <- case val ^? key "success" . _Bool of
-    Nothing -> Left "Missing 'success' field"
-    Just s -> Right s
+parsePriceUpdate val = case val of
+  A.Object obj -> do
+    dataObj <- convertEither $ parseEither (obj A..:) (K.fromText "data")
+    case dataObj of
+      A.Object inner -> do
+        pid <- getField inner "id"
+        priceNum <- getField inner "price"
+        Right $ WBPriceUpdate pid priceNum
+      _ -> Left "data is not an object"
+  _ -> Left "Not an object"
 
-  unless success $ do
-    msg <- case val ^? key "message" . _String of
-      Nothing -> Right "Unknown error"
-      Just m -> Right m
-    Left msg
-
-  dataObj <- case val ^? dataL of
-    Nothing -> Left "Missing 'data' field"
-    Just obj -> Right obj
-
-  parsePriceUpdateData dataObj
-
-  where
-    parsePriceUpdateData :: Value -> Either Text WBPriceUpdate
-    parsePriceUpdateData v = do
-      pid <- case v ^? key "id" . _String of
-        Nothing -> Left "Missing 'id' in data"
-        Just p -> Right p
-      priceNum <- case v ^? key "price" . _Number of
-        Nothing -> Left "Missing 'price' in data"
-        Just p -> Right $ realToFrac p :: Double
-      Right $ WBPriceUpdate pid priceNum
-
--- | Parse statistics response using lens
---
--- Expected JSON structure:
--- {
---   "data": {
---     "product_id": "123",
---     "views": 100,
---     "clicks": 10,
---     "orders": 2,
---     "revenue": 5000.00
---   },
---   "success": true
--- }
+-- | Parse statistics response
 parseStatistics :: Value -> Either Text WBStatistics
-parseStatistics val = do
-  dataObj <- case val ^? dataL of
-    Nothing -> Left "Missing 'data' field"
-    Just obj -> Right obj
+parseStatistics val = case val of
+  A.Object obj -> do
+    dataObj <- convertEither $ parseEither (obj A..:) (K.fromText "data")
+    case dataObj of
+      A.Object inner -> do
+        productId <- getField inner "product_id"
+        views <- getField inner "views"
+        clicks <- getField inner "clicks"
+        orders <- getField inner "orders"
+        revenue <- getField inner "revenue"
+        Right $ WBStatistics productId views clicks orders revenue
+      _ -> Left "data is not an object"
+  _ -> Left "Not an object"
 
-  productId <- case dataObj ^? key "product_id" . _String of
-    Nothing -> Left "Missing 'product_id'"
-    Just p -> Right p
-
-  views <- case dataObj ^? key "views" . _Number of
-    Nothing -> Left "Missing 'views'"
-    Just v -> Right $ round v
-
-  clicks <- case dataObj ^? key "clicks" . _Number of
-    Nothing -> Left "Missing 'clicks'"
-    Just c -> Right $ round c
-
-  orders <- case dataObj ^? key "orders" . _Number of
-    Nothing -> Left "Missing 'orders'"
-    Just o -> Right $ round o
-
-  revenueNum <- case dataObj ^? key "revenue" . _Number of
-    Nothing -> Left "Missing 'revenue'"
-    Just r -> Right $ realToFrac r :: Double
-
-  Right $ WBStatistics productId views clicks orders revenueNum
-
--- | Transform a list of WBProducts using lens
-transformProducts :: (WBProduct -> a) -> [WBProduct] -> [a]
-transformProducts f = map f
-
--- | Transform WBProduct to domain model using lens
-transformToDomain :: WBProduct -> (ProductId, ProductName, Price, Cost, Stock)
-transformToDomain product = (toProductId product, toProductName product, toPrice product, toCost product, toStock product)
-
--- | Lens for accessing the success field
-successFieldL :: Traversal' Value Bool
-successFieldL = key "success" . _Bool
-
--- | Parse the success field
-parseSuccess :: Value -> Maybe Bool
-parseSuccess = (^? successFieldL)
-
--- | Get error message from response using lens
-parseErrorMessage :: Value -> Maybe Text
-parseErrorMessage = (^? errorL)
-
--- | Check if response indicates error
-isErrorResponse :: Value -> Bool
-isErrorResponse val = case val ^? successFieldL of
-  Nothing -> True
-  Just True -> False
-  Just False -> True
+getField :: A.FromJSON a => A.Object -> Text -> Either Text a
+getField obj key = convertEither $ parseEither (obj A..:) (K.fromText key)

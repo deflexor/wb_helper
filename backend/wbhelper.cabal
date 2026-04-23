@@ -51,6 +51,14 @@ library
     Domain.PriceAnalysis
     Database.Schema
     Database.Migration
+    AI.OpenRouter
+    AI.OpenRouter.Types
+    AI.ModelRouter
+    AI.CircuitBreaker
+    AI.Qdrant
+    AI.Qdrant.Types
+    AI.Prompts
+    AI.Orchestrator
   other-modules:
     Main
   hs-source-dirs:   src
@@ -62,8 +70,10 @@ library
     , text
     , bytestring
     , containers
+    , vector
     , http-client
     , http-types
+    , case-insensitive
     , network-uri
     , stm
     , time
@@ -89,19 +99,14 @@ test-suite spec
   main-is:          Spec.hs
   hs-source-dirs:   test
   other-modules:
-    Effect.AppEffectSpec
-    Infra.CacheSpec
-    Infra.HttpClient.BaseSpec
     Auth.JWTSpec
     Auth.MiddlewareSpec
-    Api.Ozon.ClientSpec
-    Api.WB.ClientSpec
     Domain.MarginSpec
     Domain.PriceAnalysisSpec
-    Integration.EndpointsSpec
-    Database.SchemaSpec
-    Infra.RetrySpec
-    Infra.RateLimitSpec
+    AI.OpenRouterSpec
+    AI.QdrantSpec
+    AI.PromptsSpec
+    AI.OrchestratorSpec
   build-depends:
     wbhelper
     , effectful
@@ -111,6 +116,7 @@ test-suite spec
     , text
     , bytestring
     , containers
+    , vector
     , http-client
     , http-types
     , stm

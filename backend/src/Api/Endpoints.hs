@@ -1,4 +1,5 @@
 -- | API Endpoints - Request handlers for all API routes
+{-# LANGUAGE OverloadedStrings #-}
 module Api.Endpoints
     ( -- * Endpoint handlers
       handleAuthRegister
@@ -21,7 +22,7 @@ import Data.Aeson (encode, decode, object, (.=), Value)
 import Data.ByteString.Lazy qualified as LBS
 import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Time (UTCTime, getCurrentTime)
+import Data.Time (UTCTime, getCurrentTime, addUTCTime)
 import GHC.Generics (Generic)
 
 import Effect.AppEffect
@@ -52,26 +53,14 @@ handleAuthRegister payload = do
     case decodeRegisterPayload payload of
         Left err -> throwError $ InvalidInput err
         Right regData -> do
-            -- Check if email exists (would query DB in real impl)
-            -- For now, just create the user
-            currentTime <- liftIO getCurrentTime
-            let user = User
-                    { userEmail = regEmail regData
-                    , userPasswordHash = regPassword regData  -- In real impl: hash this
-                    , userApiKey = generateApiKey
-                    , userSubscriptionId = Nothing
-                    , userCreatedAt = currentTime
-                    }
-            -- Return success response (in real impl, save to DB)
+            -- In real impl: check if email exists and create user in DB
+            -- For now, just return success
             pure $ object
                 [ "success" .= True
                 , "userId" .= (1 :: Int)
                 , "email" .= regEmail regData
-                , "apiKey" .= generateApiKey
+                , "apiKey" .= ("ak_" <> T.pack (take 32 (cycle "abcdefghijklmnopqrstuvwxyz0123456789")) :: Text)
                 ]
-  where
-    generateApiKey :: Text
-    generateApiKey = "ak_" <> T.pack (take 32 (cycle "abcdefghijklmnopqrstuvwxyz0123456789"))
 
 -- | Decode registration payload
 decodeRegisterPayload :: Value -> Either String RegisterData
@@ -94,12 +83,13 @@ handleAuthLogin payload = do
             if regEmail loginData == T.pack "test@example.com" && regPassword loginData == T.pack "password123"
                 then do
                     currentTime <- liftIO getCurrentTime
-                    let claims = JWTClaims
-                            { jscUserId = 1
-                            , jscEmail = regEmail loginData
-                            , jscSubscription = Paid
-                            , jscExp = 0  -- In real impl: set expiration
-                            }
+                    let expTime = addUTCTime (3600 * 24 * 7) currentTime  -- 7 days
+                        claims = JWTClaims
+                                { jscUserId = 1
+                                , jscEmail = regEmail loginData
+                                , jscSubscription = Paid
+                                , jscExp = expTime
+                                }
                     -- In real impl, get secret from config
                     let jwt = generateJWT (T.pack "test-secret") claims
                     pure $ object
@@ -316,7 +306,7 @@ handleAnalysisPriceGaps userId = do
                 , "gapPercent" .= case calcGapPercentage 95.0 (-5.0) of
                     Just p -> p
                     Nothing -> 0.0
-                , "recommendation" .= (show $ recommendPrice 95.0 100.0 :: Text)
+                , "recommendation" .= T.pack (show (recommendPrice 95.0 100.0))
                 ],
             object
                 [ "productId" .= (2 :: Int)
@@ -327,7 +317,7 @@ handleAnalysisPriceGaps userId = do
                 , "gapPercent" .= case calcGapPercentage 110.0 10.0 of
                     Just p -> p
                     Nothing -> 0.0
-                , "recommendation" .= (show $ recommendPrice 110.0 100.0 :: Text)
+                , "recommendation" .= T.pack (show (recommendPrice 110.0 100.0))
                 ]
           ]
     pure $ object

@@ -1,12 +1,17 @@
 -- | Tests for Auth.JWT - JWT generation and validation
+{-# LANGUAGE OverloadedStrings #-}
 module Auth.JWTSpec where
 
 import Test.Hspec
 import Data.Text (Text)
-import Data.Time (UTCTime, addDays, addHours, getCurrentTime)
 import qualified Data.Text as T
+import Data.Time (UTCTime, addUTCTime, getCurrentTime, secondsToNominalDiffTime)
 
 import Auth.JWT
+
+-- | Helper to add days to UTCTime
+addDays :: Int -> UTCTime -> UTCTime
+addDays d t = addUTCTime (secondsToNominalDiffTime (fromInteger (toInteger d * 24 * 3600))) t
 
 -- | Helper to create test claims
 mkTestClaims :: UserId -> Plan -> UTCTime -> JWTClaims
@@ -85,7 +90,7 @@ spec = do
     describe "JWT Expiration" $ do
         it "accepts token that hasn't expired" $ do
             now <- getCurrentTime
-            let claims = mkTestClaims 1 Free (addHours 1 now)  -- Expires in 1 hour
+            let claims = mkTestClaims 1 Free (addUTCTime (secondsToNominalDiffTime 3600) now)  -- Expires in 1 hour
                 secret = "test-secret-key" :: Text
                 token = generateJWT secret claims
                 result = validateJWT secret token

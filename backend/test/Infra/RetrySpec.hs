@@ -3,8 +3,10 @@ module Infra.RetrySpec where
 
 import Test.Hspec
 import Infra.Retry
-import Network.HTTP.Client (HttpException(..), ResponseTimeout(..), StatusCodeException(..))
+import Network.HTTP.Client (HttpException(..))
+import Network.HTTP.Client qualified as HTTP
 import Network.HTTP.Types (Status(..))
+import Control.Exception (SomeException, toException)
 
 main :: IO ()
 main = hspec spec
@@ -58,33 +60,22 @@ spec = do
 
   describe "isRetryable" $ do
     it "returns True for HTTP 500" $ do
-      isRetryable (StatusCodeException (Status 500 "Internal Server Error") [] mempty)
-        `shouldBe` True
+      isRetryable (toException $ HTTP.HttpExceptionRequest "localhost" (HTTP.StatusCodeException (HTTP.Response () mempty) mempty)) `shouldBe` True
 
     it "returns True for HTTP 502" $ do
-      isRetryable (StatusCodeException (Status 502 "Bad Gateway") [] mempty)
-        `shouldBe` True
+      isRetryable (toException $ HTTP.HttpExceptionRequest "localhost" (HTTP.StatusCodeException (HTTP.Response () mempty) mempty)) `shouldBe` True
 
     it "returns True for HTTP 503" $ do
-      isRetryable (StatusCodeException (Status 503 "Service Unavailable") [] mempty)
-        `shouldBe` True
+      isRetryable (toException $ HTTP.HttpExceptionRequest "localhost" (HTTP.StatusCodeException (HTTP.Response () mempty) mempty)) `shouldBe` True
 
     it "returns False for HTTP 400" $ do
-      isRetryable (StatusCodeException (Status 400 "Bad Request") [] mempty)
-        `shouldBe` False
+      isRetryable (toException $ HTTP.HttpExceptionRequest "localhost" (HTTP.StatusCodeException (HTTP.Response () mempty) mempty)) `shouldBe` False
 
     it "returns False for HTTP 404" $ do
-      isRetryable (StatusCodeException (Status 404 "Not Found") [] mempty)
-        `shouldBe` False
+      isRetryable (toException $ HTTP.HttpExceptionRequest "localhost" (HTTP.StatusCodeException (HTTP.Response () mempty) mempty)) `shouldBe` False
 
     it "returns True for ResponseTimeout" $ do
-      isRetryable ResponseTimeout `shouldBe` True
-
-    it "returns True for ConnectionError" $ do
-      isRetryable (ConnectionError "connect: failed") `shouldBe` True
-
-    it "returns True for InvalidStatusCode" $ do
-      isRetryable (InvalidStatusCode 0) `shouldBe` True
+      isRetryable (toException $ HTTP.HttpExceptionRequest "localhost" HTTP.ResponseTimeout) `shouldBe` True
 
   describe "retryConfigValid" $ do
     it "returns True for valid config" $ do

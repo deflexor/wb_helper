@@ -11,7 +11,7 @@ module Infra.RateLimit.TokenBucket
   ) where
 
 import Control.Concurrent (threadDelay)
-import Control.Concurrent.STM (TVar, STM, atomically, readTVar, writeTVar, modifyTVar')
+import Control.Concurrent.STM (TVar, STM, atomically, newTVar, readTVar, writeTVar, modifyTVar')
 import Data.Time (UTCTime, getCurrentTime, addUTCTime, diffUTCTime)
 import Numeric.Natural (Natural)
 
@@ -44,28 +44,29 @@ calculateRefill lastRefill now rate = floor $ elapsed * fromIntegral rate
   where
     elapsed = diffUTCTime now lastRefill
 
--- | Refill tokens if needed, returns current token count
-refillAndGet :: TVar Int -> TVar UTCTime -> Int -> Int -> STM (Int, UTCTime)
-refillAndGet tokensVar lastRefillVar rate capacity = do
+-- | Refill tokens if needed, returns current token count (IO version)
+refillAndGetIO :: TVar Int -> TVar UTCTime -> Int -> Int -> IO (Int, UTCTime)
+refillAndGetIO tokensVar lastRefillVar rate capacity = do
   now <- getCurrentTime
-  lastRefill <- readTVar lastRefillVar
-  currentTokens <- readTVar tokensVar
+  atomically $ do
+    lastRefill <- readTVar lastRefillVar
+    currentTokens <- readTVar tokensVar
 
-  let newTokens = min capacity $ currentTokens + calculateRefill lastRefill now rate
+    let newTokens = min capacity $ currentTokens + calculateRefill lastRefill now rate
 
-  writeTVar tokensVar newTokens
-  writeTVar lastRefillVar now
+    writeTVar tokensVar newTokens
+    writeTVar lastRefillVar now
 
-  pure (newTokens, now)
+    pure (newTokens, now)
 
 -- | Acquire a single token from the bucket
 --
 -- Returns True if token was acquired, False if rate limited
 acquireToken :: TokenBucket -> IO Bool
-acquireToken bucket = atomically $ do
-  (tokens, _now) <- refillAndGet (tbTokens bucket) (tbLastRefill bucket) (tbRate bucket) (tbCapacity bucket)
+acquireToken bucket = do
+  (tokens, _) <- refillAndGetIO (tbTokens bucket) (tbLastRefill bucket) (tbRate bucket) (tbCapacity bucket)
   if tokens > 0
-    then do
+    then atomically $ do
       modifyTVar' (tbTokens bucket) (subtract 1)
       pure True
     else pure False
@@ -74,25 +75,26 @@ acquireToken bucket = atomically $ do
 --
 -- Returns True if all tokens were acquired, False if rate limited
 acquireTokens :: TokenBucket -> Int -> IO Bool
-acquireTokens bucket requested = atomically $ do
-  (tokens, _now) <- refillAndGet (tbTokens bucket) (tbLastRefill bucket) (tbRate bucket) (tbCapacity bucket)
+acquireTokens bucket requested = do
+  (tokens, _) <- refillAndGetIO (tbTokens bucket) (tbLastRefill bucket) (tbRate bucket) (tbCapacity bucket)
   if tokens >= requested
-    then do
+    then atomically $ do
       modifyTVar' (tbTokens bucket) (subtract requested)
       pure True
     else pure False
 
 -- | Reset the bucket to full capacity
 resetBucket :: TokenBucket -> IO ()
-resetBucket bucket = atomically $ do
+resetBucket bucket = do
   now <- getCurrentTime
-  writeTVar (tbTokens bucket) (tbCapacity bucket)
-  writeTVar (tbLastRefill bucket) now
+  atomically $ do
+    writeTVar (tbTokens bucket) (tbCapacity bucket)
+    writeTVar (tbLastRefill bucket) now
 
 -- | Get current available tokens (after refill calculation)
 getAvailableTokens :: TokenBucket -> IO Int
-getAvailableTokens bucket = atomically $ do
-  (tokens, _now) <- refillAndGet (tbTokens bucket) (tbLastRefill bucket) (tbRate bucket) (tbCapacity bucket)
+getAvailableTokens bucket = do
+  (tokens, _) <- refillAndGetIO (tbTokens bucket) (tbLastRefill bucket) (tbRate bucket) (tbCapacity bucket)
   pure tokens
 
 -- | Get the configured rate (tokens per second)

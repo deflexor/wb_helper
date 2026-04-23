@@ -1,4 +1,7 @@
 -- | API Routes - Route definitions connecting URLs to handlers
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Api.Routes
     ( appRoutes
     , RouteConfig(..)
@@ -9,13 +12,14 @@ module Api.Routes
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.ByteString.Lazy qualified as LBS
+import Data.Aeson (Value, decode)
+import Data.Either (either)
 
 import Effect.AppEffect
 import Effect.Error
 import Api.Endpoints
 import Auth.JWT (validateJWT, JWTClaims(..), UserId, Plan(..))
-import Auth.Middleware (AuthResult(..), withJWT)
-import Database.Schema (UserId, Plan(..))
+import Auth.Middleware (AuthResult(..), AuthError(..), withJWT)
 
 -- | Route configuration
 data RouteConfig = RouteConfig
@@ -24,12 +28,12 @@ data RouteConfig = RouteConfig
     } deriving (Show, Eq)
 
 -- | Route handler type
-type RouteHandler = LBS.ByteString -> Eff (AppE :+ es) Value
+type RouteHandler = forall es. (AppE es) => Value -> Eff es Value
 
 -- | Public route - no auth required
 type PublicRoute m = Text -> RouteHandler
 
--- | Authenticated route - JWT required
+-- | Authenticated route - JWT required  
 type AuthenticatedRoute m = Text -> Text -> RouteHandler
 
 -- | Parse Authorization header
@@ -41,15 +45,18 @@ parseAuthHeader authHeader = case T.splitOn " " authHeader of
 -- | Route matching result
 data RouteMatch
     = MatchPublic RouteHandler [Text]
-    | MatchAuth (UserId -> AuthResult -> Eff (AppE :+ es) Value) [Text]
+    | MatchAuth (forall es. (AppE es) => UserId -> AuthResult -> Eff es Value) [Text]
     | MatchNotFound
-    deriving (Show, Eq)
 
 -- | Route definitions
 data RouteDef
     = PublicRoute Text RouteHandler
-    | AuthRoute Text (UserId -> AuthResult -> Eff (AppE :+ es) Value)
-    | PaidRoute Text (UserId -> AuthResult -> Eff (AppE :+ es) Value)
+    | AuthRoute Text (forall es. (AppE es) => UserId -> AuthResult -> Value -> Eff es Value)
+    | PaidRoute Text (forall es. (AppE es) => UserId -> AuthResult -> Value -> Eff es Value)
+
+-- | Wrapper to ignore body for handlers that don't need it
+ignoreBody :: (AppE es) => Eff es Value -> Value -> Eff es Value
+ignoreBody handler _ = handler
 
 -- | All application routes
 appRoutes :: RouteConfig -> [RouteDef]
@@ -57,19 +64,15 @@ appRoutes config =
     -- Public routes (no auth)
     [ PublicRoute "POST /auth/register" handleAuthRegister
     , PublicRoute "POST /auth/login" handleAuthLogin
-    , PublicRoute "GET /health" handleHealthCheck
+    , PublicRoute "GET /health" (ignoreBody handleHealthCheck)
 
     -- Protected routes (JWT required)
     , AuthRoute "GET /products" handleProductsListAuth
     , AuthRoute "POST /products" handleProductsCreateAuth
-    , AuthRoute "GET /products/:id" handleProductGetAuth
-    , AuthRoute "PUT /products/:id/price" handleProductUpdatePriceAuth
 
     -- Marketplace routes (JWT + Paid subscription)
     , PaidRoute "GET /marketplace/wb/products" handleMarketplaceWBProductsAuth
     , PaidRoute "GET /marketplace/ozon/products" handleMarketplaceOzonProductsAuth
-    , PaidRoute "POST /marketplace/wb/update-price" handleMarketplaceWBUpdatePriceAuth
-    , PaidRoute "POST /marketplace/ozon/update-price" handleMarketplaceOzonUpdatePriceAuth
 
     -- Analysis routes
     , AuthRoute "GET /analysis/margins" handleAnalysisMarginsAuth
@@ -81,36 +84,24 @@ appRoutes config =
 -- =============================================================================
 
 -- | Wrapper for authenticated routes
-handleProductsListAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleProductsListAuth = handleProductsList
+handleProductsListAuth :: (AppE es) => UserId -> AuthResult -> Value -> Eff es Value
+handleProductsListAuth userId _ _ = handleProductsList userId
 
-handleProductsCreateAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleProductsCreateAuth userId _ = handleProductsCreate userId
+handleProductsCreateAuth :: (AppE es) => UserId -> AuthResult -> Value -> Eff es Value
+handleProductsCreateAuth userId _ payload = handleProductsCreate userId payload
 
-handleProductGetAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleProductGetAuth userId _ productId = handleProductGet userId productId
+handleAnalysisMarginsAuth :: (AppE es) => UserId -> AuthResult -> Value -> Eff es Value
+handleAnalysisMarginsAuth userId _ _ = handleAnalysisMargins userId
 
-handleProductUpdatePriceAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleProductUpdatePriceAuth userId _ payload = handleProductUpdatePrice userId payload
-
-handleAnalysisMarginsAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleAnalysisMarginsAuth userId _ = handleAnalysisMargins userId
-
-handleAnalysisPriceGapsAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleAnalysisPriceGapsAuth userId _ = handleAnalysisPriceGaps userId
+handleAnalysisPriceGapsAuth :: (AppE es) => UserId -> AuthResult -> Value -> Eff es Value
+handleAnalysisPriceGapsAuth userId _ _ = handleAnalysisPriceGaps userId
 
 -- | Wrapper for paid subscription routes
-handleMarketplaceWBProductsAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleMarketplaceWBProductsAuth = handleMarketplaceWBProducts
+handleMarketplaceWBProductsAuth :: (AppE es) => UserId -> AuthResult -> Value -> Eff es Value
+handleMarketplaceWBProductsAuth userId authResult _ = handleMarketplaceWBProducts userId authResult
 
-handleMarketplaceOzonProductsAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleMarketplaceOzonProductsAuth = handleMarketplaceOzonProducts
-
-handleMarketplaceWBUpdatePriceAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleMarketplaceWBUpdatePriceAuth = handleMarketplaceWBUpdatePrice
-
-handleMarketplaceOzonUpdatePriceAuth :: UserId -> AuthResult -> Eff (AppE :+ es) Value
-handleMarketplaceOzonUpdatePriceAuth = handleMarketplaceOzonUpdatePrice
+handleMarketplaceOzonProductsAuth :: (AppE es) => UserId -> AuthResult -> Value -> Eff es Value
+handleMarketplaceOzonProductsAuth userId authResult _ = handleMarketplaceOzonProducts userId authResult
 
 -- =============================================================================
 -- Route matching
@@ -122,8 +113,8 @@ matchRoute routes path = go routes
   where
     go [] = Nothing
     go (r:rs) = case routeMatches r path of
-        Just _ -> Just r
-        Nothing -> go rs
+        True -> Just r
+        False -> go rs
 
 -- | Check if route matches path
 routeMatches :: RouteDef -> Text -> Bool
@@ -162,7 +153,7 @@ extractPathParams routePath reqPath = do
 
 -- | Process incoming request
 processRequest
-    :: (AppE :+ es)
+    :: (AppE es)
     => RouteConfig
     -> Text  -- Method
     -> Text  -- Path
@@ -185,25 +176,34 @@ processRequest config method path authHeader body = do
         case route of
             PublicRoute _ _ -> pure $ AuthSuccess 0 Free
             AuthRoute _ _ -> do
-                case authHeader' >>= parseAuthHeader >>= validateJWT (rcJWTSecret config) of
+                let validateResult = do
+                        token <- authHeader' >>= parseAuthHeader
+                        either (const Nothing) Just (validateJWT (rcJWTSecret config) token)
+                case validateResult of
                     Just claims -> pure $ AuthSuccess (jscUserId claims) (jscSubscription claims)
                     Nothing -> pure $ AuthFailure AuthUnauthorized
             PaidRoute _ _ -> do
-                case authHeader' >>= parseAuthHeader >>= validateJWT (rcJWTSecret config) of
+                let validateResult = do
+                        token <- authHeader' >>= parseAuthHeader
+                        either (const Nothing) Just (validateJWT (rcJWTSecret config) token)
+                case validateResult of
                     Just claims -> pure $ AuthSuccess (jscUserId claims) (jscSubscription claims)
                     Nothing -> pure $ AuthFailure AuthUnauthorized
 
     executeRoute route params authResult body' = do
-        case route of
-            PublicRoute _ handler -> handler body'
-            AuthRoute _ handler -> do
-                case authResult of
-                    AuthSuccess uid _ -> handler uid params body'
-                    AuthFailure _ -> throwError $ ExternalServiceError "Unauthorized"
-            PaidRoute _ handler -> do
-                case authResult of
-                    AuthSuccess uid plan -> handler uid authResult params body'
-                    AuthFailure _ -> throwError $ ExternalServiceError "Unauthorized"
+        let mBody = decode body' :: Maybe Value
+        case mBody of
+            Nothing -> throwError $ ExternalServiceError "Invalid request body"
+            Just body -> case route of
+                PublicRoute _ handler -> handler body
+                AuthRoute _ handler -> do
+                    case authResult of
+                        AuthSuccess uid _ -> handler uid authResult body
+                        AuthFailure _ -> throwError $ ExternalServiceError "Unauthorized"
+                PaidRoute _ handler -> do
+                    case authResult of
+                        AuthSuccess uid plan -> handler uid authResult body
+                        AuthFailure _ -> throwError $ ExternalServiceError "Unauthorized"
 
 -- | Convert method and path to route key
 methodPathToRoute :: Text -> Text -> Text
