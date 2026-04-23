@@ -1,0 +1,43 @@
+# Beads / Dolt files
+.dolt/
+*.db
+.beads-credential-key
+.beads/
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/.cabal-sandbox/
+backend/dist-newstyle/
+
+# Build outputs
+frontend/dist/
+frontend/build/
+frontend/test-results/
+frontend/coverage/
+test-results/
+*.o
+*.hi
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temp
+.tmp/
+.tmp*
+*.tmp
+
+# OpenCode
+.opencode/

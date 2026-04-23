@@ -4,6 +4,8 @@ module Main where
 import Test.Hspec
 import App.Hello
 import qualified Data.Text as T
+import Domain.MarginSpec
+import Domain.PriceAnalysisSpec
 
 main :: IO ()
 main = hspec $ do
@@ -17,3 +19,6 @@ main = hspec $ do
 
     it "helloMessage is correct Text" $ do
       T.pack "Hello World" `shouldBe` helloMessage
+
+  Domain.MarginSpec.spec
+  Domain.PriceAnalysisSpec.spec

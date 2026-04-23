@@ -9,6 +9,9 @@ build-type:          Simple
 
 common shared
   default-language:  GHC2021
+  default-extensions:
+    DataKinds
+    TypeOperators
   ghc-options:
     -Wall
     -Wincomplete-uni-patterns
@@ -22,15 +25,52 @@ library
     Config
     App
     App.Hello
+    Effect.AppEffect
+    Effect.Error
+    Effect.Reader
+    Effect.State
+    Infra.HttpClient
+    Infra.HttpClient.Base
+    Infra.Cache
+    Infra.RateLimit
+    Infra.RateLimit.TokenBucket
+    Infra.Retry
+    Auth.JWT
+    Auth.Middleware
+    Auth.Session
+    Api.Ozon.Client
+    Api.Ozon.Types
+    Api.Ozon.Response
+    Api.WB.Client
+    Api.WB.Types
+    Api.WB.Response
+    Api.Endpoints
+    Api.Routes
+    Integration.Marketplace
+    Domain.Margin
+    Domain.PriceAnalysis
+    Database.Schema
+    Database.Migration
   other-modules:
     Main
   hs-source-dirs:   src
   build-depends:
     effectful
+    , effectful-core
     , lens
     , aeson
     , text
     , bytestring
+    , containers
+    , http-client
+    , http-types
+    , network-uri
+    , stm
+    , time
+    , cryptohash-sha256
+    , base64-bytestring
+    , scrypt
+    , random
 
 executable wbhelper
   import:           shared
@@ -48,8 +88,36 @@ test-suite spec
   type:             exitcode-stdio-1.0
   main-is:          Spec.hs
   hs-source-dirs:   test
+  other-modules:
+    Effect.AppEffectSpec
+    Infra.CacheSpec
+    Infra.HttpClient.BaseSpec
+    Auth.JWTSpec
+    Auth.MiddlewareSpec
+    Api.Ozon.ClientSpec
+    Api.WB.ClientSpec
+    Domain.MarginSpec
+    Domain.PriceAnalysisSpec
+    Integration.EndpointsSpec
+    Database.SchemaSpec
+    Infra.RetrySpec
+    Infra.RateLimitSpec
   build-depends:
     wbhelper
+    , effectful
+    , effectful-core
     , hspec
     , aeson
     , text
+    , bytestring
+    , containers
+    , http-client
+    , http-types
+    , stm
+    , time
+    , async
+    , cryptohash-sha256
+    , base64-bytestring
+    , scrypt
+    , random
+    , lens
