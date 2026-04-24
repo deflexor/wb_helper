@@ -1,0 +1,1 @@
+export { SEOContentCard } from './SEOContentCard';

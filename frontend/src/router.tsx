@@ -2,6 +2,9 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout, ProtectedRoute } from './components/layout';
 import { LoginPage, RegisterPage, CompetitorsPage } from './pages';
 import OptimizationPage from './pages/OptimizationPage';
+import SEOContentPage from './pages/SEOContentPage';
+import ReturnsForecastPage from './pages/ReturnsForecastPage';
+import NicheAnalysisPage from './pages/NicheAnalysisPage';
 
 // Placeholder pages - to be implemented in subsequent tasks
 function DashboardPage() {
@@ -49,6 +52,9 @@ export function AppRouter() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/competitors" element={<CompetitorsPage />} />
         <Route path="/optimization" element={<OptimizationPage />} />
+        <Route path="/seo-content" element={<SEOContentPage />} />
+        <Route path="/returns-forecast" element={<ReturnsForecastPage />} />
+        <Route path="/niche-analysis" element={<NicheAnalysisPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
 

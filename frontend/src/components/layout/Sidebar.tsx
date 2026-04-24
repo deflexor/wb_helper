@@ -7,6 +7,9 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  FileText,
+  TrendingDown,
+  Target,
 } from 'lucide-react';
 import { useSidebarStore } from '../../stores/sidebarStore';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +24,9 @@ const navItems: NavItem[] = [
   { path: '/dashboard', labelKey: 'layout.dashboard', icon: LayoutDashboard },
   { path: '/competitors', labelKey: 'layout.competitors', icon: Users },
   { path: '/optimization', labelKey: 'layout.optimization', icon: TrendingUp },
+  { path: '/seo-content', labelKey: 'layout.seoContent', icon: FileText },
+  { path: '/returns-forecast', labelKey: 'layout.returnsForecast', icon: TrendingDown },
+  { path: '/niche-analysis', labelKey: 'layout.nicheAnalysis', icon: Target },
   { path: '/settings', labelKey: 'layout.settings', icon: Settings },
 ];
 
