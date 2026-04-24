@@ -1,0 +1,125 @@
+# =============================================================================
+# Docker Compose for wbhelper (Marketplace Seller Optimizer)
+# =============================================================================
+# Features:
+#   - Backend: Haskell app with CPU/memory limits and health checks
+#   - Nginx: Reverse proxy with HTTP/HTTPS ports
+#   - Networks: Isolated backend network for secure service communication
+# =============================================================================
+
+version: "3.8"
+
+services:
+  # ---------------------------------------------------------------------------
+  # Backend API Service (Haskell)
+  # ---------------------------------------------------------------------------
+  wbhelper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wbhelper-api
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      - DATABASE_URL=/data/wbhelper.db
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - wbhelper-data:/data
+    networks:
+      - backend
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    # Health check configuration
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    # Auto-restart on failure (but not when stopped explicitly)
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # SQLite Database (for future use - defined here for dependency)
+  # ---------------------------------------------------------------------------
+  db:
+    image: alpine:3.19
+    container_name: wbhelper-db
+    volumes:
+      - wbhelper-data:/data
+    networks:
+      - backend
+    # Simple health check - just verify the volume is mounted
+    healthcheck:
+      test: ["CMD", "test", "-d", "/data"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Nginx Reverse Proxy
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: wbhelper-nginx
+    ports:
+      - "80:80"
+      # - "443:443"  # Uncomment for HTTPS (requires certificate setup)
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - backend
+    # Proxy connectivity check
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      wbhelper:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Frontend (Static Build - Optional for now)
+  # ---------------------------------------------------------------------------
+  # Uncomment when frontend Docker build is configured
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: wbhelper-frontend
+  #   ports:
+  #     - "3000:80"
+  #   networks:
+  #     - backend
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - wbhelper
+
+# -----------------------------------------------------------------------------
+# Networks - Isolated backend network
+# -----------------------------------------------------------------------------
+networks:
+  backend:
+    driver: bridge
+
+# -----------------------------------------------------------------------------
+# Volumes - Persistent data storage
+# -----------------------------------------------------------------------------
+volumes:
+  wbhelper-data:
+    driver: local

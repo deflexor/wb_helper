@@ -10,6 +10,10 @@ import AI.OpenRouterSpec
 import AI.QdrantSpec
 import AI.PromptsSpec
 import AI.OrchestratorSpec
+import Infra.RateLimitSpec
+import Infra.RateLimit.UsageTrackerSpec
+import Auth.JWTSpec
+import Auth.MiddlewareSpec
 
 main :: IO ()
 main = hspec $ do
@@ -30,3 +34,7 @@ main = hspec $ do
   AI.QdrantSpec.spec
   AI.PromptsSpec.spec
   AI.OrchestratorSpec.spec
+  Infra.RateLimitSpec.spec
+  Infra.RateLimit.UsageTrackerSpec.spec
+  Auth.JWTSpec.spec
+  Auth.MiddlewareSpec.spec

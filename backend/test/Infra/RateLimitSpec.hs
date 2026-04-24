@@ -5,7 +5,7 @@ import Test.Hspec
 import Data.Time (UTCTime, getCurrentTime, addUTCTime, diffUTCTime)
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (async, wait)
-import Control.Monad (forM_, replicateM)
+import Control.Monad (replicateM)
 
 import Infra.RateLimit
 import qualified Infra.RateLimit.TokenBucket as TB
@@ -143,8 +143,8 @@ spec = do
     it "handles concurrent acquisitions safely" $ do
       bucket <- createTestBucket 100 50  -- high rate, moderate capacity
       let doAcquire = TB.acquireToken bucket
-      results <- forM_ [1..100] $ \_ -> async $ doAcquire
-      _ <- waitAll results
+      asyncs <- sequence $ replicate 100 $ async doAcquire
+      sequence_ $ map wait asyncs
       -- No assertion on final count since tokens may refill,
       -- but no exceptions should be thrown (thread safety check)
 
@@ -156,9 +156,6 @@ spec = do
       finalTokens <- TB.getAvailableTokens bucket
       -- Should be close to capacity (100) after refill
       finalTokens `shouldSatisfy` (>= 90)
-
-waitAll :: [IO a] -> IO [a]
-waitAll = sequence
 
 main :: IO ()
 main = hspec spec

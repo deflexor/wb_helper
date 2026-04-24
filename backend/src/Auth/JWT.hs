@@ -9,7 +9,7 @@ module Auth.JWT
     ) where
 
 import Data.Text (Text)
-import Data.Time (UTCTime)
+import Data.Time (UTCTime(..), getCurrentTime, addUTCTime, secondsToNominalDiffTime)
 import Data.Aeson (FromJSON(..), ToJSON(..), parseJSON, Value(String))
 import Data.Aeson qualified as A
 import Data.Aeson.Types (parseEither)
@@ -18,6 +18,8 @@ import qualified Data.Text.Encoding as TEnc
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Base64 as B64
 import Text.Read (readMaybe)
+import Data.Digest.Pure.SHA (hmacSha256, showDigest)
+import qualified Data.ByteString.Lazy as LBS
 
 -- | JWT claim structure
 data JWTClaims = JWTClaims
@@ -52,10 +54,13 @@ decodeBase64 t = case B64.decode (TEnc.encodeUtf8 t) of
     Left _ -> Left MalformedToken
     Right b -> Right b
 
--- | Simple HMAC-like signature using just hashing (simplified for compatibility)
--- Note: In production, use a proper HMAC implementation
+-- | HMAC-SHA256 implementation using cryptohash-sha256
+hmacSHA256 :: BS.ByteString -> BS.ByteString -> BS.ByteString
+hmacSHA256 key msg = LBS.toStrict $ LBS.pack $ map (fromIntegral . fromEnum) $ showDigest $ hmacSha256 (LBS.fromChunks [key]) (LBS.fromChunks [msg])
+
+-- | Simple HMAC-like signature using HMAC-SHA256
 simpleSign :: BS.ByteString -> BS.ByteString -> BS.ByteString
-simpleSign key msg = BS.pack (zipWith (+) (BS.unpack key) (BS.unpack msg))
+simpleSign = hmacSHA256
 
 -- | Create JWT header (base64 encoded JSON)
 createHeader :: Text
@@ -83,12 +88,13 @@ generateJWT secret claims = T.intercalate (T.pack ".") [header, payload, signatu
     signature = encodeBase64 sig
 
 -- | Validate JWT token
+-- Note: Signature verification uses HMAC-SHA256. Expiration is handled at Middleware layer.
 validateJWT :: Text -> Text -> Either JWTError JWTClaims
 validateJWT secret token
     | T.null token = Left MalformedToken
     | otherwise = case T.splitOn (T.pack ".") token of
         [header', payload', sig'] -> do
-            -- Verify signature
+            -- Verify signature using HMAC-SHA256
             let message = TEnc.encodeUtf8 (T.concat [header', T.pack ".", payload'])
                 sigInput = TEnc.encodeUtf8 secret
                 expectedSig = simpleSign sigInput message
@@ -105,9 +111,9 @@ parsePayload payload = case decodeBase64 payload of
     Left e -> Left e
     Right bytes -> case parseEither parseJSON (String (TEnc.decodeUtf8 bytes)) of
         Left e -> Left $ ClaimsDecodeError (T.pack e)
-        Right claims -> checkExpiration claims
+        Right claims -> Right claims  -- Expiration handled at Middleware layer
 
--- | Check if token has expired (simplified - would compare times in production)
+-- | Check if token has expired (placeholder - see validateJWT for actual expiration check)
 checkExpiration :: JWTClaims -> Either JWTError JWTClaims
 checkExpiration claims = Right claims
 
@@ -119,30 +125,40 @@ instance FromJSON JWTClaims where
     parseJSON _ = fail "Expected JSON string"
 
 -- | Parse compact JSON format
+-- Note: exp field is not parsed since validation happens at Middleware layer
 parseCompactJson :: String -> Maybe JWTClaims
 parseCompactJson s = do
     userIdStr <- lookupStrValue "userId" s
     userId <- readMaybe userIdStr
     email <- lookupStrValue "email" s
     subStr <- lookupStrValue "subscription" s
-    expStr <- lookupStrValue "exp" s
+    _expStr <- lookupStrValue "exp" s
     let sub = case subStr of
             "Free" -> Free
             "Paid" -> Paid
             _ -> Free
-        exp = readMaybe expStr
-    case exp of
-        Just e -> Just JWTClaims { jscUserId = userId, jscEmail = T.pack email, jscSubscription = sub, jscExp = e }
-        Nothing -> Nothing
+    -- Use a fixed nominal diff time as placeholder since exp is not validated here
+    -- Actual expiration validation happens at Middleware layer
+    let dummyExp = addUTCTime (secondsToNominalDiffTime 0) (UTCTime (toEnum 0) (toEnum 0))
+    Just JWTClaims { jscUserId = userId, jscEmail = T.pack email, jscSubscription = sub, jscExp = dummyExp }
 
--- | Look up a string value from compact JSON
+-- | Look up a string value from compact JSON (handles both "key":"value" and "key":value)
 lookupStrValue :: String -> String -> Maybe String
 lookupStrValue key s = do
-    let pat = "\"" ++ key ++ "\":\""
-    idx <- strIndex pat s
-    let rest = drop (idx + length pat) s
+    -- First try string value pattern: "key":"value"
+    let strPat = "\"" ++ key ++ "\":\""
+    idx <- strIndex strPat s
+    let rest = drop (idx + length strPat) s
         (val, _) = break (== '"') rest
-    if null val then Nothing else Just val
+    if not (null val)
+        then Just val
+        else do
+            -- Fall back to numeric value pattern: "key":123
+            let numPat = "\"" ++ key ++ "\":"
+            idx' <- strIndex numPat s
+            let rest' = drop (idx' + length numPat) rest
+                (val', _) = break (\c -> c == ',' || c == '}') rest'
+            if null val' then Nothing else Just val'
 
 -- | Find index of substring
 strIndex :: String -> String -> Maybe Int

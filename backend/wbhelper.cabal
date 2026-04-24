@@ -34,6 +34,7 @@ library
     Infra.Cache
     Infra.RateLimit
     Infra.RateLimit.TokenBucket
+    Infra.RateLimit.UsageTracker
     Infra.Retry
     Auth.JWT
     Auth.Middleware
@@ -77,10 +78,13 @@ library
     , network-uri
     , stm
     , time
-    , cryptohash-sha256
+    ,     cryptohash-sha256
+    , crypton
+    , SHA
     , base64-bytestring
     , scrypt
     , random
+    , digest
 
 executable wbhelper
   import:           shared
@@ -107,6 +111,8 @@ test-suite spec
     AI.QdrantSpec
     AI.PromptsSpec
     AI.OrchestratorSpec
+    Infra.RateLimitSpec
+    Infra.RateLimit.UsageTrackerSpec
   build-depends:
     wbhelper
     , effectful

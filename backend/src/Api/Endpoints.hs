@@ -27,6 +27,7 @@ import GHC.Generics (Generic)
 
 import Effect.AppEffect
 import Effect.Error
+import Effect.Reader (askAppConfig)
 import Database.Schema
 import Auth.JWT (Plan(..), JWTClaims(..), generateJWT, validateJWT, UserId)
 import Auth.Middleware (AuthResult(..), requirePaid)
@@ -34,6 +35,7 @@ import Api.WB.Client (WBClient, getProducts, updatePrice)
 import Api.Ozon.Client (OzonClient, getProducts, updatePrices)
 import Domain.Margin (calcMargin, calcRequiredPrice)
 import Domain.PriceAnalysis (calcPriceGap, calcGapPercentage, recommendPrice, PriceRecommendation(..))
+import Config (configJWTSecret)
 
 -- | Health check endpoint
 handleHealthCheck :: (AppE es) => Eff es Value
@@ -90,8 +92,9 @@ handleAuthLogin payload = do
                                 , jscSubscription = Paid
                                 , jscExp = expTime
                                 }
-                    -- In real impl, get secret from config
-                    let jwt = generateJWT (T.pack "test-secret") claims
+                    -- Get JWT secret from config
+                    cfg <- askAppConfig
+                    let jwt = generateJWT (configJWTSecret cfg) claims
                     pure $ object
                         [ "success" .= True
                         , "token" .= jwt
