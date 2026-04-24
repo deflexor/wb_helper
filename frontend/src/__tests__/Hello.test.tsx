@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderWithProviders } from './setup';
+import { renderWithProviders } from './setup.tsx';
 import { Hello } from '@/pages/Hello';
 import i18n from '@/i18n';
 import '@testing-library/jest-dom';

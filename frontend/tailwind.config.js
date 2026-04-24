@@ -39,6 +39,19 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // Design system colors
+        neon: {
+          volt: '#faff69',
+          pale: '#f4f692',
+        },
+        forest: {
+          DEFAULT: '#166534',
+          light: '#22863a',
+        },
+        charcoal: {
+          DEFAULT: 'rgba(65,65,65,0.8)',
+          solid: '#414141',
+        },
       },
     },
   },
