@@ -7,6 +7,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import System.IO (stderr)
+import System.Exit (exitWith, ExitCode(ExitFailure))
 import System.Environment (lookupEnv)
 
 -- | Read environment variable with fallback
@@ -57,4 +58,6 @@ main = do
             runApp config
 
 exitFailure :: IO ()
-exitFailure = putStrLn "Failed to start application" >> undefined
+exitFailure = do
+    putStrLn "Failed to start application"
+    exitWith (ExitFailure 1)
