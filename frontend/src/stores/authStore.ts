@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Premium feature types
+export type PremiumFeature = 'niche_analysis' | 'returns_forecast' | 'seo_content_generation' | 'competitor_analysis_full';
+
 // User type - extended with subscription info
 interface User {
   id: string;
@@ -20,6 +23,8 @@ interface AuthState {
   login: (user: User, token: string) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
+  isPremium: () => boolean;
+  canAccess: (feature: PremiumFeature) => boolean;
 }
 
 // Mock login function with 1s delay
@@ -56,10 +61,23 @@ const mockRegister = async (email: string, _password: string): Promise<{ user: U
   });
 };
 
+// Premium features available only to pro/enterprise users
+const PREMIUM_FEATURES: PremiumFeature[] = [
+  'niche_analysis',
+  'returns_forecast',
+  'seo_content_generation',
+  'competitor_analysis_full',
+];
+
+// Check if a feature requires premium subscription
+const isPremiumFeature = (feature: PremiumFeature): boolean => {
+  return PREMIUM_FEATURES.includes(feature);
+};
+
 // Auth store with persistence
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
@@ -67,6 +85,23 @@ export const useAuthStore = create<AuthState>()(
       login: (user, token) => set({ user, token, isAuthenticated: true, isLoading: false }),
       logout: () => set({ user: null, token: null, isAuthenticated: false, isLoading: false }),
       setLoading: (loading) => set({ isLoading: loading }),
+      isPremium: () => {
+        const user = get().user;
+        return user?.subscriptionPlan === 'pro' || user?.subscriptionPlan === 'enterprise';
+      },
+      canAccess: (feature: PremiumFeature) => {
+        const user = get().user;
+        // Non-premium features are accessible to all
+        if (!isPremiumFeature(feature)) {
+          return true;
+        }
+        // Pro/Enterprise users can access premium features
+        if (user?.subscriptionPlan === 'pro' || user?.subscriptionPlan === 'enterprise') {
+          return true;
+        }
+        // Free users cannot access premium features
+        return false;
+      },
     }),
     {
       name: 'wbhelper-auth',

@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore, type PremiumFeature } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
-import { t } from '@/i18n';
 
 interface PremiumGateProps {
   children: React.ReactNode;
@@ -11,11 +11,12 @@ interface PremiumGateProps {
   showOverlay?: boolean;
 }
 
-const FEATURE_LABELS: Record<PremiumFeature, string> = {
-  niche_analysis: t('premium.features.nicheAnalysis'),
-  returns_forecast: t('premium.features.returnsForecast'),
-  seo_content_generation: t('premium.features.seoContentGeneration'),
-  competitor_analysis_full: t('premium.features.competitorAnalysisFull'),
+// Feature label keys for translation
+const FEATURE_LABEL_KEYS: Record<PremiumFeature, string> = {
+  niche_analysis: 'premium.features.nicheAnalysis',
+  returns_forecast: 'premium.features.returnsForecast',
+  seo_content_generation: 'premium.features.seoContentGeneration',
+  competitor_analysis_full: 'premium.features.competitorAnalysisFull',
 };
 
 export function PremiumGate({
@@ -24,10 +25,11 @@ export function PremiumGate({
   blurIntensity = 8,
   showOverlay = true,
 }: PremiumGateProps) {
+  const { t } = useTranslation();
   const { isPremium, canAccess } = useAuthStore();
 
   const hasAccess = isPremium() || canAccess(feature);
-  const featureLabel = FEATURE_LABELS[feature];
+  const featureLabel = t(FEATURE_LABEL_KEYS[feature]);
 
   const handleUpgrade = useCallback(() => {
     // Navigate to pricing/upgrade page - could use react-router or similar
