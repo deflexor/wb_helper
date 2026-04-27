@@ -20,6 +20,11 @@ const toChartData = (forecast: ReturnType<typeof useReturnsForecast>["forecast"]
   }));
 };
 
+// Helper to capitalize (defined before useMemo that uses it)
+const capitalize = (s: string): string => {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
 /**
  * Get risk badge styling
  */
@@ -252,11 +257,6 @@ export default function ReturnsForecastPage() {
       </Card>
     </div>
   ), [t]);
-
-  // Helper to capitalize
-  const capitalize = (s: string): string => {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  };
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">

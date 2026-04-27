@@ -256,5 +256,20 @@
     "clothing": "Clothing",
     "home": "Home & Garden",
     "sports": "Sports & Outdoors"
+  },
+  "premium": {
+    "features": {
+      "nicheAnalysis": "Niche Analysis",
+      "returnsForecast": "Returns Forecast",
+      "seoContentGeneration": "SEO Content Generation",
+      "competitorAnalysisFull": "Full Competitor Analysis"
+    },
+    "gate": {
+      "premiumFeature": "Premium Feature",
+      "unlockDescription": "Unlock this feature with a Pro subscription",
+      "upgradeToPro": "Upgrade to Pro",
+      "comparePlans": "View",
+      "viewPlans": "pricing plans"
+    }
   }
 }
