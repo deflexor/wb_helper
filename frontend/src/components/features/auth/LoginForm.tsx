@@ -66,6 +66,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         </label>
         <Input
           id="login-email"
+          data-testid="email-input"
           type="email"
           placeholder={t('auth.emailPlaceholder')}
           value={email}
@@ -85,6 +86,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         </label>
         <Input
           id="login-password"
+          data-testid="password-input"
           type="password"
           placeholder={t('auth.passwordPlaceholder')}
           value={password}
@@ -105,6 +107,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
       {/* Submit button */}
       <Button
         type="submit"
+        data-testid="login-btn"
         disabled={isLoading}
         className="w-full bg-[#faff69] text-[#151515] hover:bg-[#faff69]/90"
       >
