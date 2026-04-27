@@ -286,6 +286,10 @@
       "declining": "Declining",
       "droppedKeywords": "Dropped Keywords",
       "positionTrend": "Position Trend (30 Days)",
+      "positionTrends": "Position Trends",
+      "quickStats": "Quick Stats",
+      "totalKeywords": "Total Keywords",
+      "marketplace": "Marketplace",
       "topKeywords": "Top Performing Keywords",
       "keyword": "Keyword",
       "position": "Position",
@@ -419,6 +423,7 @@
     "table": {
       "keyword": "Keyword",
       "article": "Article",
+      "position": "Position",
       "currentPosition": "Current Position",
       "change": "Change",
       "lastUpdated": "Last Updated",
