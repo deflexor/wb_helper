@@ -6,6 +6,7 @@ import App.Hello
 import qualified Data.Text as T
 import Domain.MarginSpec
 import Domain.PriceAnalysisSpec
+import Domain.SEOSpec
 import AI.OpenRouterSpec
 import AI.QdrantSpec
 import AI.PromptsSpec
@@ -30,6 +31,7 @@ main = hspec $ do
 
   Domain.MarginSpec.spec
   Domain.PriceAnalysisSpec.spec
+  Domain.SEOSpec.spec
   AI.OpenRouterSpec.spec
   AI.QdrantSpec.spec
   AI.PromptsSpec.spec

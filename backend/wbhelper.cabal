@@ -50,6 +50,8 @@ library
     Integration.Marketplace
     Domain.Margin
     Domain.PriceAnalysis
+    Domain.Marketplace
+    Domain.SEO
     Database.Schema
     Database.Migration
     AI.OpenRouter

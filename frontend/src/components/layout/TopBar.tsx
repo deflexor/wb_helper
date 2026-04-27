@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { ThemeToggle } from '../ui/ThemeToggle';
 import { useAuthStore } from '../../stores/authStore';
 import { useUsageStore } from '../../stores/usageStore';
 import { changeLanguage, getCurrentLanguage } from '../../i18n';
@@ -39,10 +40,10 @@ export function TopBar() {
   const apiCallsRemaining = limits.apiCallsLimit - limits.apiCalls;
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-black border-b border-charcoal">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white dark:bg-black border-b border-border dark:border-charcoal">
       {/* Mobile hamburger - opens sidebar */}
       <button
-        className="flex md:hidden items-center justify-center w-10 h-10 rounded-md text-muted-foreground hover:text-neon-volt"
+        className="flex md:hidden items-center justify-center w-10 h-10 rounded-md text-muted-foreground hover:text-foreground dark:hover:text-neon-volt"
         onClick={() => {
           const event = new CustomEvent('toggle-mobile-sidebar');
           window.dispatchEvent(event);
@@ -70,7 +71,7 @@ export function TopBar() {
         {/* Usage limits */}
         <div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-neon-volt" />
+            <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-neon-volt" />
             <span>
               {limits.apiCalls}/{limits.apiCallsLimit}
             </span>
@@ -79,7 +80,7 @@ export function TopBar() {
             <span
               className={clsx(
                 'w-2 h-2 rounded-full',
-                apiCallsRemaining < 100 ? 'bg-red-500' : 'bg-green-500'
+                apiCallsRemaining < 100 ? 'bg-destructive' : 'bg-green-500 dark:bg-green-500'
               )}
             />
             <span>
@@ -90,7 +91,7 @@ export function TopBar() {
 
         {/* Language switcher */}
         <Select value={currentLang} onValueChange={handleLanguageChange}>
-          <SelectTrigger className="w-20 h-9 bg-transparent border-charcoal">
+          <SelectTrigger className="w-20 h-9 bg-transparent border-border dark:border-charcoal">
             <div className="flex items-center gap-1.5">
               <Globe className="w-4 h-4" />
               <SelectValue />
@@ -105,7 +106,7 @@ export function TopBar() {
         {/* User dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 p-1 rounded-md hover:bg-white/5 transition-colors">
+            <button className="flex items-center gap-2 p-1 rounded-md hover:bg-muted dark:hover:bg-white/5 transition-colors">
               <Avatar className="w-8 h-8">
                 <AvatarImage src={user?.avatar} alt={user?.name} />
                 <AvatarFallback className="bg-neon-volt text-black text-sm">
@@ -114,21 +115,21 @@ export function TopBar() {
               </Avatar>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 bg-black border-charcoal">
+          <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-black border-border dark:border-charcoal shadow-lg dark:shadow-none">
             <DropdownMenuLabel className="text-muted-foreground font-normal">
               {user?.email || 'user@example.com'}
             </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-charcoal" />
+            <DropdownMenuSeparator className="bg-border dark:bg-charcoal" />
             <DropdownMenuItem
-              className="hover:bg-white/5 focus:bg-white/5 cursor-pointer"
+              className="hover:bg-muted dark:hover:bg-white/5 focus:bg-muted dark:focus:bg-white/5 cursor-pointer"
               onClick={() => {}}
             >
               <User className="w-4 h-4 mr-2" />
               {t('layout.header.profile')}
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-charcoal" />
+            <DropdownMenuSeparator className="bg-border dark:bg-charcoal" />
             <DropdownMenuItem
-              className="hover:bg-white/5 focus:bg-white/5 cursor-pointer text-red-400"
+              className="hover:bg-muted dark:hover:bg-white/5 focus:bg-muted dark:focus:bg-white/5 cursor-pointer text-red-500 dark:text-red-400"
               onClick={handleLogout}
             >
               <LogOut className="w-4 h-4 mr-2" />
@@ -136,6 +137,9 @@ export function TopBar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Theme toggle */}
+        <ThemeToggle />
       </div>
     </header>
   );

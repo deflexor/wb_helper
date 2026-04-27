@@ -156,8 +156,8 @@ export default function OptimizationPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">{t("optimization.title")}</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-3xl font-bold text-foreground">{t("optimization.title")}</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {t("optimization.selectedProducts")}: {AFFECTED_PRODUCT_COUNT}
           </p>
         </div>
@@ -182,11 +182,11 @@ export default function OptimizationPage() {
 
       {/* Saved Strategies */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">{t("optimization.strategy")}s</h2>
+        <h2 className="text-xl font-semibold text-foreground">{t("optimization.strategy")}s</h2>
         {strategies.length === 0 ? (
-          <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+          <Card className="bg-card border border-border">
             <CardContent className="py-8">
-              <p className="text-center text-gray-400">{t("optimization.noProductsSelected")}</p>
+              <p className="text-center text-muted-foreground">{t("optimization.noProductsSelected")}</p>
             </CardContent>
           </Card>
         ) : (
@@ -218,7 +218,7 @@ export default function OptimizationPage() {
 
       {/* Strategy Edit/Create Dialog */}
       <Dialog open={strategyDialogOpen} onOpenChange={setStrategyDialogOpen}>
-        <DialogContent className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+        <DialogContent className="bg-card border border-border">
           <DialogHeader>
             <DialogTitle>
               {editingStrategy ? t("common.edit") : t("common.save")}
@@ -232,14 +232,14 @@ export default function OptimizationPage() {
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-200">
+              <label className="text-sm font-medium text-foreground">
                 {t("competitors.productName")}
               </label>
               <Input
                 value={strategyName}
                 onChange={(e) => setStrategyName(e.target.value)}
                 placeholder={t("optimization.strategy")}
-                className="bg-black/40 border-[rgba(65,65,65,0.8)] text-white"
+                className="bg-muted border border-border text-foreground"
               />
             </div>
           </div>

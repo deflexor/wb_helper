@@ -31,18 +31,24 @@ interface NicheChartsProps {
   isLoading?: boolean;
 }
 
-// Custom tooltip for scatter chart - dark theme styling
+// Custom tooltip for scatter chart - theme-aware styling
 const ScatterTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (!active || !payload?.length) return null;
 
   const data = payload[0].payload as NicheData;
   return (
-    <div className="bg-[#0a0a0a] border border-[rgba(65,65,65,0.8)] rounded-lg px-3 py-2 shadow-lg">
-      <p className="text-[#faff69] font-medium text-sm">{data.product}</p>
-      <p className="text-gray-400 text-xs mt-1">
-        {t('niche.demandScore')}: <span className="text-white">{data.demandScore}</span>
+    <div
+      className="rounded-lg px-3 py-2 shadow-lg border"
+      style={{
+        backgroundColor: 'var(--chart-tooltip-bg, #ffffff)',
+        borderColor: 'var(--chart-tooltip-border, #e5e5e5)',
+      }}
+    >
+      <p className="font-medium text-sm" style={{ color: NEON_VOLT }}>{data.product}</p>
+      <p className="text-xs mt-1" style={{ color: 'var(--chart-tooltip-text, #151515)' }}>
+        {t('niche.demandScore')}: <span style={{ color: 'var(--chart-tooltip-text, #151515)' }}>{data.demandScore}</span>
       </p>
-      <p className="text-gray-400 text-xs">
+      <p className="text-xs" style={{ color: 'var(--chart-tooltip-text, #151515)' }}>
         {t('niche.competitionLevel')}:{' '}
         <span
           className={cn(
@@ -58,15 +64,21 @@ const ScatterTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   );
 };
 
-// Custom tooltip for bar chart - dark theme styling
+// Custom tooltip for bar chart - theme-aware styling
 const BarTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="bg-[#0a0a0a] border border-[rgba(65,65,65,0.8)] rounded-lg px-3 py-2 shadow-lg">
-      <p className="text-white font-medium text-sm">{label}</p>
-      <p className="text-[#faff69] text-xs mt-1">
-        {t('niche.avgDemandScore')}: <span className="text-white font-medium">{payload[0].value}</span>
+    <div
+      className="rounded-lg px-3 py-2 shadow-lg border"
+      style={{
+        backgroundColor: 'var(--chart-tooltip-bg, #ffffff)',
+        borderColor: 'var(--chart-tooltip-border, #e5e5e5)',
+      }}
+    >
+      <p className="font-medium text-sm" style={{ color: 'var(--chart-tooltip-text, #151515)' }}>{label}</p>
+      <p className="text-xs mt-1" style={{ color: NEON_VOLT }}>
+        {t('niche.avgDemandScore')}: <span className="font-medium" style={{ color: 'var(--chart-tooltip-text, #151515)' }}>{payload[0].value}</span>
       </p>
     </div>
   );
@@ -80,8 +92,6 @@ const competitionToNumber = (level: 'low' | 'medium' | 'high'): number => {
 
 // Chart colors
 const NEON_VOLT = '#faff69';
-const GRID_COLOR = 'rgba(65, 65, 65, 0.3)';
-const TEXT_COLOR = '#a0a0a0';
 
 export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheChartsProps) {
   // Transform data for scatter chart: demand score (x) vs competition (y)
@@ -147,20 +157,20 @@ export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheC
             <ScatterChart
               margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid, #e5e5e5)" />
               <XAxis
                 type="number"
                 dataKey="x"
                 name={t('niche.demandScore')}
                 domain={[0, 100]}
-                tick={{ fill: TEXT_COLOR, fontSize: 12 }}
-                axisLine={{ stroke: GRID_COLOR }}
-                tickLine={{ stroke: GRID_COLOR }}
+                tick={{ fill: 'var(--chart-text, #737373)', fontSize: 12 }}
+                axisLine={{ stroke: 'var(--chart-grid, #e5e5e5)' }}
+                tickLine={{ stroke: 'var(--chart-grid, #e5e5e5)' }}
                 label={{
                   value: t('niche.demandScore'),
                   position: 'insideBottom',
                   offset: -10,
-                  fill: TEXT_COLOR,
+                  fill: 'var(--chart-text, #737373)',
                   fontSize: 12,
                 }}
               />
@@ -174,9 +184,9 @@ export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheC
                   const labels = { 1: t('niche.competitionLow'), 2: t('niche.competitionMedium'), 3: t('niche.competitionHigh') };
                   return labels[value as keyof typeof labels] || '';
                 }}
-                tick={{ fill: TEXT_COLOR, fontSize: 10 }}
-                axisLine={{ stroke: GRID_COLOR }}
-                tickLine={{ stroke: GRID_COLOR }}
+                tick={{ fill: 'var(--chart-text, #737373)', fontSize: 10 }}
+                axisLine={{ stroke: 'var(--chart-grid, #e5e5e5)' }}
+                tickLine={{ stroke: 'var(--chart-grid, #e5e5e5)' }}
                 width={80}
               />
               <Tooltip content={<ScatterTooltip />} />
@@ -225,26 +235,26 @@ export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheC
               data={barData}
               margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid, #e5e5e5)" />
               <XAxis
                 dataKey="category"
-                tick={{ fill: TEXT_COLOR, fontSize: 11 }}
-                axisLine={{ stroke: GRID_COLOR }}
-                tickLine={{ stroke: GRID_COLOR }}
+                tick={{ fill: 'var(--chart-text, #737373)', fontSize: 11 }}
+                axisLine={{ stroke: 'var(--chart-grid, #e5e5e5)' }}
+                tickLine={{ stroke: 'var(--chart-grid, #e5e5e5)' }}
                 angle={-20}
                 textAnchor="end"
                 height={60}
               />
               <YAxis
                 domain={[0, 100]}
-                tick={{ fill: TEXT_COLOR, fontSize: 12 }}
-                axisLine={{ stroke: GRID_COLOR }}
-                tickLine={{ stroke: GRID_COLOR }}
+                tick={{ fill: 'var(--chart-text, #737373)', fontSize: 12 }}
+                axisLine={{ stroke: 'var(--chart-grid, #e5e5e5)' }}
+                tickLine={{ stroke: 'var(--chart-grid, #e5e5e5)' }}
                 label={{
                   value: t('niche.avgDemandScore'),
                   angle: -90,
                   position: 'insideLeft',
-                  fill: TEXT_COLOR,
+                  fill: 'var(--chart-text, #737373)',
                   fontSize: 12,
                 }}
               />

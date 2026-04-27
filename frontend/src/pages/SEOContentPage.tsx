@@ -59,21 +59,21 @@ export default function SEOContentPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-foreground">
             {t("seo_content.pageTitle")}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {t("seo_content.pageDescription")}
           </p>
         </div>
       </div>
 
       {/* Input Form */}
-      <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+      <Card className="bg-card border border-border">
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="productName" className="text-sm font-medium text-gray-200">
+              <label htmlFor="productName" className="text-sm font-medium text-foreground">
                 {t("seo_content.fields.productName")}
               </label>
               <Input
@@ -81,11 +81,11 @@ export default function SEOContentPage() {
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
                 placeholder={t("seo_content.fields.productName")}
-                className="bg-black/40 border-[rgba(65,65,65,0.8)] text-white"
+                className="bg-muted border border-border text-foreground"
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="keywords" className="text-sm font-medium text-gray-200">
+              <label htmlFor="keywords" className="text-sm font-medium text-foreground">
                 {t("seo_content.fields.keywords")}
               </label>
               <Input
@@ -93,12 +93,12 @@ export default function SEOContentPage() {
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
                 placeholder={t("seo_content.fields.keywords")}
-                className="bg-black/40 border-[rgba(65,65,65,0.8)] text-white"
+                className="bg-muted border border-border text-foreground"
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label htmlFor="description" className="text-sm font-medium text-gray-200">
+            <label htmlFor="description" className="text-sm font-medium text-foreground">
               {t("seo_content.fields.description")}
             </label>
             <textarea
@@ -106,7 +106,7 @@ export default function SEOContentPage() {
               value={originalContent}
               onChange={(e) => setOriginalContent(e.target.value)}
               placeholder={t("seo_content.placeholder.original")}
-              className="w-full h-32 px-4 py-2 bg-black/40 border border-[rgba(65,65,65,0.8)] text-white rounded-lg resize-none focus:ring-2 focus:ring-[#faff69] focus:border-transparent"
+              className="w-full h-32 px-4 py-2 bg-muted border border-border text-foreground rounded-lg resize-none focus:ring-2 focus:ring-[#faff69] focus:border-transparent"
             />
           </div>
           <Button

@@ -100,16 +100,16 @@ export default function ReturnsForecastPage() {
       <div className="space-y-6">
         {/* Stats row */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+          <Card className="bg-card border border-border">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-white">
+              <div className="text-2xl font-bold text-foreground">
                 {stats.avgReturns.toFixed(1)}%
               </div>
-              <p className="text-sm text-gray-400">{t("returns_forecast.avgReturns")}</p>
+              <p className="text-sm text-muted-foreground">{t("returns_forecast.avgReturns")}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+          <Card className="bg-card border border-border">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2">
                 <lowBadge.icon className={`h-5 w-5 ${lowBadge.text}`} />
@@ -117,11 +117,11 @@ export default function ReturnsForecastPage() {
                   {stats.lowRiskCount}
                 </span>
               </div>
-              <p className="text-sm text-gray-400">{t("returns_forecast.lowRisk")}</p>
+              <p className="text-sm text-muted-foreground">{t("returns_forecast.lowRisk")}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+          <Card className="bg-card border border-border">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2">
                 <medBadge.icon className={`h-5 w-5 ${medBadge.text}`} />
@@ -129,11 +129,11 @@ export default function ReturnsForecastPage() {
                   {stats.mediumRiskCount}
                 </span>
               </div>
-              <p className="text-sm text-gray-400">{t("returns_forecast.mediumRisk")}</p>
+              <p className="text-sm text-muted-foreground">{t("returns_forecast.mediumRisk")}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+          <Card className="bg-card border border-border">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2">
                 <highBadge.icon className={`h-5 w-5 ${highBadge.text}`} />
@@ -141,15 +141,15 @@ export default function ReturnsForecastPage() {
                   {stats.highRiskCount}
                 </span>
               </div>
-              <p className="text-sm text-gray-400">{t("returns_forecast.highRisk")}</p>
+              <p className="text-sm text-muted-foreground">{t("returns_forecast.highRisk")}</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main chart */}
-        <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-[#faff69]" />
               {t("returns_forecast.forecastTrend")}
             </CardTitle>
@@ -157,7 +157,7 @@ export default function ReturnsForecastPage() {
           <CardContent>
             {isLoading ? (
               <div className="h-[300px] flex items-center justify-center">
-                <p className="text-gray-400">{t("common.loading")}</p>
+                <p className="text-muted-foreground">{t("common.loading")}</p>
               </div>
             ) : (
               <ForecastChart
@@ -178,9 +178,9 @@ export default function ReturnsForecastPage() {
   // Category tab content
   const categoryContent = useMemo(() => (
     <div className="space-y-6">
-      <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+      <Card className="bg-card border border-border">
         <CardHeader>
-          <CardTitle className="text-white">
+          <CardTitle className="text-foreground">
             {t("returns_forecast.categoryBreakdown")}
           </CardTitle>
         </CardHeader>
@@ -189,15 +189,15 @@ export default function ReturnsForecastPage() {
             {CATEGORIES.filter((c) => c.value !== "all").map((category) => (
               <div
                 key={category.value}
-                className="flex items-center justify-between p-4 rounded-lg bg-black/40"
+                className="flex items-center justify-between p-4 rounded-lg bg-muted"
               >
-                <span className="text-gray-300">{t(category.labelKey)}</span>
+                <span className="text-foreground">{t(category.labelKey)}</span>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <span className="text-xl font-bold text-white">
+                    <span className="text-xl font-bold text-foreground">
                       {(Math.random() * 10).toFixed(1)}%
                     </span>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {t("returns_forecast.returnsRate")}
                     </p>
                   </div>
@@ -213,9 +213,9 @@ export default function ReturnsForecastPage() {
   // Product tab content
   const productContent = useMemo(() => (
     <div className="space-y-6">
-      <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+      <Card className="bg-card border border-border">
         <CardHeader>
-          <CardTitle className="text-white">
+          <CardTitle className="text-foreground">
             {t("returns_forecast.topProducts")}
           </CardTitle>
         </CardHeader>
@@ -235,14 +235,14 @@ export default function ReturnsForecastPage() {
               return (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-4 rounded-lg bg-black/40"
+                  className="flex items-center justify-between p-4 rounded-lg bg-muted"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-gray-400 text-sm">{i}</span>
-                    <span className="text-gray-300">{productNames[i - 1]}</span>
+                    <span className="text-muted-foreground text-sm">{i}</span>
+                    <span className="text-foreground">{productNames[i - 1]}</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-white font-medium">
+                    <span className="text-foreground font-medium">
                       {(Math.random() * 15 + 2).toFixed(1)}%
                     </span>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${badge.bg} ${badge.text}`}>
@@ -263,22 +263,22 @@ export default function ReturnsForecastPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-foreground">
             {t("returns_forecast.title")}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {t("returns_forecast.subtitle")}
           </p>
         </div>
       </div>
 
       {/* Filters */}
-      <Card className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+      <Card className="bg-card border border-border">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Date range filter */}
             <div className="flex-1">
-              <label className="text-sm text-gray-400 mb-2 block">
+              <label className="text-sm text-muted-foreground mb-2 block">
                 {t("returns_forecast.dateRange")}
               </label>
               <Select
@@ -287,10 +287,10 @@ export default function ReturnsForecastPage() {
                   setFilters({ dateRange: value as typeof filters.dateRange })
                 }
               >
-                <SelectTrigger className="bg-black/40 border-[rgba(65,65,65,0.8)] text-white">
+                <SelectTrigger className="bg-muted border-border text-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#141414] border-[rgba(65,65,65,0.8)]">
+                <SelectContent className="bg-card border-border">
                   <SelectItem value="7d">{t("returns_forecast.7days")}</SelectItem>
                   <SelectItem value="14d">{t("returns_forecast.14days")}</SelectItem>
                   <SelectItem value="30d">{t("returns_forecast.30days")}</SelectItem>
@@ -301,17 +301,17 @@ export default function ReturnsForecastPage() {
 
             {/* Category filter */}
             <div className="flex-1">
-              <label className="text-sm text-gray-400 mb-2 block">
+              <label className="text-sm text-muted-foreground mb-2 block">
                 {t("returns_forecast.category")}
               </label>
               <Select
                 value={filters.category}
                 onValueChange={(value) => setFilters({ category: value })}
               >
-                <SelectTrigger className="bg-black/40 border-[rgba(65,65,65,0.8)] text-white">
+                <SelectTrigger className="bg-muted border-border text-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#141414] border-[rgba(65,65,65,0.8)]">
+                <SelectContent className="bg-card border-border">
                   {CATEGORIES.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value}>
                       {t(cat.labelKey)}
@@ -323,7 +323,7 @@ export default function ReturnsForecastPage() {
 
             {/* Risk level filter */}
             <div className="flex-1">
-              <label className="text-sm text-gray-400 mb-2 block">
+              <label className="text-sm text-muted-foreground mb-2 block">
                 {t("returns_forecast.riskLevel")}
               </label>
               <Select
@@ -332,10 +332,10 @@ export default function ReturnsForecastPage() {
                   setFilters({ riskLevel: value as typeof filters.riskLevel })
                 }
               >
-                <SelectTrigger className="bg-black/40 border-[rgba(65,65,65,0.8)] text-white">
+                <SelectTrigger className="bg-muted border-border text-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#141414] border-[rgba(65,65,65,0.8)]">
+                <SelectContent className="bg-card border-border">
                   <SelectItem value="all">{t("common.all")}</SelectItem>
                   <SelectItem value="low">{t("returns_forecast.lowRisk")}</SelectItem>
                   <SelectItem value="medium">{t("returns_forecast.mediumRisk")}</SelectItem>
@@ -349,7 +349,7 @@ export default function ReturnsForecastPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+        <TabsList className="bg-card border border-border">
           <TabsTrigger
             value="overview"
             className="data-[state=active]:bg-[#faff69] data-[state=active]:text-black"

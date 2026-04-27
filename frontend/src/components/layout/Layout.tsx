@@ -36,7 +36,7 @@ export function Layout() {
   }, [isCollapsed, setCollapsed]);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Sidebar />
       <div
         className={`
@@ -45,7 +45,7 @@ export function Layout() {
         `}
       >
         <TopBar />
-        <main className="p-4 md:p-6">
+        <main className="p-4 md:p-6 bg-background">
           <Outlet />
         </main>
       </div>

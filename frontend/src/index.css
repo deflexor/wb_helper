@@ -3,35 +3,66 @@
 @tailwind utilities;
 
 @layer base {
+  /* Light theme (default) - no class needed */
   :root {
-    --background: 0 0% 0%;           /* #000000 - Pure Black */
-    --foreground: 0 0% 100%;          /* #ffffff - White */
-    --card: 0 0% 0%;                 /* #000000 - Pure Black */
-    --card-foreground: 0 0% 100%;    /* #ffffff - White */
-    --primary: 63 100% 71%;          /* #faff69 - Neon Volt */
-    --primary-foreground: 0 0% 0%;   /* #000000 - Black text on neon */
-    --secondary: 142 76% 24%;        /* #166534 - Forest Green */
+    --background: 0 0% 100%;           /* #ffffff - White */
+    --foreground: 0 0% 9%;             /* #151515 - Near black text */
+    --card: 0 0% 100%;                  /* #ffffff */
+    --card-foreground: 0 0% 9%;        /* #151515 */
+    --primary: 63 100% 71%;             /* #faff69 - Neon Volt */
+    --primary-foreground: 0 0% 9%;     /* #151515 - Dark text on neon */
+    --secondary: 142 76% 24%;           /* #166534 - Forest Green */
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 25%;               /* #404040 - Muted dark */
-    --muted-foreground: 0 0% 63%;    /* #a0a0a0 - Text Secondary */
-    --accent: 63 100% 71%;           /* #faff69 - Neon Volt for accents */
+    --muted: 0 0% 96%;                  /* #f4f4f5 - Light gray */
+    --muted-foreground: 0 0% 45%;       /* #737373 - Medium gray text */
+    --accent: 63 100% 71%;              /* #faff69 - Neon Volt */
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 0 0% 90%;                 /* Light borders */
+    --input: 0 0% 90%;
+    --ring: 63 100% 71%;                /* #faff69 - Neon Volt ring */
+    --radius: 0.5rem;
+  }
+
+  /* Dark theme - toggle with .dark class on HTML element */
+  .dark {
+    --background: 0 0% 0%;              /* #000000 - Pure Black */
+    --foreground: 0 0% 100%;            /* #ffffff - White */
+    --card: 0 0% 0%;                    /* #000000 */
+    --card-foreground: 0 0% 100%;       /* #ffffff */
+    --primary: 63 100% 71%;             /* #faff69 - Neon Volt */
+    --primary-foreground: 0 0% 0%;     /* #000000 - Black text on neon */
+    --secondary: 142 76% 24%;            /* #166534 - Forest Green */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 25%;                  /* #404040 - Muted dark */
+    --muted-foreground: 0 0% 63%;       /* #a0a0a0 - Text Secondary */
+    --accent: 63 100% 71%;              /* #faff69 - Neon Volt */
     --accent-foreground: 0 0% 0%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 0 0% 25%;              /* rgba(65,65,65,0.8) - Charcoal */
+    --border: 0 0% 25%;                 /* rgba(65,65,65,0.8) - Charcoal */
     --input: 0 0% 25%;
-    --ring: 63 100% 71%;             /* #faff69 - Neon Volt ring */
+    --ring: 63 100% 71%;                /* #faff69 - Neon Volt ring */
     --radius: 0.5rem;
-    
-    /* Design system custom properties */
-    --neon-volt: #faff69;
-    --neon-pale: #f4f692;
-    --forest: #166534;
-    --forest-light: #22863a;
-    --charcoal: rgba(65, 65, 65, 0.8);
-    --charcoal-solid: #414141;
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
+  }
+
+  /* Chart colors - light theme (default) */
+  :root {
+    --chart-grid: #e5e5e5;
+    --chart-text: #737373;
+    --chart-tooltip-bg: #ffffff;
+    --chart-tooltip-border: #e5e5e5;
+    --chart-tooltip-text: #151515;
+  }
+
+  /* Chart colors - dark theme */
+  .dark {
+    --chart-grid: rgba(65, 65, 65, 0.3);
+    --chart-text: #a0a0a0;
+    --chart-tooltip-bg: #0a0a0a;
+    --chart-tooltip-border: rgba(65, 65, 65, 0.8);
+    --chart-tooltip-text: #ffffff;
   }
 }
 

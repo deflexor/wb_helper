@@ -8,6 +8,10 @@ module AI.Prompts
   , getSEOGeneratorPrompt
   , getReviewAnalyzerPrompt
   , getPricingAdvisorPrompt
+  , getSEOClusteringPrompt
+  , getSEODroppedDetectionPrompt
+  , getSEOCompetitorAnalysisPrompt
+  , getKeywordSuggestionsPrompt
   ) where
 
 import Data.Text (Text)
@@ -15,9 +19,11 @@ import Data.Text qualified as T
 import Data.Maybe (fromMaybe)
 
 import Auth.JWT (Plan(..))
+import Domain.Marketplace (Marketplace(..), marketplaceToText)
 
 -- | Tool type for different AI tasks
 data ToolType = SEOGenerator | ReviewAnalyzer | PricingAdvisor
+    | SEOClustering | SEODroppedDetection | SEOCompetitorAnalysis
     deriving (Show, Eq)
 
 -- | Template context with variable placeholders
@@ -97,3 +103,89 @@ getPricingAdvisorPrompt ctx = (systemPrompt, renderTemplate ctx userTemplate)
             , "Considering competitors: {competitorData}"
             ]
         }
+
+-- | Get SEO Keyword Clustering prompt (system, user)
+getSEOClusteringPrompt :: [Text] -> Marketplace -> (Text, Text)
+getSEOClusteringPrompt keywords marketplace = (systemPrompt, userPrompt)
+  where
+    systemPrompt :: Text
+    systemPrompt = T.concat
+        [ "You are an SEO expert specializing in semantic keyword clustering. "
+        , "Group keywords into semantically similar clusters for marketplace SEO optimization. "
+        , "Return a JSON array of clusters, each containing keywords that are semantically related."
+        ]
+
+    userPrompt :: Text
+    userPrompt = T.concat
+        [ "Cluster the following keywords by semantic similarity for "
+        , T.pack $ marketplaceToText marketplace
+        , " marketplace:\n\n"
+        , T.intercalate "\n" (map (\(i, kw) -> T.pack (show (i + 1) :: String) <> ". " <> kw) (zip [0..] keywords))
+        , "\n\nReturn JSON in format: [{\"clusterName\":\"name\",\"keywords\":[\"kw1\",\"kw2\"]}]"
+        ]
+
+-- | Get SEO Dropped Keywords Detection prompt (system, user)
+getSEODroppedDetectionPrompt :: Text -> Marketplace -> (Text, Text)
+getSEODroppedDetectionPrompt articleId marketplace = (systemPrompt, userPrompt)
+  where
+    systemPrompt :: Text
+    systemPrompt = T.concat
+        [ "You are an SEO expert specializing in keyword position tracking and dropout detection. "
+        , "Analyze keyword position changes to identify keywords that have significantly dropped or disappeared. "
+        , "Return a JSON array of dropped keywords with details about when they dropped and their previous positions."
+        ]
+
+    userPrompt :: Text
+    userPrompt = T.concat
+        [ "Detect dropped keywords for article/product ID: "
+        , articleId
+        , " on "
+        , T.pack $ marketplaceToText marketplace
+        , " marketplace.\n"
+        , "Analyze historical position data and identify keywords that have significantly dropped (>10 positions) or disappeared from search results."
+        , "\n\nReturn JSON in format: [{\"keyword\":\"text\",\"lastSeen\":\"date\",\"previousPosition\":N,\"droppedAt\":\"date\"}]"
+        ]
+
+-- | Get SEO Competitor Analysis prompt (system, user)
+getSEOCompetitorAnalysisPrompt :: Text -> Marketplace -> (Text, Text)
+getSEOCompetitorAnalysisPrompt competitorArticleId marketplace = (systemPrompt, userPrompt)
+  where
+    systemPrompt :: Text
+    systemPrompt = T.concat
+        [ "You are an SEO expert specializing in competitor keyword analysis. "
+        , "Extract and analyze keywords that competitors are ranking for. "
+        , "Return the extracted keywords along with estimated relevance and search volume indicators."
+        ]
+
+    userPrompt :: Text
+    userPrompt = T.concat
+        [ "Analyze competitor article/product ID: "
+        , competitorArticleId
+        , " on "
+        , T.pack $ marketplaceToText marketplace
+        , " marketplace.\n"
+        , "Extract all relevant keywords this competitor is likely ranking for based on the product category and listing optimization.\n"
+        , "Return JSON in format: {\"keywords\":[\"kw1\",\"kw2\",\"kw3\"],\"analysisDate\":\"YYYY-MM-DD\"}"
+        ]
+
+-- | Generate Keyword Suggestions prompt
+getKeywordSuggestionsPrompt :: [Text] -> Text -> Marketplace -> (Text, Text)
+getKeywordSuggestionsPrompt competitorKeywords category marketplace = (systemPrompt, userPrompt)
+  where
+    systemPrompt :: Text
+    systemPrompt = T.concat
+        [ "You are an SEO expert specializing in keyword research and opportunity identification. "
+        , "Analyze competitor keywords and suggest new keyword opportunities based on semantic relevance and marketplace context."
+        ]
+
+    userPrompt :: Text
+    userPrompt = T.concat
+        [ "Based on competitor keywords: "
+        , T.intercalate ", " competitorKeywords
+        , "\n\nFor product category: "
+        , category
+        , "\n\nOn "
+        , T.pack $ marketplaceToText marketplace
+        , " marketplace, suggest new keyword opportunities that the competitor might not be targeting.\n"
+        , "Return a JSON array of suggested keywords: [\"kw1\", \"kw2\", \"kw3\"]"
+        ]

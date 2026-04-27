@@ -28,11 +28,9 @@ export interface ForecastChartProps {
 
 const NEON_VOLT = '#faff69';
 const NEON_PALE = '#f4f692';
-const DARK_BG = '#0a0a0a';
-const CHARCOAL = 'rgba(65, 65, 65, 0.8)';
 
 /**
- * Custom tooltip with dark theme styling
+ * Custom tooltip with theme-aware styling using CSS variables
  */
 type TooltipPayload = {
   name?: string;
@@ -58,11 +56,11 @@ const CustomTooltip = ({
     <div
       className="rounded-lg p-3 shadow-xl border"
       style={{
-        backgroundColor: DARK_BG,
-        borderColor: CHARCOAL,
+        backgroundColor: 'var(--chart-tooltip-bg, #ffffff)',
+        borderColor: 'var(--chart-tooltip-border, #e5e5e5)',
       }}
     >
-      <p className="text-sm mb-2" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+      <p className="text-sm mb-2" style={{ color: 'var(--chart-tooltip-text, #151515)' }}>
         {label}
       </p>
       {payload.map((entry: TooltipPayload, index: number) => (
@@ -79,17 +77,17 @@ const CustomTooltip = ({
 };
 
 /**
- * Chart axes styling for dark theme
+ * Chart axes styling using CSS variables for theme awareness
  */
 const axisStyle = {
-  tick: { fill: 'rgba(255, 255, 255, 0.5)' },
-  axisLine: { stroke: CHARCOAL },
-  tickLine: { stroke: CHARCOAL },
+  tick: { fill: 'var(--chart-text, #737373)' },
+  axisLine: { stroke: 'var(--chart-grid, #e5e5e5)' },
+  tickLine: { stroke: 'var(--chart-grid, #e5e5e5)' },
 };
 
 const gridStyle = {
   strokeDasharray: '3 3',
-  stroke: CHARCOAL,
+  stroke: 'var(--chart-grid, #e5e5e5)',
 };
 
 const ForecastChart = memo(function ForecastChart({

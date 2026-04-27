@@ -41,27 +41,29 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile overlay */}
-      {isMobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
-          onClick={closeMobile}
-        />
-      )}
+      <div
+        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+        onClick={closeMobile}
+      />
 
       {/* Sidebar */}
       <aside
         className={clsx(
           'fixed left-0 top-0 z-50 h-screen flex flex-col',
-          'bg-[#0a0a0a] border-r border-charcoal',
+          'bg-slate-50 dark:bg-[#0a0a0a]',
+          'border-r border-gray-200 dark:border-charcoal',
           'transition-all duration-200 ease-in-out',
           isCollapsed ? 'w-16' : 'w-56',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-charcoal">
+        <div className={clsx(
+          'flex items-center justify-between h-16 px-4',
+          'border-b border-gray-200 dark:border-charcoal'
+        )}>
           {!isCollapsed && (
-            <span className="text-lg font-semibold text-neon-volt">
+            <span className="text-lg font-semibold text-primary dark:text-primary">
               WBhelper
             </span>
           )}
@@ -69,8 +71,9 @@ export function Sidebar() {
             onClick={toggleCollapse}
             className={clsx(
               'hidden md:flex items-center justify-center',
-              'w-8 h-8 rounded-md text-muted-foreground',
-              'hover:text-neon-volt hover:bg-white/5',
+              'w-8 h-8 rounded-md',
+              'text-muted-foreground dark:text-white hover:text-foreground',
+              'hover:bg-accent/20 dark:hover:bg-white/5',
               'transition-colors duration-150'
             )}
             title={isCollapsed ? t('layout.sidebar.expand') : t('layout.sidebar.collapse')}
@@ -85,8 +88,8 @@ export function Sidebar() {
             onClick={toggleMobile}
             className={clsx(
               'flex md:hidden items-center justify-center',
-              'w-8 h-8 rounded-md text-muted-foreground',
-              'hover:text-neon-volt'
+              'w-8 h-8 rounded-md text-muted-foreground dark:text-white',
+              'hover:text-foreground dark:hover:text-white'
             )}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -105,14 +108,24 @@ export function Sidebar() {
                     'flex items-center gap-3 px-3 py-2.5 rounded-md',
                     'text-sm font-medium transition-colors duration-150',
                     isActive(path)
-                      ? 'text-neon-pale bg-white/5 border-l-2 border-neon-volt'
-                      : 'text-muted-foreground hover:text-neon-volt hover:bg-white/5'
+                      ? clsx(
+                          'bg-primary/10 dark:bg-white/10',
+                          'text-foreground dark:text-white',
+                          'border-l-2 border-primary dark:border-neon-volt'
+                        )
+                      : clsx(
+                          'text-muted-foreground dark:text-white/70',
+                          'hover:text-foreground dark:hover:text-white',
+                          'hover:bg-accent/20 dark:hover:bg-white/5'
+                        )
                   )}
                 >
                   <Icon
                     className={clsx(
                       'w-5 h-5 flex-shrink-0',
-                      isActive(path) && 'text-neon-volt'
+                      isActive(path)
+                        ? 'text-primary dark:text-neon-volt'
+                        : 'text-muted-foreground dark:text-white/70'
                     )}
                   />
                   {!isCollapsed && <span>{t(labelKey)}</span>}
@@ -123,12 +136,17 @@ export function Sidebar() {
         </nav>
 
         {/* Collapse toggle for mobile */}
-        <div className="p-2 border-t border-charcoal md:hidden">
+        <div className={clsx(
+          'p-2 border-t md:hidden',
+          'border-gray-200 dark:border-charcoal'
+        )}>
           <button
             onClick={toggleCollapse}
             className={clsx(
               'flex items-center justify-center w-full gap-2 px-3 py-2 rounded-md',
-              'text-sm text-muted-foreground hover:text-neon-volt hover:bg-white/5',
+              'text-sm text-muted-foreground dark:text-white/70',
+              'hover:text-foreground dark:hover:text-white',
+              'hover:bg-accent/20 dark:hover:bg-white/5',
               'transition-colors duration-150'
             )}
           >
