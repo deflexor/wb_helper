@@ -53,20 +53,20 @@ export function MarketplaceProvider({ children }: { children: React.ReactNode })
     <MarketplaceContext.Provider value={{ marketplace, setMarketplace }}>
       <div className="flex flex-col h-full">
         {/* Marketplace selector header */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-muted/30">
+        <div data-testid="marketplace-badge" className="flex items-center gap-3 px-4 py-3 border-b border-border bg-muted/30">
           <Globe className="w-4 h-4 text-muted-foreground" />
           <Select
             value={marketplace}
             onValueChange={(value) => setMarketplace(value as Marketplace)}
           >
-            <SelectTrigger className="w-[180px] h-8 text-sm bg-background">
+            <SelectTrigger data-testid="marketplace-select" className="w-[180px] h-8 text-sm bg-background">
               <SelectValue placeholder={t('marketplace.select')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="wildberries">
+              <SelectItem data-testid="marketplace-option-wildberries" value="wildberries">
                 {t('marketplace.wildberries')}
               </SelectItem>
-              <SelectItem value="ozon">
+              <SelectItem data-testid="marketplace-option-ozon" value="ozon">
                 {t('marketplace.ozon')}
               </SelectItem>
             </SelectContent>
