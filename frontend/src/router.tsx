@@ -5,6 +5,7 @@ import OptimizationPage from './pages/OptimizationPage';
 import SEOContentPage from './pages/SEOContentPage';
 import ReturnsForecastPage from './pages/ReturnsForecastPage';
 import NicheAnalysisPage from './pages/NicheAnalysisPage';
+import { seoRoutes } from './routes/SeoRoutes';
 
 // Placeholder pages - to be implemented in subsequent tasks
 function DashboardPage() {
@@ -56,6 +57,9 @@ export function AppRouter() {
         <Route path="/returns-forecast" element={<ReturnsForecastPage />} />
         <Route path="/niche-analysis" element={<NicheAnalysisPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+
+        {/* SEO Module routes */}
+        {seoRoutes}
       </Route>
 
       {/* Fallback */}
