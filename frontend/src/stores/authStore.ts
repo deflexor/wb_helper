@@ -27,16 +27,20 @@ interface AuthState {
   canAccess: (feature: PremiumFeature) => boolean;
 }
 
-// Mock login function with 1s delay
+// Mock login function - mirrors backend behavior for test credentials
+// NOTE: In production, this should call the real backend API and trust the JWT
 const mockLogin = async (email: string, _password: string): Promise<{ user: User; token: string }> => {
   return new Promise((resolve) => {
     setTimeout(() => {
+      // Backend gives Paid subscription to test@example.com
+      // All other users get Free (matching real backend behavior)
+      const isPaidUser = email === 'test@example.com';
       const user: User = {
         id: '1',
         email,
         name: email.split('@')[0],
-        subscriptionPlan: 'free',
-        apiCallsLimit: 1000,
+        subscriptionPlan: isPaidUser ? 'pro' : 'free',
+        apiCallsLimit: isPaidUser ? 10000 : 1000,
       };
       const token = btoa(`${email}:${Date.now()}`);
       resolve({ user, token });

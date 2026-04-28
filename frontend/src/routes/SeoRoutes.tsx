@@ -1,14 +1,13 @@
-import { lazy } from 'react';
 import { Route, Outlet } from 'react-router-dom';
 import { MarketplaceProvider } from '@/components/MarketplaceProvider';
 import { PremiumGate } from '@/components/features/premium-gate/PremiumGate';
 
-// SEO Module pages (lazy loaded)
-const SEODashboard = lazy(() => import('@/pages/seo/SeoDashboardPage'));
-const KeywordTracking = lazy(() => import('@/pages/seo/SeoTrackingPage'));
-const DroppedKeywords = lazy(() => import('@/pages/seo/SeoDroppedPage'));
-const KeywordClusters = lazy(() => import('@/pages/seo/SeoClustersPage'));
-const CompetitorAnalysis = lazy(() => import('@/pages/seo/SeoCompetitorPage'));
+// SEO Module pages (directly imported - not lazy loaded)
+import SeoDashboardPage from '@/pages/seo/SeoDashboardPage';
+import SeoTrackingPage from '@/pages/seo/SeoTrackingPage';
+import SeoDroppedPage from '@/pages/seo/SeoDroppedPage';
+import SeoClustersPage from '@/pages/seo/SeoClustersPage';
+import SeoCompetitorPage from '@/pages/seo/SeoCompetitorPage';
 
 /**
  * SEO Layout with MarketplaceProvider context
@@ -29,13 +28,13 @@ function SeoLayout() {
  */
 export const seoRoutes = (
   <Route path="seo" element={<SeoLayout />}>
-    <Route path="dashboard" element={<SEODashboard />} />
-    <Route path="tracking" element={<KeywordTracking />} />
+    <Route path="dashboard" element={<SeoDashboardPage />} />
+    <Route path="tracking" element={<SeoTrackingPage />} />
     <Route
       path="dropped"
       element={
         <PremiumGate feature="seo_content_generation">
-          <DroppedKeywords />
+          <SeoDroppedPage />
         </PremiumGate>
       }
     />
@@ -43,7 +42,7 @@ export const seoRoutes = (
       path="clusters"
       element={
         <PremiumGate feature="seo_content_generation">
-          <KeywordClusters />
+          <SeoClustersPage />
         </PremiumGate>
       }
     />
@@ -51,7 +50,7 @@ export const seoRoutes = (
       path="competitor"
       element={
         <PremiumGate feature="competitor_analysis_full">
-          <CompetitorAnalysis />
+          <SeoCompetitorPage />
         </PremiumGate>
       }
     />
