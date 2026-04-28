@@ -70,7 +70,7 @@ function getStatusConfig(status: DroppedKeyword["status"]): {
     case "recovering":
       return {
         label: "Recovering",
-        className: "bg-yellow-900/50 text-yellow-400 border-yellow-700",
+        className: "bg-amber-900/50 text-amber-300 border-amber-700 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-700",
       };
     case "lost":
       return {
@@ -120,7 +120,7 @@ const AlertCard = memo(function AlertCard({
         severity === "moderate" &&
           "bg-orange-950/30 border-orange-800/50 hover:border-orange-700",
         severity === "mild" &&
-          "bg-yellow-950/30 border-yellow-800/50 hover:border-yellow-700"
+          "bg-amber-950/30 border-amber-800/50 hover:border-amber-700 dark:bg-amber-950/30 dark:border-amber-800/50 dark:hover:border-amber-700"
       )}
     >
       {/* Header */}
@@ -132,7 +132,7 @@ const AlertCard = memo(function AlertCard({
                 "h-4 w-4 flex-shrink-0",
                 severity === "critical" && "text-red-500",
                 severity === "moderate" && "text-orange-500",
-                severity === "mild" && "text-yellow-500"
+                severity === "mild" && "text-amber-500 dark:text-amber-400"
               )}
             />
             <span className="font-medium text-sm truncate">{keyword.keyword}</span>

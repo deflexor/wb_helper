@@ -102,10 +102,10 @@ function KeywordPill({ keyword, onClick }: KeywordPillProps) {
           className={cn(
             "ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium",
             keyword.similarity >= 0.8
-              ? "bg-green-900/50 text-green-400"
+              ? "bg-green-900/50 text-green-400 dark:bg-green-900/50 dark:text-green-400"
               : keyword.similarity >= 0.5
-              ? "bg-yellow-900/50 text-yellow-400"
-              : "bg-red-900/50 text-red-400"
+              ? "bg-amber-900/50 text-amber-300 dark:bg-amber-900/50 dark:text-amber-300"
+              : "bg-red-900/50 text-red-400 dark:bg-red-900/50 dark:text-red-400"
           )}
         >
           {Math.round(keyword.similarity * 100)}%
@@ -149,10 +149,10 @@ const ClusterCard = memo(function ClusterCard({
                 className={cn(
                   "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
                   cluster.avgSimilarity >= 0.8
-                    ? "bg-green-900/50 text-green-400"
+                    ? "bg-green-900/50 text-green-400 dark:bg-green-900/50 dark:text-green-400"
                     : cluster.avgSimilarity >= 0.5
-                    ? "bg-yellow-900/50 text-yellow-400"
-                    : "bg-red-900/50 text-red-400"
+                    ? "bg-amber-900/50 text-amber-300 dark:bg-amber-900/50 dark:text-amber-300"
+                    : "bg-red-900/50 text-red-400 dark:bg-red-900/50 dark:text-red-400"
                 )}
               >
                 {Math.round(cluster.avgSimilarity * 100)}% avg

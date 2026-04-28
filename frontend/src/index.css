@@ -54,6 +54,7 @@
     --chart-tooltip-bg: #ffffff;
     --chart-tooltip-border: #e5e5e5;
     --chart-tooltip-text: #151515;
+    --chart-neutral: #ca8a04; /* amber-600 - readable on white */
   }
 
   /* Chart colors - dark theme */
@@ -63,6 +64,7 @@
     --chart-tooltip-bg: #0a0a0a;
     --chart-tooltip-border: rgba(65, 65, 65, 0.8);
     --chart-tooltip-text: #ffffff;
+    --chart-neutral: #facc15; /* yellow-400 - brand color, visible on dark */
   }
 }
 

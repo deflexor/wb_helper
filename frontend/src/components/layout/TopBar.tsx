@@ -40,7 +40,7 @@ export function TopBar() {
   const apiCallsRemaining = limits.apiCallsLimit - limits.apiCalls;
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white dark:bg-black border-b border-border dark:border-charcoal">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-background dark:bg-black border-b border-border dark:border-charcoal">
       {/* Mobile hamburger - opens sidebar */}
       <button
         className="flex md:hidden items-center justify-center w-10 h-10 rounded-md text-muted-foreground hover:text-foreground dark:hover:text-neon-volt"

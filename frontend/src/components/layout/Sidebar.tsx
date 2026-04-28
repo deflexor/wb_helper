@@ -52,8 +52,8 @@ export function Sidebar() {
       <aside
         className={clsx(
           'fixed left-0 top-0 z-50 h-screen flex flex-col',
-          'bg-slate-50 dark:bg-[#0a0a0a]',
-          'border-r border-gray-200 dark:border-charcoal',
+          'bg-background dark:bg-[#0a0a0a]',
+          'border-r border-border dark:border-charcoal',
           'transition-all duration-200 ease-in-out',
           isCollapsed ? 'w-16' : 'w-56',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
@@ -62,7 +62,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className={clsx(
           'flex items-center justify-between h-16 px-4',
-          'border-b border-gray-200 dark:border-charcoal'
+          'border-b border-border dark:border-charcoal'
         )}>
           {!isCollapsed && (
             <span className="text-lg font-semibold text-primary dark:text-primary">
@@ -140,7 +140,7 @@ export function Sidebar() {
         {/* Collapse toggle for mobile */}
         <div className={clsx(
           'p-2 border-t md:hidden',
-          'border-gray-200 dark:border-charcoal'
+          'border-border dark:border-charcoal'
         )}>
           <button
             onClick={toggleCollapse}

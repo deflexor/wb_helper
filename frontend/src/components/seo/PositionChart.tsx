@@ -38,7 +38,7 @@ export interface PositionChartProps {
 // =============================================================================
 
 const POSITIVE_COLOR = "#22c55e"; // green-500
-const NEUTRAL_COLOR = "#faff69"; // yellow
+const NEUTRAL_COLOR = "var(--chart-neutral, #faff69)"; // theme-aware yellow
 const GRID_COLOR = "var(--chart-grid, #e5e5e5)";
 const TEXT_COLOR = "var(--chart-text, #737373)";
 

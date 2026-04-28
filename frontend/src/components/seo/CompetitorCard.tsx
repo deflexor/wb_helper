@@ -58,11 +58,11 @@ function getPositionComparison(
 function getDifficultyColor(difficulty?: CompetitorKeyword["difficulty"]): string {
   switch (difficulty) {
     case "easy":
-      return "bg-green-900/50 text-green-400 border-green-700";
+      return "bg-green-900/50 text-green-400 border-green-700 dark:bg-green-900/50 dark:text-green-400 dark:border-green-700";
     case "medium":
-      return "bg-yellow-900/50 text-yellow-400 border-yellow-700";
+      return "bg-amber-900/50 text-amber-300 border-amber-700 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-700";
     case "hard":
-      return "bg-red-900/50 text-red-400 border-red-700";
+      return "bg-red-900/50 text-red-400 border-red-700 dark:bg-red-900/50 dark:text-red-400 dark:border-red-700";
     default:
       return "bg-muted text-muted-foreground border-transparent";
   }
@@ -146,9 +146,9 @@ const KeywordRow = memo(function KeywordRow({ keyword, onClick }: KeywordRowProp
               <span
                 className={cn(
                   "font-medium",
-                  comparison === "winning" && "text-green-500",
-                  comparison === "losing" && "text-red-500",
-                  comparison === "equal" && "text-yellow-500"
+                  comparison === "winning" && "text-green-500 dark:text-green-400",
+                  comparison === "losing" && "text-red-500 dark:text-red-400",
+                  comparison === "equal" && "text-amber-500 dark:text-amber-400"
                 )}
               >
                 #{keyword.yourPosition}
@@ -252,7 +252,7 @@ const CompetitorCard = memo(function CompetitorCard({
             </span>
           )}
           {hasGaps && (
-            <span className="flex items-center gap-1 text-amber-400">
+            <span className="flex items-center gap-1 text-amber-500 dark:text-amber-400">
               <AlertCircle className="h-3 w-3" />
               {gapKeywords.length} gaps found
             </span>
