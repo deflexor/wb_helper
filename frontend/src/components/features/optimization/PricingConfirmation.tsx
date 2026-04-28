@@ -39,7 +39,7 @@ export function PricingConfirmation({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]">
+      <DialogContent className="bg-muted border-border">
         <DialogHeader>
           <DialogTitle>{t("optimization.confirmApply")}</DialogTitle>
           <DialogDescription>
@@ -50,24 +50,24 @@ export function PricingConfirmation({
         {/* Summary of Changes */}
         <div className="space-y-3 py-4">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-400">{t("optimization.currentMargin")}:</span>
-            <span className="text-sm font-medium text-white">{currentMargin.toFixed(1)}%</span>
+            <span className="text-sm text-muted-foreground">{t("optimization.currentMargin")}:</span>
+            <span className="text-sm font-medium text-foreground">{currentMargin.toFixed(1)}%</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-400">{t("optimization.newMargin")}:</span>
+            <span className="text-sm text-muted-foreground">{t("optimization.newMargin")}:</span>
             <span
               className={`text-sm font-medium ${
-                isPositiveChange ? "text-[#166534]" : "text-red-600"
+                isPositiveChange ? "text-green-600 dark:text-green-400" : "text-destructive"
               }`}
             >
               {newMargin.toFixed(1)}%
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-400">{t("optimization.potentialGain")}:</span>
+            <span className="text-sm text-muted-foreground">{t("optimization.potentialGain")}:</span>
             <span
               className={`text-sm font-medium ${
-                estimatedProfitChange >= 0 ? "text-[#166534]" : "text-red-600"
+                estimatedProfitChange >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive"
               }`}
             >
               {estimatedProfitChange >= 0 ? "+" : ""}
@@ -77,7 +77,7 @@ export function PricingConfirmation({
         </div>
 
         {/* Risk Warning */}
-        <div className="p-3 rounded-md bg-black/40 text-sm text-gray-300">
+        <div className="p-3 rounded-md bg-black/40 text-sm text-muted-foreground">
           {t("optimization.riskLevel")}: {isPositiveChange ? t("competitors.lowRisk") : t("competitors.highRisk")}
         </div>
 

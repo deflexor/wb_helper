@@ -54,7 +54,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
       {
         accessorKey: 'product',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('niche.product')}
           </span>
         ),
@@ -63,18 +63,18 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
       {
         accessorKey: 'category',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('niche.category')}
           </span>
         ),
         cell: (info) => (
-          <span className="px-2 py-1 rounded bg-[#0a0a0a] text-xs">{String(info.getValue())}</span>
+          <span className="px-2 py-1 rounded bg-muted text-xs">{String(info.getValue())}</span>
         ),
       },
       {
         accessorKey: 'demandScore',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('niche.demandScore')}
           </span>
         ),
@@ -87,7 +87,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
           };
           return (
             <div className="flex items-center gap-2">
-              <div className="w-16 h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
+              <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
                 <div
                   className={cn('h-full rounded-full', getScoreColor(value).replace('text-', 'bg-'))}
                   style={{ width: `${value}%` }}
@@ -102,7 +102,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
       {
         accessorKey: 'competitionLevel',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('niche.competitionLevel')}
           </span>
         ),
@@ -123,7 +123,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
       {
         accessorKey: 'trend',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('niche.trend')}
           </span>
         ),
@@ -132,7 +132,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
           const config = {
             up: { icon: TrendingUp, className: 'text-green-500' },
             down: { icon: TrendingDown, className: 'text-red-500' },
-            stable: { icon: Minus, className: 'text-gray-500' },
+            stable: { icon: Minus, className: 'text-muted-foreground' },
           };
           const Icon = config[value].icon;
           return (
@@ -206,20 +206,20 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             placeholder={t('niche.searchPlaceholder')}
-            className="w-full pl-10 pr-4 py-2 bg-[#0a0a0a] border border-[rgba(65,65,65,0.8)] rounded-md text-sm text-foreground placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#faff69] focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 bg-muted border border-border rounded-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
           />
         </div>
         <div className="flex gap-2">
           <select
             value={competitionFilter}
             onChange={(e) => setCompetitionFilter(e.target.value as typeof competitionFilter)}
-            className="px-3 py-2 bg-[#0a0a0a] border border-[rgba(65,65,65,0.8)] rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#faff69]"
+            className="px-3 py-2 bg-muted border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             {competitionOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -231,7 +231,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
             variant="outline"
             size="sm"
             onClick={handleExport}
-            className="border-[rgba(65,65,65,0.8)] hover:bg-[#0a0a0a]"
+            className="border-border hover:bg-muted"
           >
             {t('niche.export')}
           </Button>
@@ -248,7 +248,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
               ))}
             </div>
           ) : filteredData.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               {t('common.noResults')}
             </div>
           ) : (
@@ -256,7 +256,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
               <table className="w-full min-w-[700px]">
                 <thead>
                   {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id} className="border-b border-[rgba(65,65,65,0.8)]">
+                    <tr key={headerGroup.id} className="border-b border-border">
                       {headerGroup.headers.map((header) => (
                         <th
                           key={header.id}
@@ -272,7 +272,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
                               header.getContext()
                             )}
                             {header.column.getCanSort() && (
-                              <span className="text-gray-600">
+                              <span className="text-muted-foreground">
                                 {header.column.getIsSorted() === 'asc' ? (
                                   <ChevronUp className="w-3 h-3" />
                                 ) : header.column.getIsSorted() === 'desc' ? (
@@ -291,8 +291,8 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
                     <tr
                       key={row.id}
                       className={cn(
-                        'border-b border-[rgba(65,65,65,0.4)] transition-colors hover:bg-[#0a0a0a]',
-                        index % 2 === 0 ? 'bg-transparent' : 'bg-[#050505]'
+                        'border-b border-border/40 transition-colors hover:bg-muted',
+                        index % 2 === 0 ? 'bg-transparent' : 'bg-muted/30'
                       )}
                     >
                       {row.getVisibleCells().map((cell) => (
@@ -309,8 +309,8 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
               </table>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between mt-4 py-3 border-t border-[rgba(65,65,65,0.8)]">
-                <div className="text-sm text-gray-500">
+              <div className="flex items-center justify-between mt-4 py-3 border-t border-border">
+                <div className="text-sm text-muted-foreground">
                   {filteredData.length} {t('niche.items')} • {t('common.page')} {table.getState().pagination.pageIndex + 1}
                 </div>
 
@@ -320,7 +320,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
                     size="sm"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                    className="border-[rgba(65,65,65,0.8)] hover:bg-[#0a0a0a]"
+                    className="border-border hover:bg-muted"
                   >
                     {t('common.previous')}
                   </Button>
@@ -329,7 +329,7 @@ export function NicheDataGrid({ data, isLoading }: NicheDataGridProps) {
                     size="sm"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                    className="border-[rgba(65,65,65,0.8)] hover:bg-[#0a0a0a]"
+                    className="border-border hover:bg-muted"
                   >
                     {t('common.next')}
                   </Button>

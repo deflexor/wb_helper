@@ -93,7 +93,7 @@ export default function NicheAnalysisPage() {
           <Card className="bg-card border border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-medium text-foreground flex items-center gap-2">
-                <SlidersHorizontal className="h-4 w-4 text-[#faff69]" />
+                <SlidersHorizontal className="h-4 w-4 text-primary" />
                 {t("common.filter")}
               </CardTitle>
             </CardHeader>
@@ -106,7 +106,7 @@ export default function NicheAnalysisPage() {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-muted border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#faff69]"
+                  className="w-full px-3 py-2 bg-muted border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="">{t("common.all")}</option>
                   {categories.map((cat) => (
@@ -195,7 +195,7 @@ export default function NicheAnalysisPage() {
                 <Button
                   size="sm"
                   onClick={handleApplyFilters}
-                  className="flex-1 bg-[#faff69] text-black hover:bg-[#f4f692]"
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   {t("common.filter")}
                 </Button>

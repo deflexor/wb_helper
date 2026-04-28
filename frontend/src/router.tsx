@@ -11,7 +11,7 @@ import { seoRoutes } from './routes/SeoRoutes';
 function DashboardPage() {
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-neon-volt">Dashboard</h1>
+      <h1 className="text-2xl font-semibold text-primary">Dashboard</h1>
       <p className="mt-2 text-muted-foreground">
         Welcome to your seller optimizer dashboard.
       </p>
@@ -26,7 +26,7 @@ function HomePage() {
 function SettingsPage() {
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-neon-volt">Settings</h1>
+      <h1 className="text-2xl font-semibold text-primary">Settings</h1>
       <p className="mt-2 text-muted-foreground">
         Configure your account and application settings.
       </p>

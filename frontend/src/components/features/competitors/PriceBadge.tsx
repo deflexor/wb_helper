@@ -20,7 +20,7 @@ const statusConfig: Record<PriceStatus, { icon: React.ReactNode; className: stri
   },
   neutral: {
     icon: <Minus className="w-3 h-3" />,
-    className: 'bg-gray-900/50 text-gray-400 border-gray-700',
+    className: 'bg-muted text-muted-foreground border-muted-foreground',
   },
 };
 

@@ -219,7 +219,7 @@ export default function SeoTrackingPage() {
         </div>
         <Button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="gap-2 bg-[#faff69] text-[#151515] hover:bg-[#faff69]/90"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="h-4 w-4" />
           {t("seo.tracking.addKeyword")}
@@ -249,7 +249,7 @@ export default function SeoTrackingPage() {
               <Button
                 onClick={handleAddKeyword}
                 disabled={!newKeyword.trim() || !newArticleId.trim()}
-                className="bg-[#faff69] text-[#151515] hover:bg-[#faff69]/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {t("common.add")}
               </Button>

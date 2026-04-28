@@ -161,7 +161,7 @@ describe('TopBar Light Theme', () => {
           <TopBar />
         </div>
       );
-      const fallback = document.querySelector('.bg-neon-volt');
+      const fallback = document.querySelector('.bg-primary');
       expect(fallback).toBeInTheDocument();
       expect(fallback).toHaveTextContent('T');
     });
@@ -172,7 +172,7 @@ describe('TopBar Light Theme', () => {
           <TopBar />
         </div>
       );
-      const fallback = document.querySelector('.bg-neon-volt');
+      const fallback = document.querySelector('.bg-primary');
       expect(fallback).toHaveClass('text-black');
     });
   });

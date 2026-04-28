@@ -37,10 +37,11 @@ export interface PositionChartProps {
 // CONSTANTS
 // =============================================================================
 
-const POSITIVE_COLOR = "#22c55e"; // green-500
-const NEUTRAL_COLOR = "var(--chart-neutral, #faff69)"; // theme-aware yellow
-const GRID_COLOR = "var(--chart-grid, #e5e5e5)";
+const POSITIVE_COLOR = "var(--primary)";
+const NEUTRAL_COLOR = "var(--chart-neutral, #ca8a04)";
+const NEGATIVE_COLOR = "var(--destructive)";
 const TEXT_COLOR = "var(--chart-text, #737373)";
+const GRID_COLOR = "var(--chart-grid, #e5e5e5)";
 
 // =============================================================================
 // CUSTOM TOOLTIP
@@ -76,7 +77,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (position <= 3) {
     positionColor = POSITIVE_COLOR;
   } else if (position > 10) {
-    positionColor = "#ef4444"; // red-500
+    positionColor = NEGATIVE_COLOR;
   }
 
   return (
@@ -254,7 +255,7 @@ const PositionChart = memo(function PositionChart({
             <div className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: "#ef4444" }}
+                style={{ backgroundColor: NEGATIVE_COLOR }}
               />
               <span className="text-xs text-muted-foreground">
                 10+ (Needs work)

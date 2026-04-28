@@ -5,10 +5,10 @@ export function CompetitorsPage() {
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white mb-2">
+        <h1 className="text-2xl font-bold text-foreground mb-2">
           {t('competitors.title')}
         </h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           {t('competitors.title')} - {t('competitors.lastUpdated')}
         </p>
       </div>

@@ -91,7 +91,7 @@ const competitionToNumber = (level: 'low' | 'medium' | 'high'): number => {
 };
 
 // Chart colors
-const NEON_VOLT = '#faff69';
+const NEON_VOLT = 'var(--primary)';
 
 export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheChartsProps) {
   // Transform data for scatter chart: demand score (x) vs competition (y)
@@ -123,20 +123,20 @@ export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheC
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="bg-card border-[rgba(65,65,65,0.8)]">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <div className="h-6 w-32 bg-[#1a1a1a] rounded animate-pulse" />
+            <div className="h-6 w-32 bg-muted rounded animate-pulse" />
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] bg-[#0a0a0a] rounded animate-pulse" />
+            <div className="h-[300px] bg-muted/50 rounded animate-pulse" />
           </CardContent>
         </Card>
-        <Card className="bg-card border-[rgba(65,65,65,0.8)]">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <div className="h-6 w-32 bg-[#1a1a1a] rounded animate-pulse" />
+            <div className="h-6 w-32 bg-muted rounded animate-pulse" />
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] bg-[#0a0a0a] rounded animate-pulse" />
+            <div className="h-[300px] bg-muted/50 rounded animate-pulse" />
           </CardContent>
         </Card>
       </div>
@@ -146,7 +146,7 @@ export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheC
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Scatter Chart: Demand vs Competition */}
-      <Card className="bg-card border-[rgba(65,65,65,0.8)]">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-medium text-foreground">
             {t('niche.demandVsCompetition')}
@@ -194,7 +194,7 @@ export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheC
                 verticalAlign="top"
                 height={36}
                 iconType="circle"
-                formatter={(value) => <span className="text-gray-400 text-xs">{value}</span>}
+                formatter={(value) => <span className="text-muted-foreground text-xs">{value}</span>}
               />
               <Scatter
                 name={t('niche.products')}
@@ -209,10 +209,10 @@ export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheC
                     key={`cell-${index}`}
                     fill={
                       entry.competitionLevel === 'low'
-                        ? '#22c55e'
+                        ? 'var(--success, #22c55e)'
                         : entry.competitionLevel === 'medium'
-                          ? '#eab308'
-                          : '#ef4444'
+                          ? 'var(--warning, #eab308)'
+                          : 'var(--destructive, #ef4444)'
                     }
                   />
                 ))}
@@ -223,7 +223,7 @@ export const NicheCharts = memo(function NicheCharts({ data, isLoading }: NicheC
       </Card>
 
       {/* Bar Chart: Average Demand by Category */}
-      <Card className="bg-card border-[rgba(65,65,65,0.8)]">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-medium text-foreground">
             {t('niche.avgDemandByCategory')}

@@ -293,7 +293,7 @@ const CompetitorCard = memo(function CompetitorCard({
           <div className="p-4 border-t border-border">
             <Button
               onClick={() => onFindGapsClick?.(competitor)}
-              className="w-full gap-2 bg-[#faff69] text-black hover:bg-[#faff69]/90"
+              className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Search className="h-4 w-4" />
               Find {gapKeywords.length} Keyword Gaps

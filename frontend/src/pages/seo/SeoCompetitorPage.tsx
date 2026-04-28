@@ -206,7 +206,7 @@ export default function SeoCompetitorPage() {
             <Button
               onClick={handleAnalyze}
               disabled={!competitorArticleId.trim() || isAnalyzing}
-              className="gap-2 bg-[#faff69] text-[#151515] hover:bg-[#faff69]/90"
+              className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isAnalyzing ? (
                 <>

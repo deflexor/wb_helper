@@ -37,16 +37,15 @@ export function StrategyCard({
   return (
     <Card
       className={cn(
-        "bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)] transition-opacity",
-        strategy.isActive ? "border-l-4 border-l-[#faff69]" : "opacity-70"
+        "bg-card border-border transition-opacity",
+        strategy.isActive ? "border-l-4 border-l-primary" : "opacity-70"
       )}
-      style={{ backgroundColor: "#141414" }}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-base text-white">{strategy.name}</CardTitle>
-            <p className="text-xs text-gray-400">
+            <CardTitle className="text-base text-foreground">{strategy.name}</CardTitle>
+            <p className="text-xs text-muted-foreground">
               {new Date(strategy.createdAt).toLocaleDateString()}
             </p>
           </div>
@@ -60,22 +59,22 @@ export function StrategyCard({
         {/* Strategy Details */}
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-400">{t("optimization.minMargin")}:</span>
-            <span className="text-white">{strategy.minMargin}%</span>
+            <span className="text-muted-foreground">{t("optimization.minMargin")}:</span>
+            <span className="text-foreground">{strategy.minMargin}%</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400">{t("optimization.maxPriceChange")}:</span>
-            <span className="text-white">{strategy.maxPriceChange}%</span>
+            <span className="text-muted-foreground">{t("optimization.maxPriceChange")}:</span>
+            <span className="text-foreground">{strategy.maxPriceChange}%</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400">{t("optimization.targetMargin")}:</span>
-            <span className="text-white">{strategy.targetMargin}%</span>
+            <span className="text-muted-foreground">{t("optimization.targetMargin")}:</span>
+            <span className="text-foreground">{strategy.targetMargin}%</span>
           </div>
         </div>
 
         {/* Auto-apply indicator */}
         {strategy.autoApply && (
-          <div className="inline-flex items-center px-2 py-1 rounded bg-[#faff69]/20 text-[#faff69] text-xs">
+          <div className="inline-flex items-center px-2 py-1 rounded bg-primary/20 text-primary text-xs">
             {t("optimization.autoApply")}
           </div>
         )}

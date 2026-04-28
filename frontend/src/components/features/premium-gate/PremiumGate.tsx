@@ -60,13 +60,13 @@ export function PremiumGate({
         <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4 p-6 text-center max-w-md mx-auto">
             {/* Lock icon */}
-            <div className="rounded-full bg-[#faff69]/10 p-4">
-              <Lock className="h-8 w-8 text-[#faff69]" />
+            <div className="rounded-full bg-primary/10 p-4">
+              <Lock className="h-8 w-8 text-primary" />
             </div>
 
             {/* Feature name */}
             <div className="space-y-1">
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-foreground">
                 {t('premium.gate.premiumFeature')}
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -82,7 +82,7 @@ export function PremiumGate({
             {/* Upgrade button */}
             <Button
               onClick={handleUpgrade}
-              className="bg-[#faff69] text-[#151515] hover:bg-[#faff69]/90 font-semibold px-6"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-6"
             >
               {t('premium.gate.upgradeToPro')}
             </Button>
@@ -92,7 +92,7 @@ export function PremiumGate({
               {t('premium.gate.comparePlans')}{' '}
               <a
                 href="/pricing"
-                className="text-[#faff69] hover:underline"
+                className="text-primary hover:underline"
                 onClick={(e) => {
                   e.preventDefault();
                   handleUpgrade();

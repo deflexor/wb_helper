@@ -138,7 +138,7 @@ export default function SeoDashboardPage() {
             <Layers className="h-4 w-4" />
             {t("seo.dashboard.createCluster")}
           </Button>
-          <Button className="gap-2 bg-[#faff69] text-[#151515] hover:bg-[#faff69]/90">
+          <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="h-4 w-4" />
             {t("seo.dashboard.addKeyword")}
           </Button>

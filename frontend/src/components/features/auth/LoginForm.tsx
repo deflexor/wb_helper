@@ -109,7 +109,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         type="submit"
         data-testid="login-btn"
         disabled={isLoading}
-        className="w-full bg-[#faff69] text-[#151515] hover:bg-[#faff69]/90"
+        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
       >
         {isLoading ? t('common.loading') : t('auth.loginButton')}
       </Button>
@@ -121,7 +121,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
           <button
             type="button"
             onClick={onSwitchToRegister}
-            className="text-[#faff69] hover:underline"
+            className="text-primary hover:underline"
           >
             {t('auth.signUp')}
           </button>

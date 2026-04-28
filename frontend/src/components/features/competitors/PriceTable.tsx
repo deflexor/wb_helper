@@ -46,7 +46,7 @@ export function PriceTable() {
       {
         accessorKey: 'productName',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('competitors.product')}
           </span>
         ),
@@ -55,7 +55,7 @@ export function PriceTable() {
       {
         accessorKey: 'currentPrice',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('competitors.currentPrice')}
           </span>
         ),
@@ -70,7 +70,7 @@ export function PriceTable() {
       {
         accessorKey: 'competitorPrice',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('competitors.competitorPrice')}
           </span>
         ),
@@ -85,7 +85,7 @@ export function PriceTable() {
       {
         accessorKey: 'gap',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('competitors.gap')}
           </span>
         ),
@@ -99,7 +99,7 @@ export function PriceTable() {
                 'font-medium',
                 isNegative && 'text-red-500',
                 isPositive && 'text-green-500',
-                !isNegative && !isPositive && 'text-gray-400'
+                !isNegative && !isPositive && 'text-muted-foreground'
               )}
             >
               {value > 0 ? '+' : ''}
@@ -114,7 +114,7 @@ export function PriceTable() {
       {
         accessorKey: 'status',
         header: () => (
-          <span className="text-xs uppercase tracking-[1.4px] text-gray-500">
+          <span className="text-xs uppercase tracking-[1.4px] text-muted-foreground">
             {t('competitors.status')}
           </span>
         ),
@@ -208,7 +208,7 @@ export function PriceTable() {
               <table className="w-full min-w-[600px]">
                 <thead>
                   {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id} className="border-b border-[rgba(65,65,65,0.8)]">
+                    <tr key={headerGroup.id} className="border-b border-border">
                       {headerGroup.headers.map((header) => (
                         <th
                           key={header.id}
@@ -224,7 +224,7 @@ export function PriceTable() {
                               header.getContext()
                             )}
                             {header.column.getCanSort() && (
-                              <span className="text-gray-600">
+                              <span className="text-muted-foreground">
                                 {header.column.getIsSorted() === 'asc' ? (
                                   <ChevronUp className="w-3 h-3" />
                                 ) : header.column.getIsSorted() === 'desc' ? (
@@ -243,14 +243,14 @@ export function PriceTable() {
                     <PriceTableRow
                       key={row.id}
                       product={row.original}
-                      className={index % 2 === 0 ? 'bg-transparent' : 'bg-[#0a0a0a]'}
+                      className={index % 2 === 0 ? 'bg-transparent' : 'bg-muted/30'}
                     />
                   ))}
                 </tbody>
               </table>
 
               <div className="flex items-center justify-between mt-4 py-3 border-t border-[rgba(65,65,65,0.8)]">
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   {filteredData.length} {t('competitors.product')} • {t('common.page')} {table.getState().pagination.pageIndex + 1}
                 </div>
 
@@ -260,7 +260,7 @@ export function PriceTable() {
                     size="sm"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                    className="border-[rgba(65,65,65,0.8)] hover:bg-[#0a0a0a]"
+                    className="border-border hover:bg-muted"
                   >
                     {t('common.previous')}
                   </Button>
@@ -269,7 +269,7 @@ export function PriceTable() {
                     size="sm"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                    className="border-[rgba(65,65,65,0.8)] hover:bg-[#0a0a0a]"
+                    className="border-border hover:bg-muted"
                   >
                     {t('common.next')}
                   </Button>

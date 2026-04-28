@@ -103,10 +103,7 @@ export function PricingStrategyForm({ onApply, onChange, disabled = false }: Pri
   );
 
   return (
-    <Card
-      className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]"
-      style={{ backgroundColor: "#141414" }}
-    >
+    <Card className="bg-muted border-border">
       <CardHeader>
         <CardTitle>{t("optimization.optimizationSettings")}</CardTitle>
         <CardDescription>{t("optimization.strategy")}</CardDescription>
@@ -116,7 +113,7 @@ export function PricingStrategyForm({ onApply, onChange, disabled = false }: Pri
           {/* Minimum Margin Slider */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-gray-200">
+              <label className="text-sm font-medium text-muted-foreground">
                 {t("optimization.minMargin")} ({minMargin}%)
               </label>
             </div>
@@ -132,7 +129,7 @@ export function PricingStrategyForm({ onApply, onChange, disabled = false }: Pri
               disabled={disabled}
               className="py-2"
             />
-            <div className="flex justify-between text-xs text-gray-400">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>0%</span>
               <span>{MIN_MARGIN_MAX}%</span>
             </div>
@@ -141,7 +138,7 @@ export function PricingStrategyForm({ onApply, onChange, disabled = false }: Pri
           {/* Maximum Price Change Slider */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-gray-200">
+              <label className="text-sm font-medium text-muted-foreground">
                 {t("optimization.maxPriceChange")} ({maxPriceChange}%)
               </label>
             </div>
@@ -157,7 +154,7 @@ export function PricingStrategyForm({ onApply, onChange, disabled = false }: Pri
               disabled={disabled}
               className="py-2"
             />
-            <div className="flex justify-between text-xs text-gray-400">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>0%</span>
               <span>{MAX_PRICE_CHANGE_MAX}%</span>
             </div>
@@ -165,7 +162,7 @@ export function PricingStrategyForm({ onApply, onChange, disabled = false }: Pri
 
           {/* Target Margin Input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-200">
+            <label className="text-sm font-medium text-muted-foreground">
               {t("optimization.targetMargin")} (%)
             </label>
             <Input
@@ -181,7 +178,7 @@ export function PricingStrategyForm({ onApply, onChange, disabled = false }: Pri
               max={100}
               disabled={disabled}
               className={cn(
-                "bg-black/40 border-[rgba(65,65,65,0.8)] text-white",
+                "bg-muted border-border text-foreground",
                 errors.targetMargin && "border-red-500"
               )}
             />
@@ -192,7 +189,7 @@ export function PricingStrategyForm({ onApply, onChange, disabled = false }: Pri
 
           {/* Auto-apply Toggle */}
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-200">
+            <label className="text-sm font-medium text-muted-foreground">
               {t("optimization.autoApply")}
             </label>
             <Switch

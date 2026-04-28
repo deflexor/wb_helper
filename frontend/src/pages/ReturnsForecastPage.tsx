@@ -150,7 +150,7 @@ export default function ReturnsForecastPage() {
         <Card className="bg-card border border-border">
           <CardHeader>
             <CardTitle className="text-foreground flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-[#faff69]" />
+              <TrendingUp className="h-5 w-5 text-primary" />
               {t("returns_forecast.forecastTrend")}
             </CardTitle>
           </CardHeader>
@@ -352,19 +352,19 @@ export default function ReturnsForecastPage() {
         <TabsList className="bg-card border border-border">
           <TabsTrigger
             value="overview"
-            className="data-[state=active]:bg-[#faff69] data-[state=active]:text-black"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             {t("returns_forecast.overview")}
           </TabsTrigger>
           <TabsTrigger
             value="detailed"
-            className="data-[state=active]:bg-[#faff69] data-[state=active]:text-black"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             {t("returns_forecast.detailed")}
           </TabsTrigger>
           <TabsTrigger
             value="compare"
-            className="data-[state=active]:bg-[#faff69] data-[state=active]:text-black"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             {t("returns_forecast.compare")}
           </TabsTrigger>

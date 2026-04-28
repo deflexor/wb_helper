@@ -18,11 +18,11 @@ interface SEOContentCardProps {
 function ContentSkeleton() {
   return (
     <div className="space-y-3 animate-pulse">
-      <div className="h-4 bg-[#404040] rounded w-3/4" />
-      <div className="h-4 bg-[#404040] rounded" />
-      <div className="h-4 bg-[#404040] rounded w-5/6" />
-      <div className="h-4 bg-[#404040] rounded w-2/3" />
-      <div className="h-4 bg-[#404040] rounded w-4/5" />
+      <div className="h-4 bg-muted rounded w-3/4" />
+      <div className="h-4 bg-muted rounded" />
+      <div className="h-4 bg-muted rounded w-5/6" />
+      <div className="h-4 bg-muted rounded w-2/3" />
+      <div className="h-4 bg-muted rounded w-4/5" />
     </div>
   );
 }
@@ -77,10 +77,10 @@ export function SEOContentCard({
   }, [generatedContent, onCopy]);
 
   return (
-    <Card className="bg-[#000000] border border-solid border-[rgba(65,65,65,0.8)] overflow-hidden">
-      <CardHeader className="pb-3 border-b border-[rgba(65,65,65,0.8)] bg-[#0a0a0a]">
+    <Card className="bg-card border-border overflow-hidden">
+      <CardHeader className="pb-3 border-b border-border bg-muted/50">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-white">SEO Content Comparison</h3>
+          <h3 className="text-base font-semibold text-foreground">SEO Content Comparison</h3>
           <div className="flex gap-2">
             <ActionButton
               icon={RefreshCw}
@@ -88,7 +88,7 @@ export function SEOContentCard({
               onClick={onRegenerate}
               disabled={isLoading}
               variant="ghost"
-              className="text-[#faff69] hover:text-[#faff69] hover:bg-[#faff69]/10"
+              className="text-primary hover:text-primary hover:bg-primary/10"
             />
           </div>
         </div>
@@ -98,9 +98,9 @@ export function SEOContentCard({
         {/* Split View Container */}
         <div className="flex flex-col md:flex-row">
           {/* Original Content - Left Side */}
-          <div className="flex-1 p-4 md:p-6 border-b md:border-b-0 md:border-r border-[rgba(65,65,65,0.8)]">
+          <div className="flex-1 p-4 md:p-6 border-b md:border-b-0 md:border-r border-border">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-sm font-medium text-[#a0a0a0] uppercase tracking-wide">
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 Original
               </h4>
               <ActionButton
@@ -109,22 +109,22 @@ export function SEOContentCard({
                 onClick={handleCopyOriginal}
                 variant="ghost"
                 size="sm"
-                className="text-[#a0a0a0] hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
               />
             </div>
             <div className="prose prose-invert prose-sm max-w-none">
-              <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
+              <p className="text-foreground text-sm leading-relaxed whitespace-pre-wrap">
                 {originalContent || (
-                  <span className="text-[#a0a0a0] italic">No original content provided</span>
+                  <span className="text-muted-foreground italic">No original content provided</span>
                 )}
               </p>
             </div>
           </div>
 
           {/* Generated Content - Right Side */}
-          <div className="flex-1 p-4 md:p-6 bg-[#0a0a0a]/50">
+          <div className="flex-1 p-4 md:p-6 bg-muted/30">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-sm font-medium text-[#faff69] uppercase tracking-wide">
+              <h4 className="text-sm font-medium text-primary uppercase tracking-wide">
                 Generated
               </h4>
               <div className="flex gap-2">
@@ -135,7 +135,7 @@ export function SEOContentCard({
                   disabled={isLoading || !generatedContent}
                   variant="ghost"
                   size="sm"
-                  className="text-[#a0a0a0] hover:text-white"
+className="text-muted-foreground hover:text-foreground"
                 />
                 <ActionButton
                   icon={Save}
@@ -144,7 +144,7 @@ export function SEOContentCard({
                   disabled={isLoading || !generatedContent}
                   variant="default"
                   size="sm"
-                  className="bg-[#faff69] text-black hover:bg-[#faff69]/90"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
                 />
               </div>
             </div>
@@ -153,9 +153,9 @@ export function SEOContentCard({
               <ContentSkeleton />
             ) : (
               <div className="prose prose-invert prose-sm max-w-none">
-                <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
+<p className="text-foreground text-sm leading-relaxed whitespace-pre-wrap">
                   {generatedContent || (
-                    <span className="text-[#a0a0a0] italic">
+                    <span className="text-muted-foreground italic">
                       Click &quot;Regenerate&quot; to generate SEO content
                     </span>
                   )}

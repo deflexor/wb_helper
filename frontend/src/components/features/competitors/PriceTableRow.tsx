@@ -21,14 +21,14 @@ export function PriceTableRow({ product, className }: PriceTableRowProps) {
   const isPositiveGap = product.gap > 0;
 
   return (
-    <tr className={cn('border-b border-[rgba(65,65,65,0.8)]', className)}>
-      <td className="px-4 py-3 text-sm text-gray-200 font-medium">
+    <tr className={cn('border-b border-border', className)}>
+      <td className="px-4 py-3 text-sm text-muted-foreground font-medium">
         {product.productName}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-300">
+      <td className="px-4 py-3 text-sm text-muted-foreground">
         {formatCurrency(product.currentPrice)}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-300">
+      <td className="px-4 py-3 text-sm text-muted-foreground">
         {formatCurrency(product.competitorPrice)}
       </td>
       <td className="px-4 py-3 text-sm">
@@ -37,7 +37,7 @@ export function PriceTableRow({ product, className }: PriceTableRowProps) {
             'font-medium',
             isNegativeGap && 'text-red-500',
             isPositiveGap && 'text-green-500',
-            !isNegativeGap && !isPositiveGap && 'text-gray-400'
+            !isNegativeGap && !isPositiveGap && 'text-muted-foreground'
           )}
         >
           {product.gap > 0 ? '+' : ''}

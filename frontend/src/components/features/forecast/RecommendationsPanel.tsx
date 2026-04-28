@@ -132,7 +132,7 @@ export function RecommendationsPanel({
     <Card className={cn('bg-black border-border', className)}>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-[var(--neon-volt)]" />
+          <CheckCircle2 className="w-4 h-4 text-primary" />
           {t('returns_forecast.recommendations.title')}
         </CardTitle>
       </CardHeader>
@@ -162,7 +162,7 @@ export function RecommendationsPanel({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="shrink-0 h-7 text-xs text-[var(--neon-volt)] hover:text-[var(--neon-pale)] hover:bg-[var(--neon-volt)]/10"
+                  className="shrink-0 h-7 text-xs text-primary hover:text-accent hover:bg-primary/10"
                   onClick={() => onApplyRecommendation?.(rec.id)}
                 >
                   {rec.actionLabel}

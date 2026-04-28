@@ -36,18 +36,18 @@ export function PriceTableToolbar({
   return (
     <div className="flex flex-col sm:flex-row gap-3 mb-4">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           type="text"
           placeholder={t('competitors.productName')}
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 bg-[#0a0a0a] border-[rgba(65,65,65,0.8)]"
+          className="pl-10 bg-muted border-border"
         />
       </div>
 
       <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-        <SelectTrigger className="w-full sm:w-[160px] bg-[#0a0a0a] border-[rgba(65,65,65,0.8)]">
+        <SelectTrigger className="w-full sm:w-[160px] bg-muted border-border">
           <SelectValue placeholder={t('common.filter')} />
         </SelectTrigger>
         <SelectContent>
@@ -64,7 +64,7 @@ export function PriceTableToolbar({
           size="icon"
           onClick={onRefresh}
           disabled={isFetching}
-          className="border-[rgba(65,65,65,0.8)] hover:bg-[#0a0a0a]"
+          className="border-border hover:bg-muted"
           title={t('competitors.refreshData')}
         >
           <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
@@ -73,7 +73,7 @@ export function PriceTableToolbar({
         <Button
           variant="outline"
           onClick={handleExport}
-          className="border-[rgba(65,65,65,0.8)] hover:bg-[#0a0a0a]"
+          className="border-border hover:bg-muted"
         >
           <Download className="w-4 h-4 mr-2" />
           {t('competitors.exportData')}

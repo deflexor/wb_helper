@@ -52,8 +52,8 @@ export function Sidebar() {
       <aside
         className={clsx(
           'fixed left-0 top-0 z-50 h-screen flex flex-col',
-          'bg-background dark:bg-[#0a0a0a]',
-          'border-r border-border dark:border-charcoal',
+          'bg-background dark:bg-background',
+          'border-r border-border dark:border-border',
           'transition-all duration-200 ease-in-out',
           isCollapsed ? 'w-16' : 'w-56',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
@@ -62,7 +62,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className={clsx(
           'flex items-center justify-between h-16 px-4',
-          'border-b border-border dark:border-charcoal'
+          'border-b border-border dark:border-border'
         )}>
           {!isCollapsed && (
             <span className="text-lg font-semibold text-primary dark:text-primary">
@@ -74,7 +74,7 @@ export function Sidebar() {
             className={clsx(
               'hidden md:flex items-center justify-center',
               'w-8 h-8 rounded-md',
-              'text-muted-foreground dark:text-white hover:text-foreground',
+              'text-muted-foreground hover:text-foreground',
               'hover:bg-accent/20 dark:hover:bg-white/5',
               'transition-colors duration-150'
             )}
@@ -90,8 +90,8 @@ export function Sidebar() {
             onClick={toggleMobile}
             className={clsx(
               'flex md:hidden items-center justify-center',
-              'w-8 h-8 rounded-md text-muted-foreground dark:text-white',
-              'hover:text-foreground dark:hover:text-white'
+              'w-8 h-8 rounded-md text-muted-foreground',
+              'hover:text-foreground'
             )}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -112,12 +112,12 @@ export function Sidebar() {
                     isActive(path)
                       ? clsx(
                           'bg-primary/10 dark:bg-white/10',
-                          'text-foreground dark:text-white',
-                          'border-l-2 border-primary dark:border-neon-volt'
+                          'text-foreground',
+                          'border-l-2 border-primary'
                         )
                       : clsx(
-                          'text-muted-foreground dark:text-white/70',
-                          'hover:text-foreground dark:hover:text-white',
+                          'text-muted-foreground',
+                          'hover:text-foreground',
                           'hover:bg-accent/20 dark:hover:bg-white/5'
                         )
                   )}
@@ -126,8 +126,8 @@ export function Sidebar() {
                     className={clsx(
                       'w-5 h-5 flex-shrink-0',
                       isActive(path)
-                        ? 'text-primary dark:text-neon-volt'
-                        : 'text-muted-foreground dark:text-white/70'
+                        ? 'text-primary'
+                        : 'text-muted-foreground'
                     )}
                   />
                   {!isCollapsed && <span>{t(labelKey)}</span>}
@@ -140,14 +140,14 @@ export function Sidebar() {
         {/* Collapse toggle for mobile */}
         <div className={clsx(
           'p-2 border-t md:hidden',
-          'border-border dark:border-charcoal'
+          'border-border dark:border-border'
         )}>
           <button
             onClick={toggleCollapse}
             className={clsx(
               'flex items-center justify-center w-full gap-2 px-3 py-2 rounded-md',
-              'text-sm text-muted-foreground dark:text-white/70',
-              'hover:text-foreground dark:hover:text-white',
+              'text-sm text-muted-foreground',
+              'hover:text-foreground',
               'hover:bg-accent/20 dark:hover:bg-white/5',
               'transition-colors duration-150'
             )}

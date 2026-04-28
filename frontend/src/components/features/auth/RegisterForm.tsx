@@ -141,7 +141,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-[#faff69] text-[#151515] hover:bg-[#faff69]/90"
+        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
       >
         {isLoading ? t('common.loading') : t('auth.registerButton')}
       </Button>
@@ -153,7 +153,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="text-[#faff69] hover:underline"
+            className="text-primary hover:underline"
           >
             {t('auth.signIn')}
           </button>

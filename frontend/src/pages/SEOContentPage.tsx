@@ -106,13 +106,13 @@ export default function SEOContentPage() {
               value={originalContent}
               onChange={(e) => setOriginalContent(e.target.value)}
               placeholder={t("seo_content.placeholder.original")}
-              className="w-full h-32 px-4 py-2 bg-muted border border-border text-foreground rounded-lg resize-none focus:ring-2 focus:ring-[#faff69] focus:border-transparent"
+              className="w-full h-32 px-4 py-2 bg-muted border border-border text-foreground rounded-lg resize-none focus:ring-2 focus:ring-ring focus:border-transparent"
             />
           </div>
           <Button
             onClick={handleGenerate}
             disabled={isGenerating || (!productName && !originalContent)}
-            className="bg-[#faff69] text-black hover:bg-[#faff69]/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isGenerating ? t("seo_content.loading") : t("seo_content.buttons.generate")}
           </Button>

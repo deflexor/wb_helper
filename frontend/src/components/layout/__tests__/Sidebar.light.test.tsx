@@ -88,13 +88,13 @@ describe('Sidebar Light Theme', () => {
       document.documentElement.setAttribute('data-theme', 'dark');
       const { container } = renderSidebar();
       const sidebar = container.querySelector('aside');
-      expect(sidebar).toHaveClass('dark:bg-[#0a0a0a]');
+      expect(sidebar).toHaveClass('dark:bg-background');
     });
 
     it('should have border class that adapts to theme', () => {
       const { container } = renderSidebar();
       const sidebar = container.querySelector('aside');
-      expect(sidebar).toHaveClass('border-gray-200', 'dark:border-charcoal');
+      expect(sidebar).toHaveClass('border-gray-200', 'dark:border-border');
     });
   });
 

@@ -233,7 +233,7 @@ const AlertCard = memo(function AlertCard({
                 size="sm"
                 onClick={handleRecover}
                 disabled={keyword.status === "recovering"}
-                className="gap-1.5 bg-[#faff69] text-black hover:bg-[#faff69]/90"
+                className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <RefreshCw className="h-3 w-3" />
                 Recover

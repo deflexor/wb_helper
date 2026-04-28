@@ -26,8 +26,8 @@ export interface ForecastChartProps {
   showAnimation?: boolean;
 }
 
-const NEON_VOLT = '#faff69';
-const NEON_PALE = '#f4f692';
+const NEON_VOLT = 'var(--primary)';
+const NEON_PALE = 'var(--accent)';
 
 /**
  * Custom tooltip with theme-aware styling using CSS variables

@@ -58,46 +58,43 @@ export function PricingPreview({
   );
 
   return (
-    <Card
-      className="bg-[#141414] border border-solid border-[rgba(65,65,65,0.8)]"
-      style={{ backgroundColor: "#141414" }}
-    >
+    <Card className="bg-muted border-border">
       <CardHeader>
         <CardTitle>{t("optimization.preview")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Settings Summary */}
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between text-gray-400">
+          <div className="flex justify-between text-muted-foreground">
             <span>{t("optimization.minMargin")}:</span>
-            <span className="text-white">{minMargin}%</span>
+            <span className="text-foreground">{minMargin}%</span>
           </div>
-          <div className="flex justify-between text-gray-400">
+          <div className="flex justify-between text-muted-foreground">
             <span>{t("optimization.maxPriceChange")}:</span>
-            <span className="text-white">{maxPriceChange}%</span>
+            <span className="text-foreground">{maxPriceChange}%</span>
           </div>
-          <div className="flex justify-between text-gray-400">
+          <div className="flex justify-between text-muted-foreground">
             <span>{t("optimization.targetMargin")}:</span>
-            <span className="text-white">{targetMargin}%</span>
+            <span className="text-foreground">{targetMargin}%</span>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="border-t border-[rgba(65,65,65,0.8)]" />
+        <div className="border-t border-border" />
 
         {/* Live Calculations */}
         <div className="space-y-3">
           {previewItems.map((item, index) => (
             <div key={index} className="flex justify-between items-center">
-              <span className="text-sm text-gray-400">{item.label}</span>
+              <span className="text-sm text-muted-foreground">{item.label}</span>
               <span
                 className={cn(
                   "text-sm font-medium",
                   item.isPositive === null
-                    ? "text-white"
+                    ? "text-foreground"
                     : item.isPositive
-                    ? "text-[#166534]"
-                    : "text-red-600"
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-destructive"
                 )}
               >
                 {item.value}
@@ -112,10 +109,10 @@ export function PricingPreview({
             <div
               className={cn(
                 "w-2 h-2 rounded-full",
-                isPositiveChange ? "bg-[#166534]" : "bg-red-600"
+                isPositiveChange ? "bg-green-600 dark:bg-green-400" : "bg-destructive"
               )}
             />
-            <span className="text-sm text-gray-300">
+            <span className="text-sm text-muted-foreground">
               {isPositiveChange
                 ? marginChange > 0
                   ? t("competitors.priceLower")
