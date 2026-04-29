@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { memo, useState, useCallback } from "react";
-import { AlertTriangle, ChevronDown, ChevronUp, RefreshCw, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { MarketplaceBadge } from "./MarketplaceBadge";
+import { memo, useState, useCallback } from 'react';
+import { AlertTriangle, ChevronDown, ChevronUp, RefreshCw, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { MarketplaceBadge } from './MarketplaceBadge';
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-type Marketplace = "wildberries" | "ozon";
+type Marketplace = 'wildberries' | 'ozon';
 
 interface DroppedKeyword {
   id: string;
@@ -20,7 +20,7 @@ interface DroppedKeyword {
   previousPosition: number;
   currentPosition: number;
   droppedDate: string;
-  status: "active" | "recovering" | "lost";
+  status: 'active' | 'recovering' | 'lost';
   article?: string;
   marketplace: Marketplace;
   recoveryAttempts?: number;
@@ -40,42 +40,42 @@ interface DroppedKeywordsAlertProps {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 }
 
 function getDropSeverity(
   previousPosition: number,
   currentPosition: number
-): "critical" | "moderate" | "mild" {
+): 'critical' | 'moderate' | 'mild' {
   const drop = currentPosition - previousPosition;
-  if (drop >= 10) return "critical";
-  if (drop >= 5) return "moderate";
-  return "mild";
+  if (drop >= 10) return 'critical';
+  if (drop >= 5) return 'moderate';
+  return 'mild';
 }
 
-function getStatusConfig(status: DroppedKeyword["status"]): {
+function getStatusConfig(status: DroppedKeyword['status']): {
   label: string;
   className: string;
 } {
   switch (status) {
-    case "active":
+    case 'active':
       return {
-        label: "Active",
-        className: "bg-blue-900/50 text-blue-400 border-blue-700",
+        label: 'Active',
+        className: 'bg-blue-900/50 text-blue-400 border-blue-700',
       };
-    case "recovering":
+    case 'recovering':
       return {
-        label: "Recovering",
-        className: "bg-amber-900/50 text-amber-300 border-amber-700 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-700",
+        label: 'Recovering',
+        className: 'bg-amber-900/50 text-amber-300 border-amber-700 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-700',
       };
-    case "lost":
+    case 'lost':
       return {
-        label: "Lost",
-        className: "bg-red-900/50 text-red-400 border-red-700",
+        label: 'Lost',
+        className: 'bg-red-900/50 text-red-400 border-red-700',
       };
   }
 }
@@ -90,11 +90,11 @@ interface AlertCardProps {
   onDismissClick?: (keyword: DroppedKeyword) => void;
 }
 
-const AlertCard = memo(function AlertCard({
+const AlertCard = memo(({
   keyword,
   onRecoverClick,
   onDismissClick,
-}: AlertCardProps) {
+}: AlertCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const severity = getDropSeverity(keyword.previousPosition, keyword.currentPosition);
   const statusConfig = getStatusConfig(keyword.status);
@@ -114,13 +114,13 @@ const AlertCard = memo(function AlertCard({
   return (
     <div
       className={cn(
-        "rounded-lg border p-4 transition-all",
-        severity === "critical" &&
-          "bg-red-950/30 border-red-800/50 hover:border-red-700",
-        severity === "moderate" &&
-          "bg-orange-950/30 border-orange-800/50 hover:border-orange-700",
-        severity === "mild" &&
-          "bg-amber-950/30 border-amber-800/50 hover:border-amber-700 dark:bg-amber-950/30 dark:border-amber-800/50 dark:hover:border-amber-700"
+        'rounded-lg border p-4 transition-all',
+        severity === 'critical' &&
+          'bg-red-950/30 border-red-800/50 hover:border-red-700',
+        severity === 'moderate' &&
+          'bg-orange-950/30 border-orange-800/50 hover:border-orange-700',
+        severity === 'mild' &&
+          'bg-amber-950/30 border-amber-800/50 hover:border-amber-700 dark:bg-amber-950/30 dark:border-amber-800/50 dark:hover:border-amber-700'
       )}
     >
       {/* Header */}
@@ -129,10 +129,10 @@ const AlertCard = memo(function AlertCard({
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle
               className={cn(
-                "h-4 w-4 flex-shrink-0",
-                severity === "critical" && "text-red-500",
-                severity === "moderate" && "text-orange-500",
-                severity === "mild" && "text-amber-500 dark:text-amber-400"
+                'h-4 w-4 flex-shrink-0',
+                severity === 'critical' && 'text-red-500',
+                severity === 'moderate' && 'text-orange-500',
+                severity === 'mild' && 'text-amber-500 dark:text-amber-400'
               )}
             />
             <span className="font-medium text-sm truncate">{keyword.keyword}</span>
@@ -143,8 +143,8 @@ const AlertCard = memo(function AlertCard({
             <span>
               <span className="font-medium text-foreground">
                 #{keyword.previousPosition}
-              </span>{" "}
-              →{" "}
+              </span>{' '}
+              →{' '}
               <span className="font-medium text-red-400">
                 #{keyword.currentPosition}
               </span>
@@ -156,7 +156,7 @@ const AlertCard = memo(function AlertCard({
         <div className="flex items-center gap-2 flex-shrink-0">
           <span
             className={cn(
-              "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border",
+              'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border',
               statusConfig.className
             )}
           >
@@ -201,7 +201,7 @@ const AlertCard = memo(function AlertCard({
                   Article ID
                 </span>
                 <span className="font-mono text-xs">
-                  {keyword.article || "N/A"}
+                  {keyword.article ?? 'N/A'}
                 </span>
               </div>
               <div>
@@ -232,7 +232,7 @@ const AlertCard = memo(function AlertCard({
               <Button
                 size="sm"
                 onClick={handleRecover}
-                disabled={keyword.status === "recovering"}
+                disabled={keyword.status === 'recovering'}
                 className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <RefreshCw className="h-3 w-3" />
@@ -273,13 +273,13 @@ function AlertListSkeleton({ count = 3 }: { count?: number }) {
 // MAIN COMPONENT
 // =============================================================================
 
-const DroppedKeywordsAlert = memo(function DroppedKeywordsAlert({
+const DroppedKeywordsAlert = memo(({
   keywords,
   isLoading = false,
   onRecoverClick,
   onDismissClick,
   className,
-}: DroppedKeywordsAlertProps) {
+}: DroppedKeywordsAlertProps) => {
   // Sort by severity (critical first)
   const sortedKeywords = [...keywords].sort((a, b) => {
     const severityOrder: Record<string, number> = { critical: 0, moderate: 1, mild: 2 };
@@ -290,15 +290,15 @@ const DroppedKeywordsAlert = memo(function DroppedKeywordsAlert({
   });
 
   const criticalCount = sortedKeywords.filter(
-    (k) => getDropSeverity(k.previousPosition, k.currentPosition) === "critical"
+    (k) => getDropSeverity(k.previousPosition, k.currentPosition) === 'critical'
   ).length;
 
   const moderateCount = sortedKeywords.filter(
-    (k) => getDropSeverity(k.previousPosition, k.currentPosition) === "moderate"
+    (k) => getDropSeverity(k.previousPosition, k.currentPosition) === 'moderate'
   ).length;
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn('overflow-hidden', className)}>
       <CardHeader className="pb-3 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

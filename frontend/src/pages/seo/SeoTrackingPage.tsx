@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { useMarketplace } from "@/components/MarketplaceProvider";
-import { useSeoKeywords, type SeoKeyword } from "@/hooks/useSeoKeywords";
-import { useSeoPositions, type KeywordPosition } from "@/hooks/useSeoPositions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useMarketplace } from '@/components/MarketplaceProvider';
+import { useSeoKeywords, type SeoKeyword } from '@/hooks/useSeoKeywords';
+import { useSeoPositions, type KeywordPosition } from '@/hooks/useSeoPositions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { PositionChart } from "@/components/seo/PositionChart";
-import { Plus, Search, Filter, Eye } from "lucide-react";
+} from '@/components/ui/select';
+import { PositionChart } from '@/components/seo/PositionChart';
+import { Plus, Search, Filter, Eye } from 'lucide-react';
 
 // =============================================================================
 // TYPES
@@ -68,21 +68,21 @@ function HistoryModal({ keywordName, positions, isLoading, onClose }: HistoryMod
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">{keywordName}</CardTitle>
             <Button variant="ghost" size="sm" onClick={onClose}>
-              {t("common.close")}
+              {t('common.close')}
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground">{t("seo.tracking.positionHistory")}</p>
+          <p className="text-sm text-muted-foreground">{t('seo.tracking.positionHistory')}</p>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto pt-4">
           {isLoading ? (
             <div className="h-[300px] flex items-center justify-center">
-              {t("common.loading")}
+              {t('common.loading')}
             </div>
           ) : (
             <PositionChart
               data={chartData}
               height={300}
-              title={t("seo.tracking.positionOverTime")}
+              title={t('seo.tracking.positionOverTime')}
               showGrid
             />
           )}
@@ -114,15 +114,15 @@ export default function SeoTrackingPage() {
   const { marketplace } = useMarketplace();
 
   // Filters state
-  const [articleFilter, setArticleFilter] = useState<string>("all");
-  const [positionRange, setPositionRange] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<string>("30");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [articleFilter, setArticleFilter] = useState<string>('all');
+  const [positionRange, setPositionRange] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<string>('30');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Add keyword form state
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newKeyword, setNewKeyword] = useState("");
-  const [newArticleId, setNewArticleId] = useState("");
+  const [newKeyword, setNewKeyword] = useState('');
+  const [newArticleId, setNewArticleId] = useState('');
 
   // History modal state
   const [selectedKeyword, setSelectedKeyword] = useState<{
@@ -132,14 +132,14 @@ export default function SeoTrackingPage() {
 
   // Fetch keywords using hook
   const positionRangeFilter = useMemo(() => {
-    if (positionRange === "top10") return { min: 0, max: 10 };
-    if (positionRange === "top50") return { min: 0, max: 50 };
+    if (positionRange === 'top10') return { min: 0, max: 10 };
+    if (positionRange === 'top50') return { min: 0, max: 50 };
     return undefined;
   }, [positionRange]);
 
   const { keywords, isLoading, addKeyword } = useSeoKeywords({
     marketplace,
-    articleId: articleFilter === "all" ? undefined : articleFilter,
+    articleId: articleFilter === 'all' ? undefined : articleFilter,
     positionRange: positionRangeFilter,
   });
 
@@ -178,30 +178,29 @@ export default function SeoTrackingPage() {
   const handleAddKeyword = useCallback(async () => {
     if (!newKeyword.trim() || !newArticleId.trim()) return;
     await addKeyword(newKeyword.trim(), newArticleId.trim());
-    setNewKeyword("");
-    setNewArticleId("");
+    setNewKeyword('');
+    setNewArticleId('');
     setShowAddForm(false);
   }, [newKeyword, newArticleId, addKeyword]);
 
   // Format helpers
   const formatChange = useCallback((change: number) => {
-    if (change > 0) return `+${change}`;
-    if (change < 0) return `${change}`;
-    return "0";
+    const prefix = change > 0 ? '+' : '';
+    return `${prefix}${String(change)}`;
   }, []);
 
   const getChangeColor = useCallback((change: number) => {
-    if (change > 0) return "text-green-500";
-    if (change < 0) return "text-red-500";
-    return "text-muted-foreground";
+    if (change > 0) return 'text-green-500';
+    if (change < 0) return 'text-red-500';
+    return 'text-muted-foreground';
   }, []);
 
   const formatDate = useCallback((isoString: string) => {
-    return new Date(isoString).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date(isoString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   }, []);
 
@@ -211,18 +210,18 @@ export default function SeoTrackingPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            {t("seo.tracking.title")}
+            {t('seo.tracking.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {t("seo.tracking.description")}
+            {t('seo.tracking.description')}
           </p>
         </div>
         <Button
-          onClick={() => setShowAddForm(!showAddForm)}
+          onClick={() => { setShowAddForm(!showAddForm); }}
           className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="h-4 w-4" />
-          {t("seo.tracking.addKeyword")}
+          {t('seo.tracking.addKeyword')}
         </Button>
       </div>
 
@@ -230,28 +229,28 @@ export default function SeoTrackingPage() {
       {showAddForm && (
         <Card>
           <CardHeader className="pb-4">
-            <CardTitle className="text-base">{t("seo.tracking.addNewKeyword")}</CardTitle>
+            <CardTitle className="text-base">{t('seo.tracking.addNewKeyword')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row gap-4">
               <Input
-                placeholder={t("seo.tracking.keywordPlaceholder")}
+                placeholder={t('seo.tracking.keywordPlaceholder')}
                 value={newKeyword}
-                onChange={(e) => setNewKeyword(e.target.value)}
+                onChange={(e) => { setNewKeyword(e.target.value); }}
                 className="flex-1"
               />
               <Input
-                placeholder={t("seo.tracking.articlePlaceholder")}
+                placeholder={t('seo.tracking.articlePlaceholder')}
                 value={newArticleId}
-                onChange={(e) => setNewArticleId(e.target.value)}
+                onChange={(e) => { setNewArticleId(e.target.value); }}
                 className="flex-1"
               />
               <Button
-                onClick={handleAddKeyword}
+                onClick={() => { void handleAddKeyword(); }}
                 disabled={!newKeyword.trim() || !newArticleId.trim()}
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                {t("common.add")}
+                {t('common.add')}
               </Button>
             </div>
           </CardContent>
@@ -266,12 +265,12 @@ export default function SeoTrackingPage() {
             <div className="flex-1 min-w-[200px] space-y-2">
               <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Search className="h-4 w-4" />
-                {t("seo.tracking.search")}
+                {t('seo.tracking.search')}
               </label>
               <Input
-                placeholder={t("seo.tracking.searchPlaceholder")}
+                placeholder={t('seo.tracking.searchPlaceholder')}
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); }}
               />
             </div>
 
@@ -279,14 +278,14 @@ export default function SeoTrackingPage() {
             <div className="w-full sm:w-[180px] space-y-2">
               <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Filter className="h-4 w-4" />
-                {t("seo.tracking.filterByArticle")}
+                {t('seo.tracking.filterByArticle')}
               </label>
               <Select value={articleFilter} onValueChange={setArticleFilter}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t("seo.tracking.allArticles")}</SelectItem>
+                  <SelectItem value="all">{t('seo.tracking.allArticles')}</SelectItem>
                   <SelectItem value="art-001">Article 001</SelectItem>
                   <SelectItem value="art-002">Article 002</SelectItem>
                   <SelectItem value="art-003">Article 003</SelectItem>
@@ -297,16 +296,16 @@ export default function SeoTrackingPage() {
             {/* Position Range Filter */}
             <div className="w-full sm:w-[180px] space-y-2">
               <label className="text-sm font-medium text-muted-foreground">
-                {t("seo.tracking.positionRange")}
+                {t('seo.tracking.positionRange')}
               </label>
               <Select value={positionRange} onValueChange={setPositionRange}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t("seo.tracking.allPositions")}</SelectItem>
-                  <SelectItem value="top10">{t("seo.tracking.top10")}</SelectItem>
-                  <SelectItem value="top50">{t("seo.tracking.top50")}</SelectItem>
+                  <SelectItem value="all">{t('seo.tracking.allPositions')}</SelectItem>
+                  <SelectItem value="top10">{t('seo.tracking.top10')}</SelectItem>
+                  <SelectItem value="top50">{t('seo.tracking.top50')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -314,16 +313,16 @@ export default function SeoTrackingPage() {
             {/* Date Range Filter */}
             <div className="w-full sm:w-[180px] space-y-2">
               <label className="text-sm font-medium text-muted-foreground">
-                {t("seo.tracking.dateRange")}
+                {t('seo.tracking.dateRange')}
               </label>
               <Select value={dateRange} onValueChange={setDateRange}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="7">{t("seo.tracking.last7Days")}</SelectItem>
-                  <SelectItem value="30">{t("seo.tracking.last30Days")}</SelectItem>
-                  <SelectItem value="90">{t("seo.tracking.last90Days")}</SelectItem>
+                  <SelectItem value="7">{t('seo.tracking.last7Days')}</SelectItem>
+                  <SelectItem value="30">{t('seo.tracking.last30Days')}</SelectItem>
+                  <SelectItem value="90">{t('seo.tracking.last90Days')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -336,10 +335,10 @@ export default function SeoTrackingPage() {
         <CardHeader className="border-b border-border">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">
-              {t("seo.tracking.keywordsTable")}
+              {t('seo.tracking.keywordsTable')}
             </CardTitle>
             <span className="text-sm text-muted-foreground">
-              {filteredData.length} {t("seo.tracking.keywords")}
+              {filteredData.length} {t('seo.tracking.keywords')}
             </span>
           </div>
         </CardHeader>
@@ -349,22 +348,22 @@ export default function SeoTrackingPage() {
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">
-                    {t("seo.table.keyword")}
+                    {t('seo.table.keyword')}
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">
-                    {t("seo.table.article")}
+                    {t('seo.table.article')}
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">
-                    {t("seo.table.currentPosition")}
+                    {t('seo.table.currentPosition')}
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">
-                    {t("seo.table.change")}
+                    {t('seo.table.change')}
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">
-                    {t("seo.table.lastUpdated")}
+                    {t('seo.table.lastUpdated')}
                   </th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">
-                    {t("seo.table.actions")}
+                    {t('seo.table.actions')}
                   </th>
                 </tr>
               </thead>
@@ -378,7 +377,7 @@ export default function SeoTrackingPage() {
                 ) : filteredData.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                      {t("seo.tracking.noKeywords")}
+                      {t('seo.tracking.noKeywords')}
                     </td>
                   </tr>
                 ) : (
@@ -400,11 +399,11 @@ export default function SeoTrackingPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleViewHistory(row)}
+                          onClick={() => { handleViewHistory(row); }}
                           className="gap-1"
                         >
                           <Eye className="h-4 w-4" />
-                          {t("seo.tracking.viewHistory")}
+                          {t('seo.tracking.viewHistory')}
                         </Button>
                       </td>
                     </tr>

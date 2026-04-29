@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { memo } from "react";
-import { User, TrendingUp, TrendingDown, Search, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { MarketplaceBadge, type Marketplace } from "./MarketplaceBadge";
+import { memo } from 'react';
+import { User, TrendingUp, TrendingDown, Search, AlertCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { MarketplaceBadge, type Marketplace } from './MarketplaceBadge';
 
 // =============================================================================
 // TYPES
@@ -18,7 +18,7 @@ export interface CompetitorKeyword {
   competitorPosition: number;
   yourPosition?: number;
   volume?: number;
-  difficulty?: "easy" | "medium" | "hard";
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export interface Competitor {
@@ -46,25 +46,25 @@ export interface CompetitorCardProps {
 function getPositionComparison(
   yourPos?: number,
   competitorPos?: number
-): "winning" | "losing" | "not-ranked" | "equal" {
+): 'winning' | 'losing' | 'not-ranked' | 'equal' {
   if (yourPos === undefined || competitorPos === undefined) {
-    return "not-ranked";
+    return 'not-ranked';
   }
-  if (yourPos < competitorPos) return "winning";
-  if (yourPos > competitorPos) return "losing";
-  return "equal";
+  if (yourPos < competitorPos) return 'winning';
+  if (yourPos > competitorPos) return 'losing';
+  return 'equal';
 }
 
-function getDifficultyColor(difficulty?: CompetitorKeyword["difficulty"]): string {
+function getDifficultyColor(difficulty?: CompetitorKeyword['difficulty']): string {
   switch (difficulty) {
-    case "easy":
-      return "bg-green-900/50 text-green-400 border-green-700 dark:bg-green-900/50 dark:text-green-400 dark:border-green-700";
-    case "medium":
-      return "bg-amber-900/50 text-amber-300 border-amber-700 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-700";
-    case "hard":
-      return "bg-red-900/50 text-red-400 border-red-700 dark:bg-red-900/50 dark:text-red-400 dark:border-red-700";
+    case 'easy':
+      return 'bg-green-900/50 text-green-400 border-green-700 dark:bg-green-900/50 dark:text-green-400 dark:border-green-700';
+    case 'medium':
+      return 'bg-amber-900/50 text-amber-300 border-amber-700 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-700';
+    case 'hard':
+      return 'bg-red-900/50 text-red-400 border-red-700 dark:bg-red-900/50 dark:text-red-400 dark:border-red-700';
     default:
-      return "bg-muted text-muted-foreground border-transparent";
+      return 'bg-muted text-muted-foreground border-transparent';
   }
 }
 
@@ -108,7 +108,7 @@ interface KeywordRowProps {
   onClick?: (keyword: CompetitorKeyword) => void;
 }
 
-const KeywordRow = memo(function KeywordRow({ keyword, onClick }: KeywordRowProps) {
+const KeywordRow = memo(({ keyword, onClick }: KeywordRowProps) => {
   const comparison = getPositionComparison(
     keyword.yourPosition,
     keyword.competitorPosition
@@ -118,9 +118,9 @@ const KeywordRow = memo(function KeywordRow({ keyword, onClick }: KeywordRowProp
     <button
       onClick={() => onClick?.(keyword)}
       className={cn(
-        "w-full flex items-center justify-between px-3 py-2 rounded-lg",
-        "hover:bg-muted/50 transition-colors",
-        "text-left"
+        'w-full flex items-center justify-between px-3 py-2 rounded-lg',
+        'hover:bg-muted/50 transition-colors',
+        'text-left'
       )}
     >
       <div className="flex items-center gap-2 min-w-0">
@@ -128,7 +128,7 @@ const KeywordRow = memo(function KeywordRow({ keyword, onClick }: KeywordRowProp
         {keyword.difficulty && (
           <span
             className={cn(
-              "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border",
+              'inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border',
               getDifficultyColor(keyword.difficulty)
             )}
           >
@@ -145,10 +145,10 @@ const KeywordRow = memo(function KeywordRow({ keyword, onClick }: KeywordRowProp
               <span className="text-muted-foreground">You:</span>
               <span
                 className={cn(
-                  "font-medium",
-                  comparison === "winning" && "text-green-500 dark:text-green-400",
-                  comparison === "losing" && "text-red-500 dark:text-red-400",
-                  comparison === "equal" && "text-amber-500 dark:text-amber-400"
+                  'font-medium',
+                  comparison === 'winning' && 'text-green-500 dark:text-green-400',
+                  comparison === 'losing' && 'text-red-500 dark:text-red-400',
+                  comparison === 'equal' && 'text-amber-500 dark:text-amber-400'
                 )}
               >
                 #{keyword.yourPosition}
@@ -162,10 +162,10 @@ const KeywordRow = memo(function KeywordRow({ keyword, onClick }: KeywordRowProp
         {/* Comparison Indicator */}
         {keyword.yourPosition !== undefined && (
           <div className="flex items-center">
-            {comparison === "winning" && (
+            {comparison === 'winning' && (
               <TrendingUp className="h-3 w-3 text-green-500" />
             )}
-            {comparison === "losing" && (
+            {comparison === 'losing' && (
               <TrendingDown className="h-3 w-3 text-red-500" />
             )}
           </div>
@@ -184,13 +184,13 @@ const KeywordRow = memo(function KeywordRow({ keyword, onClick }: KeywordRowProp
 // MAIN COMPONENT
 // =============================================================================
 
-const CompetitorCard = memo(function CompetitorCard({
+const CompetitorCard = memo(({
   competitor,
   isLoading = false,
   onFindGapsClick,
   onKeywordClick,
   className,
-}: CompetitorCardProps) {
+}: CompetitorCardProps) => {
   // Calculate gap keywords (where competitor beats you or is ranked but you're not)
   const gapKeywords = competitor.keywords.filter(
     (kw) =>
@@ -205,7 +205,7 @@ const CompetitorCard = memo(function CompetitorCard({
   }
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn('overflow-hidden', className)}>
       <CardHeader className="pb-3 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
@@ -223,13 +223,13 @@ const CompetitorCard = memo(function CompetitorCard({
             <MarketplaceBadge marketplace={competitor.marketplace} />
             {competitor.isGaining !== undefined && (
               <Badge
-                variant={competitor.isGaining ? "default" : "secondary"}
+                variant={competitor.isGaining ? 'default' : 'secondary'}
                 className={cn(
-                  "text-xs",
-                  competitor.isGaining && "bg-blue-900/50 text-blue-400"
+                  'text-xs',
+                  competitor.isGaining && 'bg-blue-900/50 text-blue-400'
                 )}
               >
-                {competitor.isGaining ? "Gaining" : "Stable"}
+                {competitor.isGaining ? 'Gaining' : 'Stable'}
               </Badge>
             )}
           </div>
@@ -240,14 +240,14 @@ const CompetitorCard = memo(function CompetitorCard({
           <span className="text-muted-foreground">
             <span className="font-medium text-foreground">
               {competitor.totalKeywords}
-            </span>{" "}
+            </span>{' '}
             ranking keywords
           </span>
           {competitor.overlap !== undefined && (
             <span className="text-muted-foreground">
               <span className="font-medium text-foreground">
                 {competitor.overlap}%
-              </span>{" "}
+              </span>{' '}
               overlap
             </span>
           )}
@@ -272,7 +272,7 @@ const CompetitorCard = memo(function CompetitorCard({
             <div className="divide-y divide-border/50">
               {competitor.keywords.slice(0, 10).map((keyword, index) => (
                 <KeywordRow
-                  key={`${keyword.keyword}-${index}`}
+                  key={`${keyword.keyword}-${String(index)}`}
                   keyword={keyword}
                   onClick={onKeywordClick}
                 />
@@ -292,7 +292,7 @@ const CompetitorCard = memo(function CompetitorCard({
         {hasGaps && onFindGapsClick && (
           <div className="p-4 border-t border-border">
             <Button
-              onClick={() => onFindGapsClick?.(competitor)}
+              onClick={() => { onFindGapsClick(competitor); }}
               className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Search className="h-4 w-4" />

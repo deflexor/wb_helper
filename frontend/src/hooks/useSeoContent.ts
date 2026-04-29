@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
+import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // =============================================================================
 // TYPES
@@ -14,7 +14,7 @@ export interface SEOContentInput {
   /** Target keywords for SEO */
   keywords: string[];
   /** Content type (product description, category page, etc.) */
-  contentType: "product" | "category" | "blog" | "landing";
+  contentType: 'product' | 'category' | 'blog' | 'landing';
   /** Target language code (en, ru) */
   language: string;
 }
@@ -86,7 +86,7 @@ const calculateMetadata = (
   // Calculate keyword density
   const contentLower = content.toLowerCase();
   const keywordOccurrences = keywords.reduce((count, kw) => {
-    const matches = contentLower.match(new RegExp(kw.toLowerCase(), "g"));
+    const matches = contentLower.match(new RegExp(kw.toLowerCase(), 'g'));
     return count + (matches?.length ?? 0);
   }, 0);
 
@@ -104,16 +104,16 @@ const calculateMetadata = (
   // Detect issues
   const issues: string[] = [];
   if (keywordDensity < 1) {
-    issues.push("keywordDensityLow");
+    issues.push('keywordDensityLow');
   }
   if (keywordDensity > 5) {
-    issues.push("keywordDensityHigh");
+    issues.push('keywordDensityHigh');
   }
   if (wordCount < 50) {
-    issues.push("contentTooShort");
+    issues.push('contentTooShort');
   }
   if (wordCount > 3000) {
-    issues.push("contentTooLong");
+    issues.push('contentTooLong');
   }
 
   return { wordCount, keywordDensity, readabilityScore, issues };
@@ -134,30 +134,30 @@ const generateSeoContent = async (
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
   // Mock response based on input
-  const keywordList = input.keywords.join(", ");
+  const keywordList = input.keywords.join(', ');
   const contentSnippet =
-    input.language === "ru"
+    input.language === 'ru'
       ? `Улучшенное SEO-описание с ключевыми словами: ${keywordList}. `
       : `Improved SEO description with keywords: ${keywordList}. `;
 
   const generatedContent =
     contentSnippet +
     input.originalContent.substring(0, 200) +
-    (input.originalContent.length > 200 ? "..." : "");
+    (input.originalContent.length > 200 ? '...' : '');
 
   const slugBase = input.originalContent
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^a-z0-9]+/g, '-')
     .substring(0, 50);
 
   return {
     content: generatedContent,
     metaTitle:
-      input.language === "ru"
-        ? `${input.keywords[0] ?? "Product"} - Купить | WB Helper`
-        : `${input.keywords[0] ?? "Product"} - Buy Now | WB Helper`,
+      input.language === 'ru'
+        ? `${input.keywords[0] ?? 'Product'} - Купить | WB Helper`
+        : `${input.keywords[0] ?? 'Product'} - Buy Now | WB Helper`,
     metaDescription:
-      input.language === "ru"
+      input.language === 'ru'
         ? `Лучшее предложение на ${keywordList}. Быстрая доставка.`
         : `Best offer on ${keywordList}. Fast delivery.`,
     slug: `${slugBase}-${Date.now().toString(36)}`,
@@ -200,7 +200,7 @@ export function useSeoContent(): UseSeoContentResult {
         setContent(result);
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : t("seo.generationFailed");
+          err instanceof Error ? err.message : t('seo.generationFailed');
         setError(message);
         throw err;
       } finally {
@@ -215,7 +215,7 @@ export function useSeoContent(): UseSeoContentResult {
    */
   const regenerate = useCallback(async (): Promise<void> => {
     if (!lastInput) {
-      setError(t("seo.noContentToRegenerate"));
+      setError(t('seo.noContentToRegenerate'));
       return;
     }
     await generate(lastInput);
@@ -233,7 +233,7 @@ export function useSeoContent(): UseSeoContentResult {
       await navigator.clipboard.writeText(content.content);
       return true;
     } catch {
-      setError(t("seo.copyFailed"));
+      setError(t('seo.copyFailed'));
       return false;
     }
   }, [content, t]);

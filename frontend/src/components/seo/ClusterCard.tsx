@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { memo } from "react";
-import { Tags, Edit2, Merge, Trash2, Download } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { MarketplaceBadge, type Marketplace } from "./MarketplaceBadge";
+import { memo } from 'react';
+import { Tags, Edit2, Merge, Trash2, Download } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { MarketplaceBadge, type Marketplace } from './MarketplaceBadge';
 
 // =============================================================================
 // TYPES
@@ -89,10 +89,10 @@ function KeywordPill({ keyword, onClick }: KeywordPillProps) {
     <button
       onClick={handleClick}
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium",
-        "bg-muted hover:bg-muted/80 transition-colors",
-        "border border-transparent hover:border-border",
-        "cursor-pointer"
+        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
+        'bg-muted hover:bg-muted/80 transition-colors',
+        'border border-transparent hover:border-border',
+        'cursor-pointer'
       )}
     >
       <span>{keyword.keyword}</span>
@@ -100,12 +100,12 @@ function KeywordPill({ keyword, onClick }: KeywordPillProps) {
       {keyword.similarity !== undefined && (
         <span
           className={cn(
-            "ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium",
+            'ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium',
             keyword.similarity >= 0.8
-              ? "bg-green-900/50 text-green-400 dark:bg-green-900/50 dark:text-green-400"
+              ? 'bg-green-900/50 text-green-400 dark:bg-green-900/50 dark:text-green-400'
               : keyword.similarity >= 0.5
-              ? "bg-amber-900/50 text-amber-300 dark:bg-amber-900/50 dark:text-amber-300"
-              : "bg-red-900/50 text-red-400 dark:bg-red-900/50 dark:text-red-400"
+                ? 'bg-amber-900/50 text-amber-300 dark:bg-amber-900/50 dark:text-amber-300'
+                : 'bg-red-900/50 text-red-400 dark:bg-red-900/50 dark:text-red-400'
           )}
         >
           {Math.round(keyword.similarity * 100)}%
@@ -119,7 +119,7 @@ function KeywordPill({ keyword, onClick }: KeywordPillProps) {
 // MAIN COMPONENT
 // =============================================================================
 
-const ClusterCard = memo(function ClusterCard({
+const ClusterCard = memo(({
   cluster,
   isLoading = false,
   onEditClick,
@@ -128,13 +128,13 @@ const ClusterCard = memo(function ClusterCard({
   onExportClick,
   onKeywordClick,
   className,
-}: ClusterCardProps) {
+}: ClusterCardProps) => {
   if (isLoading) {
     return <CardSkeleton />;
   }
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn('overflow-hidden', className)}>
       <CardHeader className="pb-3 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
@@ -147,12 +147,12 @@ const ClusterCard = memo(function ClusterCard({
             {cluster.avgSimilarity !== undefined && (
               <span
                 className={cn(
-                  "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
+                  'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
                   cluster.avgSimilarity >= 0.8
-                    ? "bg-green-900/50 text-green-400 dark:bg-green-900/50 dark:text-green-400"
+                    ? 'bg-green-900/50 text-green-400 dark:bg-green-900/50 dark:text-green-400'
                     : cluster.avgSimilarity >= 0.5
-                    ? "bg-amber-900/50 text-amber-300 dark:bg-amber-900/50 dark:text-amber-300"
-                    : "bg-red-900/50 text-red-400 dark:bg-red-900/50 dark:text-red-400"
+                      ? 'bg-amber-900/50 text-amber-300 dark:bg-amber-900/50 dark:text-amber-300'
+                      : 'bg-red-900/50 text-red-400 dark:bg-red-900/50 dark:text-red-400'
                 )}
               >
                 {Math.round(cluster.avgSimilarity * 100)}% avg

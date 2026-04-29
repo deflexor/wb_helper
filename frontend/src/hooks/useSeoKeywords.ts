@@ -96,6 +96,7 @@ const addKeywordApi = async (keyword: string, articleId: string): Promise<SeoKey
 };
 
 const removeKeywordApi = async (_id: number): Promise<void> => {
+  void _id; // TODO: Use id for real API call
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 300));
 };

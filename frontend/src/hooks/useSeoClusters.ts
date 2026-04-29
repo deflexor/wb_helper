@@ -35,6 +35,7 @@ export interface UseSeoClustersResult {
 // =============================================================================
 
 const fetchClusters = async (_marketplace: Marketplace): Promise<KeywordCluster[]> => {
+  void _marketplace; // TODO: Use marketplace for real API call
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -111,6 +112,7 @@ const mergeClustersApi = async (clusterIds: number[]): Promise<KeywordCluster> =
 };
 
 const deleteClusterApi = async (_clusterId: number): Promise<void> => {
+  void _clusterId; // TODO: Use clusterId for real API call
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 300));
 };

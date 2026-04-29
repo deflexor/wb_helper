@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { memo } from "react";
+import { memo } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,9 +9,9 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // =============================================================================
 // TYPES
@@ -37,11 +37,11 @@ export interface PositionChartProps {
 // CONSTANTS
 // =============================================================================
 
-const POSITIVE_COLOR = "var(--primary)";
-const NEUTRAL_COLOR = "var(--chart-neutral, #ca8a04)";
-const NEGATIVE_COLOR = "var(--destructive)";
-const TEXT_COLOR = "var(--chart-text, #737373)";
-const GRID_COLOR = "var(--chart-grid, #e5e5e5)";
+const POSITIVE_COLOR = 'var(--primary)';
+const NEUTRAL_COLOR = 'var(--chart-neutral, #ca8a04)';
+const NEGATIVE_COLOR = 'var(--destructive)';
+const TEXT_COLOR = 'var(--chart-text, #737373)';
+const GRID_COLOR = 'var(--chart-grid, #e5e5e5)';
 
 // =============================================================================
 // CUSTOM TOOLTIP
@@ -84,8 +84,8 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
     <div
       className="rounded-lg p-3 shadow-xl border"
       style={{
-        backgroundColor: "var(--chart-tooltip-bg, #ffffff)",
-        borderColor: "var(--chart-tooltip-border, #e5e5e5)",
+        backgroundColor: 'var(--chart-tooltip-bg, #ffffff)',
+        borderColor: 'var(--chart-tooltip-border, #e5e5e5)',
       }}
     >
       <p className="text-sm font-medium mb-1" style={{ color: TEXT_COLOR }}>
@@ -115,7 +115,7 @@ const axisStyle = {
 };
 
 const gridStyle = {
-  strokeDasharray: "3 3",
+  strokeDasharray: '3 3',
   stroke: GRID_COLOR,
 };
 
@@ -139,15 +139,15 @@ function ChartSkeleton({ height }: { height: number }) {
 // MAIN COMPONENT
 // =============================================================================
 
-const PositionChart = memo(function PositionChart({
+const PositionChart = memo(({
   data,
   isLoading = false,
   height = 300,
   showGrid = true,
   showAnimation = true,
-  title = "Position Over Time",
+  title = 'Position Over Time',
   className,
-}: PositionChartProps) {
+}: PositionChartProps) => {
   // Calculate domain for Y-axis (inverted - lower position is better)
   const positions = data.map((d) => d.position);
   const minPosition = Math.max(1, Math.min(...positions) - 2);
@@ -156,9 +156,9 @@ const PositionChart = memo(function PositionChart({
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
     });
   };
 
@@ -169,7 +169,7 @@ const PositionChart = memo(function PositionChart({
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
           {data.length > 0 && (
             <span className="text-sm text-muted-foreground">
-              {data.length} data point{data.length !== 1 ? "s" : ""}
+              {data.length} data point{data.length !== 1 ? 's' : ''}
             </span>
           )}
         </div>
@@ -204,7 +204,7 @@ const PositionChart = memo(function PositionChart({
                 <YAxis
                   domain={[minPosition, maxPosition]}
                   reversed
-                  tickFormatter={(value) => `#${value}`}
+                  tickFormatter={(value) => `#${String(value)}`}
                   {...axisStyle}
                 />
 
@@ -219,7 +219,7 @@ const PositionChart = memo(function PositionChart({
                   activeDot={{
                     fill: NEUTRAL_COLOR,
                     strokeWidth: 2,
-                    stroke: "#fff",
+                    stroke: '#fff',
                     r: 6,
                   }}
                   isAnimationActive={showAnimation}

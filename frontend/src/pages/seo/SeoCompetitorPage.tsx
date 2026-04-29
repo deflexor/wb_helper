@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { useMarketplace } from "@/components/MarketplaceProvider";
-import { PremiumGate } from "@/components/features/premium-gate/PremiumGate";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Search, TrendingUp, TrendingDown, Target } from "lucide-react";
+import { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useMarketplace } from '@/components/MarketplaceProvider';
+import { PremiumGate } from '@/components/features/premium-gate/PremiumGate';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Search, TrendingUp, TrendingDown, Target } from 'lucide-react';
 
 // =============================================================================
 // TYPES
@@ -35,14 +35,14 @@ interface CompetitorAnalysis {
 // =============================================================================
 
 const mockCompetitorKeywords: CompetitorKeyword[] = [
-  { keyword: "наушники беспроводные", competitorPosition: 3, yourPosition: 12, difference: -9 },
-  { keyword: "наушники Sony", competitorPosition: 5, yourPosition: null, difference: -999 },
-  { keyword: "игровые наушники", competitorPosition: 8, yourPosition: 15, difference: -7 },
-  { keyword: "наушники JBL", competitorPosition: 2, yourPosition: null, difference: -999 },
-  { keyword: "купить наушники", competitorPosition: 10, yourPosition: 8, difference: 2 },
-  { keyword: "наушники для музыки", competitorPosition: 14, yourPosition: 25, difference: -11 },
-  { keyword: "профессиональные наушники", competitorPosition: 6, yourPosition: null, difference: -999 },
-  { keyword: "наушники с шумоподавлением", competitorPosition: 4, yourPosition: 18, difference: -14 },
+  { keyword: 'наушники беспроводные', competitorPosition: 3, yourPosition: 12, difference: -9 },
+  { keyword: 'наушники Sony', competitorPosition: 5, yourPosition: null, difference: -999 },
+  { keyword: 'игровые наушники', competitorPosition: 8, yourPosition: 15, difference: -7 },
+  { keyword: 'наушники JBL', competitorPosition: 2, yourPosition: null, difference: -999 },
+  { keyword: 'купить наушники', competitorPosition: 10, yourPosition: 8, difference: 2 },
+  { keyword: 'наушники для музыки', competitorPosition: 14, yourPosition: 25, difference: -11 },
+  { keyword: 'профессиональные наушники', competitorPosition: 6, yourPosition: null, difference: -999 },
+  { keyword: 'наушники с шумоподавлением', competitorPosition: 4, yourPosition: 18, difference: -14 },
 ];
 
 // =============================================================================
@@ -69,34 +69,32 @@ function KeywordComparisonRow({ item }: KeywordComparisonRowProps) {
       <td className="py-3 px-4 text-center">
         {item.yourPosition !== null ? (
           <Badge
-            variant={isWinning ? "default" : "secondary"}
-            className={`${
-              isWinning ? "bg-green-500/20 text-green-500" : ""
-            }`}
+            variant={isWinning ? 'default' : 'secondary'}
+            className={isWinning ? 'bg-green-500/20 text-green-500' : ''}
           >
             #{item.yourPosition}
           </Badge>
         ) : (
           <span className="text-muted-foreground text-sm">
-            {t("seo.competitor.notRanking")}
+            {t('seo.competitor.notRanking')}
           </span>
         )}
       </td>
       <td className="py-3 px-4 text-center">
         {item.yourPosition !== null ? (
-          <div className={`flex items-center justify-center gap-1 ${isWinning ? "text-green-500" : "text-red-500"}`}>
+          <div className={`flex items-center justify-center gap-1 ${isWinning ? 'text-green-500' : 'text-red-500'}`}>
             {isWinning ? (
               <TrendingUp className="h-4 w-4" />
             ) : (
               <TrendingDown className="h-4 w-4" />
             )}
             <span className="font-medium">
-              {isWinning ? `+${Math.abs(item.difference)}` : item.difference}
+              {isWinning ? `+${String(Math.abs(item.difference))}` : String(item.difference)}
             </span>
           </div>
         ) : (
           <Badge variant="destructive" className="bg-red-500/20">
-            {t("seo.competitor.gap")}
+            {t('seo.competitor.gap')}
           </Badge>
         )}
       </td>
@@ -112,7 +110,7 @@ function GapCard({ keyword }: { keyword: string }) {
       <span className="font-medium">{keyword}</span>
       <Button size="sm" variant="outline" className="gap-1">
         <Target className="h-4 w-4" />
-        {t("seo.competitor.addToTarget")}
+        {t('seo.competitor.addToTarget')}
       </Button>
     </div>
   );
@@ -127,7 +125,7 @@ export default function SeoCompetitorPage() {
   useMarketplace(); // Initialize marketplace context
 
   // State
-  const [competitorArticleId, setCompetitorArticleId] = useState("");
+  const [competitorArticleId, setCompetitorArticleId] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<CompetitorAnalysis | null>(null);
   const [showGaps, setShowGaps] = useState(false);
@@ -182,10 +180,10 @@ export default function SeoCompetitorPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            {t("seo.competitor.title")}
+            {t('seo.competitor.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {t("seo.competitor.description")}
+            {t('seo.competitor.description')}
           </p>
         </div>
       </div>
@@ -193,30 +191,30 @@ export default function SeoCompetitorPage() {
       {/* Analysis Form */}
       <Card>
         <CardHeader className="border-b border-border">
-          <CardTitle className="text-lg">{t("seo.competitor.analyzeCompetitor")}</CardTitle>
+          <CardTitle className="text-lg">{t('seo.competitor.analyzeCompetitor')}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           <div className="flex gap-4">
             <Input
-              placeholder={t("seo.competitor.articleIdPlaceholder")}
+              placeholder={t('seo.competitor.articleIdPlaceholder')}
               value={competitorArticleId}
-              onChange={(e) => setCompetitorArticleId(e.target.value)}
+              onChange={(e) => { setCompetitorArticleId(e.target.value); }}
               className="flex-1"
             />
             <Button
-              onClick={handleAnalyze}
+              onClick={() => { void handleAnalyze(); }}
               disabled={!competitorArticleId.trim() || isAnalyzing}
               className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isAnalyzing ? (
                 <>
                   <Search className="h-4 w-4 animate-pulse" />
-                  {t("seo.competitor.analyzing")}
+                  {t('seo.competitor.analyzing')}
                 </>
               ) : (
                 <>
                   <Search className="h-4 w-4" />
-                  {t("seo.competitor.analyze")}
+                  {t('seo.competitor.analyze')}
                 </>
               )}
             </Button>
@@ -234,7 +232,7 @@ export default function SeoCompetitorPage() {
                 <CardContent className="pt-6">
                   <div className="text-2xl font-bold">{analysis.totalKeywords}</div>
                   <p className="text-sm text-muted-foreground">
-                    {t("seo.competitor.totalKeywords")}
+                    {t('seo.competitor.totalKeywords')}
                   </p>
                 </CardContent>
               </Card>
@@ -242,7 +240,7 @@ export default function SeoCompetitorPage() {
                 <CardContent className="pt-6">
                   <div className="text-2xl font-bold text-green-500">{stats.wins}</div>
                   <p className="text-sm text-muted-foreground">
-                    {t("seo.competitor.winning")}
+                    {t('seo.competitor.winning')}
                   </p>
                 </CardContent>
               </Card>
@@ -250,7 +248,7 @@ export default function SeoCompetitorPage() {
                 <CardContent className="pt-6">
                   <div className="text-2xl font-bold text-red-500">{stats.losses}</div>
                   <p className="text-sm text-muted-foreground">
-                    {t("seo.competitor.losing")}
+                    {t('seo.competitor.losing')}
                   </p>
                 </CardContent>
               </Card>
@@ -258,7 +256,7 @@ export default function SeoCompetitorPage() {
                 <CardContent className="pt-6">
                   <div className="text-2xl font-bold text-amber-500">{stats.gaps}</div>
                   <p className="text-sm text-muted-foreground">
-                    {t("seo.competitor.gaps")}
+                    {t('seo.competitor.gaps')}
                   </p>
                 </CardContent>
               </Card>
@@ -269,7 +267,7 @@ export default function SeoCompetitorPage() {
               <CardHeader className="border-b border-border">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">
-                    {t("seo.competitor.positionComparison")}
+                    {t('seo.competitor.positionComparison')}
                   </CardTitle>
                   {gapKeywords.length > 0 && (
                     <Button
@@ -279,7 +277,7 @@ export default function SeoCompetitorPage() {
                       className="gap-1"
                     >
                       <Target className="h-4 w-4" />
-                      {t("seo.competitor.findGaps")} ({gapKeywords.length})
+                      {t('seo.competitor.findGaps')} ({gapKeywords.length})
                     </Button>
                   )}
                 </div>
@@ -290,16 +288,16 @@ export default function SeoCompetitorPage() {
                     <thead>
                       <tr className="border-b border-border bg-muted/30">
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">
-                          {t("seo.table.keyword")}
+                          {t('seo.table.keyword')}
                         </th>
                         <th className="py-3 px-4 text-center text-sm font-medium text-muted-foreground">
-                          {t("seo.competitor.competitorPosition")}
+                          {t('seo.competitor.competitorPosition')}
                         </th>
                         <th className="py-3 px-4 text-center text-sm font-medium text-muted-foreground">
-                          {t("seo.competitor.yourPosition")}
+                          {t('seo.competitor.yourPosition')}
                         </th>
                         <th className="py-3 px-4 text-center text-sm font-medium text-muted-foreground">
-                          {t("seo.table.change")}
+                          {t('seo.table.change')}
                         </th>
                       </tr>
                     </thead>
@@ -320,11 +318,11 @@ export default function SeoCompetitorPage() {
                   <div className="flex items-center gap-2">
                     <Target className="h-5 w-5 text-amber-500" />
                     <CardTitle className="text-base">
-                      {t("seo.competitor.opportunityKeywords")}
+                      {t('seo.competitor.opportunityKeywords')}
                     </CardTitle>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {t("seo.competitor.gapDescription")}
+                    {t('seo.competitor.gapDescription')}
                   </p>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-2">
@@ -339,7 +337,7 @@ export default function SeoCompetitorPage() {
           <Card className="py-12">
             <CardContent className="text-center text-muted-foreground">
               <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>{t("seo.competitor.enterArticleId")}</p>
+              <p>{t('seo.competitor.enterArticleId')}</p>
             </CardContent>
           </Card>
         )}

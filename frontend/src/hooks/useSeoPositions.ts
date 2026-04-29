@@ -53,7 +53,7 @@ const fetchPositions = async (options: UseSeoPositionsOptions): Promise<KeywordP
       position,
       date: date.toISOString().split('T')[0],
       searchVolume: Math.floor(Math.random() * 10000) + 1000,
-      url: `https://www.wildberries.ru/catalog/${options.keywordId}/product/${i}`,
+      url: `https://www.wildberries.ru/catalog/${String(options.keywordId)}/product/${String(i)}`,
     });
   }
 

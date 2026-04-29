@@ -81,6 +81,7 @@ const fetchDroppedKeywords = async (options: UseSeoDroppedOptions): Promise<Drop
 };
 
 const getRecoverySuggestionsApi = async (_keywordId: number): Promise<string[]> => {
+  void _keywordId; // TODO: Use keywordId for real API call
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -95,6 +96,7 @@ const getRecoverySuggestionsApi = async (_keywordId: number): Promise<string[]> 
 };
 
 const checkForDropsApi = async (_options: UseSeoDroppedOptions): Promise<void> => {
+  void _options; // TODO: Use options for real API call
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
 };

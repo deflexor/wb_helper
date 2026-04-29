@@ -1,89 +1,28 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { useMarketplace } from "@/components/MarketplaceProvider";
-import { PremiumGate } from "@/components/features/premium-gate/PremiumGate";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, TrendingDown, RefreshCw, BarChart3 } from "lucide-react";
-
-// =============================================================================
-// TYPES
-// =============================================================================
-
-interface DroppedKeyword {
-  id: number;
-  keyword: string;
-  articleId: string;
-  previousPosition: number;
-  currentPosition: number;
-  droppedAt: string;
-  recoveredAt: string | null;
-}
+import { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useMarketplace } from '@/components/MarketplaceProvider';
+import { useSeoDropped, DroppedKeyword as HookDroppedKeyword } from '@/hooks/useSeoDropped';
+import { PremiumGate } from '@/components/features/premium-gate/PremiumGate';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, TrendingDown, RefreshCw, BarChart3 } from 'lucide-react';
 
 // =============================================================================
 // MOCK DATA
 // =============================================================================
 
-const mockDroppedKeywords: DroppedKeyword[] = [
-  {
-    id: 1,
-    keyword: "купить наушники",
-    articleId: "art-001",
-    previousPosition: 5,
-    currentPosition: 45,
-    droppedAt: "2026-04-25T10:00:00Z",
-    recoveredAt: null,
-  },
-  {
-    id: 2,
-    keyword: "наушники беспроводные",
-    articleId: "art-002",
-    previousPosition: 8,
-    currentPosition: 32,
-    droppedAt: "2026-04-24T15:30:00Z",
-    recoveredAt: null,
-  },
-  {
-    id: 3,
-    keyword: "наушники для компьютера",
-    articleId: "art-001",
-    previousPosition: 12,
-    currentPosition: 28,
-    droppedAt: "2026-04-23T09:15:00Z",
-    recoveredAt: null,
-  },
-  {
-    id: 4,
-    keyword: "бюджетные наушники",
-    articleId: "art-003",
-    previousPosition: 15,
-    currentPosition: 67,
-    droppedAt: "2026-04-22T14:00:00Z",
-    recoveredAt: null,
-  },
-  {
-    id: 5,
-    keyword: "наушники Sony",
-    articleId: "art-002",
-    previousPosition: 3,
-    currentPosition: 18,
-    droppedAt: "2026-04-21T11:30:00Z",
-    recoveredAt: null,
-  },
-];
-
 // Mock historical drop data for trend chart
 const mockDropTrendData = [
-  { date: "2026-04-20", dropped: 2, recovered: 1 },
-  { date: "2026-04-21", dropped: 3, recovered: 0 },
-  { date: "2026-04-22", dropped: 5, recovered: 2 },
-  { date: "2026-04-23", dropped: 4, recovered: 1 },
-  { date: "2026-04-24", dropped: 6, recovered: 3 },
-  { date: "2026-04-25", dropped: 3, recovered: 1 },
-  { date: "2026-04-26", dropped: 4, recovered: 2 },
+  { date: '2026-04-20', dropped: 2, recovered: 1 },
+  { date: '2026-04-21', dropped: 3, recovered: 0 },
+  { date: '2026-04-22', dropped: 5, recovered: 2 },
+  { date: '2026-04-23', dropped: 4, recovered: 1 },
+  { date: '2026-04-24', dropped: 6, recovered: 3 },
+  { date: '2026-04-25', dropped: 3, recovered: 1 },
+  { date: '2026-04-26', dropped: 4, recovered: 2 },
 ];
 
 // =============================================================================
@@ -91,26 +30,31 @@ const mockDropTrendData = [
 // =============================================================================
 
 interface DroppedKeywordCardProps {
-  keyword: DroppedKeyword;
-  onRecover: (keyword: DroppedKeyword) => void;
+  keyword: HookDroppedKeyword;
+  onRecover: (keyword: HookDroppedKeyword) => Promise<void>;
+  showSuggestions?: boolean;
+  suggestions?: string[];
 }
 
-function DroppedKeywordCard({ keyword, onRecover }: DroppedKeywordCardProps) {
+function DroppedKeywordCard({ keyword, onRecover, showSuggestions, suggestions = [] }: DroppedKeywordCardProps) {
   const { t } = useTranslation();
 
   const dropAmount = keyword.currentPosition - keyword.previousPosition;
   const isSevere = dropAmount > 20;
 
   const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
+    return new Date(isoString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
     });
   };
 
+  const dropPercentage = keyword.dropPercentage;
+  const recoveryDifficulty = keyword.recoveryDifficulty;
+
   return (
-    <Card className={isSevere ? "border-red-500/50 bg-red-900/5" : "border-amber-500/50 bg-amber-900/5"}>
+    <Card className={isSevere ? 'border-red-500/50 bg-red-900/5' : 'border-amber-500/50 bg-amber-900/5'}>
       <CardContent className="pt-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-2">
@@ -118,17 +62,17 @@ function DroppedKeywordCard({ keyword, onRecover }: DroppedKeywordCardProps) {
               <h4 className="font-semibold text-foreground">{keyword.keyword}</h4>
               {isSevere && (
                 <Badge variant="destructive" className="text-xs">
-                  {t("seo.dropped.severe")}
+                  {t('seo.dropped.severe')}
                 </Badge>
               )}
             </div>
             <p className="text-sm text-muted-foreground">
-              {t("seo.dropped.article")}: {keyword.articleId}
+              {t('seo.dropped.article')}: {keyword.articleId}
             </p>
             <div className="flex items-center gap-4 pt-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
-                  {t("seo.dropped.before")}:
+                  {t('seo.dropped.before')}:
                 </span>
                 <span className="font-semibold text-green-500">
                   #{keyword.previousPosition}
@@ -137,7 +81,7 @@ function DroppedKeywordCard({ keyword, onRecover }: DroppedKeywordCardProps) {
               <TrendingDown className="h-4 w-4 text-red-500" />
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
-                  {t("seo.dropped.after")}:
+                  {t('seo.dropped.after')}:
                 </span>
                 <span className="font-semibold text-red-500">
                   #{keyword.currentPosition}
@@ -145,17 +89,33 @@ function DroppedKeywordCard({ keyword, onRecover }: DroppedKeywordCardProps) {
               </div>
             </div>
             <p className="text-xs text-muted-foreground pt-1">
-              {t("seo.dropped.droppedAt")}: {formatDate(keyword.droppedAt)}
+              {t('seo.dropped.droppedAt')}: {formatDate(keyword.dropDate)} ({dropPercentage}% drop)
             </p>
+            <p className="text-xs text-muted-foreground">
+              {t('seo.dropped.recoveryDifficulty')}: {t(`seo.dropped.${recoveryDifficulty}`)}
+            </p>
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <p className="text-sm font-medium mb-2">{t('seo.dropped.suggestions')}:</p>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  {suggestions.map((suggestion, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-primary">•</span>
+                      {suggestion}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onRecover(keyword)}
+            onClick={() => { onRecover(keyword); }}
             className="gap-1 flex-shrink-0"
           >
             <RefreshCw className="h-4 w-4" />
-            {t("seo.dropped.recover")}
+            {t('seo.dropped.recover')}
           </Button>
         </div>
       </CardContent>
@@ -169,10 +129,12 @@ function DroppedKeywordCard({ keyword, onRecover }: DroppedKeywordCardProps) {
 
 export default function SeoDroppedPage() {
   const { t } = useTranslation();
-  useMarketplace(); // Initialize marketplace context
+  const { marketplace } = useMarketplace();
+  const { droppedKeywords, getRecoverySuggestions } = useSeoDropped({ marketplace });
 
-  const [droppedKeywords] = useState<DroppedKeyword[]>(mockDroppedKeywords);
+  const [recoverySuggestions, setRecoverySuggestions] = useState<string[]>([]);
   const [isRecovering, setIsRecovering] = useState(false);
+  const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(null);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -181,7 +143,7 @@ export default function SeoDroppedPage() {
       (kw) => kw.currentPosition - kw.previousPosition > 20
     ).length;
     const recentDrops = droppedKeywords.filter((kw) => {
-      const dropDate = new Date(kw.droppedAt);
+      const dropDate = new Date(kw.dropDate);
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
       return dropDate >= threeDaysAgo;
@@ -191,22 +153,23 @@ export default function SeoDroppedPage() {
   }, [droppedKeywords]);
 
   // Handler for recover action
-  const handleRecover = useCallback(async (keyword: DroppedKeyword) => {
+  const handleRecover = useCallback(async (keyword: HookDroppedKeyword) => {
     setIsRecovering(true);
-    // Simulate AI recovery suggestion
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    alert(
-      t("seo.dropped.recoverSuggestion", {
-        keyword: keyword.keyword,
-      })
-    );
-    setIsRecovering(false);
-  }, [t]);
+    setSelectedKeywordId(keyword.id);
+    try {
+      const suggestions = await getRecoverySuggestions(keyword.id);
+      setRecoverySuggestions(suggestions);
+    } catch {
+      window.alert(t('seo.dropped.recoverError'));
+    } finally {
+      setIsRecovering(false);
+    }
+  }, [getRecoverySuggestions, t]);
 
   const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
+    return new Date(isoString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
     });
   };
 
@@ -216,10 +179,10 @@ export default function SeoDroppedPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            {t("seo.dropped.title")}
+            {t('seo.dropped.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {t("seo.dropped.description")}
+            {t('seo.dropped.description')}
           </p>
         </div>
       </div>
@@ -233,7 +196,7 @@ export default function SeoDroppedPage() {
               <div>
                 <div className="text-2xl font-bold">{stats.total}</div>
                 <p className="text-sm text-muted-foreground">
-                  {t("seo.dropped.totalDropped")}
+                  {t('seo.dropped.totalDropped')}
                 </p>
               </div>
             </div>
@@ -246,7 +209,7 @@ export default function SeoDroppedPage() {
               <div>
                 <div className="text-2xl font-bold">{stats.severeCount}</div>
                 <p className="text-sm text-muted-foreground">
-                  {t("seo.dropped.severeDrops")}
+                  {t('seo.dropped.severeDrops')}
                 </p>
               </div>
             </div>
@@ -259,7 +222,7 @@ export default function SeoDroppedPage() {
               <div>
                 <div className="text-2xl font-bold">{stats.recentDrops}</div>
                 <p className="text-sm text-muted-foreground">
-                  {t("seo.dropped.recentDrops")}
+                  {t('seo.dropped.recentDrops')}
                 </p>
               </div>
             </div>
@@ -270,21 +233,21 @@ export default function SeoDroppedPage() {
       {/* Historical Trend */}
       <Card>
         <CardHeader className="border-b border-border">
-          <CardTitle className="text-lg">{t("seo.dropped.dropTrend")}</CardTitle>
+          <CardTitle className="text-lg">{t('seo.dropped.dropTrend')}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           {/* Simple visual representation of trend */}
           <div className="flex items-end justify-between gap-2 h-[200px]">
             {mockDropTrendData.map((day) => (
               <div key={day.date} className="flex-1 flex flex-col items-center gap-2">
-                <div className="w-full flex flex-col gap-1" style={{ height: "160px" }}>
+                <div className="w-full flex flex-col gap-1" style={{ height: '160px' }}>
                   <div
                     className="w-full bg-red-500/30 rounded-t"
-                    style={{ height: `${(day.dropped / 10) * 100}%` }}
+                    style={{ height: `${String((day.dropped / 10) * 100)  }%` }}
                   />
                   <div
                     className="w-full bg-green-500/30 rounded-t"
-                    style={{ height: `${(day.recovered / 10) * 100}%` }}
+                    style={{ height: `${String((day.recovered / 10) * 100)  }%` }}
                   />
                 </div>
                 <span className="text-xs text-muted-foreground">
@@ -297,13 +260,13 @@ export default function SeoDroppedPage() {
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-red-500/30" />
               <span className="text-xs text-muted-foreground">
-                {t("seo.dropped.dropped")}
+                {t('seo.dropped.dropped')}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-green-500/30" />
               <span className="text-xs text-muted-foreground">
-                {t("seo.dropped.recovered")}
+                {t('seo.dropped.recovered')}
               </span>
             </div>
           </div>
@@ -316,10 +279,10 @@ export default function SeoDroppedPage() {
           <CardHeader className="border-b border-border">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">
-                {t("seo.dropped.keywordList")}
+                {t('seo.dropped.keywordList')}
               </CardTitle>
               <span className="text-sm text-muted-foreground">
-                {droppedKeywords.length} {t("seo.dropped.keywords")}
+                {droppedKeywords.length} {t('seo.dropped.keywords')}
               </span>
             </div>
           </CardHeader>
@@ -328,7 +291,7 @@ export default function SeoDroppedPage() {
               <div className="flex items-center justify-center py-8">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <RefreshCw className="h-5 w-5 animate-spin" />
-                  <span>{t("seo.dropped.analyzing")}</span>
+                  <span>{t('seo.dropped.analyzing')}</span>
                 </div>
               </div>
             ) : (
@@ -337,6 +300,8 @@ export default function SeoDroppedPage() {
                   key={keyword.id}
                   keyword={keyword}
                   onRecover={handleRecover}
+                  showSuggestions={selectedKeywordId === keyword.id && recoverySuggestions.length > 0}
+                  suggestions={selectedKeywordId === keyword.id ? recoverySuggestions : []}
                 />
               ))
             )}

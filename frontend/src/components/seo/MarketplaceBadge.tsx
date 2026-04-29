@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import { memo } from "react";
-import { ShoppingBag, Store } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { memo } from 'react';
+import { ShoppingBag, Store } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/tooltip';
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-export type Marketplace = "wildberries" | "ozon";
+export type Marketplace = 'wildberries' | 'ozon';
 
 export interface MarketplaceBadgeProps {
   marketplace: Marketplace;
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
   showLabel?: boolean;
   className?: string;
 }
@@ -40,22 +40,22 @@ const marketplaceConfig: Record<
   }
 > = {
   wildberries: {
-    label: "WB",
-    fullName: "Wildberries",
+    label: 'WB',
+    fullName: 'Wildberries',
     icon: ShoppingBag,
-    bgColor: "bg-blue-950",
-    textColor: "text-blue-400",
-    borderColor: "border-blue-800",
-    iconColor: "text-blue-400",
+    bgColor: 'bg-blue-950',
+    textColor: 'text-blue-400',
+    borderColor: 'border-blue-800',
+    iconColor: 'text-blue-400',
   },
   ozon: {
-    label: "Ozon",
-    fullName: "Ozon",
+    label: 'Ozon',
+    fullName: 'Ozon',
     icon: Store,
-    bgColor: "bg-red-950",
-    textColor: "text-red-400",
-    borderColor: "border-red-800",
-    iconColor: "text-red-400",
+    bgColor: 'bg-red-950',
+    textColor: 'text-red-400',
+    borderColor: 'border-red-800',
+    iconColor: 'text-red-400',
   },
 };
 
@@ -64,7 +64,7 @@ const marketplaceConfig: Record<
 // =============================================================================
 
 const sizeConfig: Record<
-  NonNullable<MarketplaceBadgeProps["size"]>,
+  NonNullable<MarketplaceBadgeProps['size']>,
   {
     badge: string;
     icon: string;
@@ -72,19 +72,19 @@ const sizeConfig: Record<
   }
 > = {
   sm: {
-    badge: "px-1.5 py-0.5 text-[10px]",
-    icon: "h-3 w-3",
-    text: "text-[10px]",
+    badge: 'px-1.5 py-0.5 text-[10px]',
+    icon: 'h-3 w-3',
+    text: 'text-[10px]',
   },
   md: {
-    badge: "px-2 py-1 text-xs",
-    icon: "h-3.5 w-3.5",
-    text: "text-xs",
+    badge: 'px-2 py-1 text-xs',
+    icon: 'h-3.5 w-3.5',
+    text: 'text-xs',
   },
   lg: {
-    badge: "px-2.5 py-1 text-sm",
-    icon: "h-4 w-4",
-    text: "text-sm",
+    badge: 'px-2.5 py-1 text-sm',
+    icon: 'h-4 w-4',
+    text: 'text-sm',
   },
 };
 
@@ -92,12 +92,12 @@ const sizeConfig: Record<
 // COMPONENT
 // =============================================================================
 
-const MarketplaceBadge = memo(function MarketplaceBadge({
+const MarketplaceBadge = memo(({
   marketplace,
-  size = "md",
+  size = 'md',
   showLabel = true,
   className,
-}: MarketplaceBadgeProps) {
+}: MarketplaceBadgeProps) => {
   const config = marketplaceConfig[marketplace];
   const sizeStyles = sizeConfig[size];
   const Icon = config.icon;
@@ -105,7 +105,7 @@ const MarketplaceBadge = memo(function MarketplaceBadge({
   const badgeContent = (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full font-medium border",
+        'inline-flex items-center gap-1 rounded-full font-medium border',
         config.bgColor,
         config.textColor,
         config.borderColor,

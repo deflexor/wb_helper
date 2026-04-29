@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback } from 'react';
 import {
   ChevronUp,
   ChevronDown,
@@ -9,18 +9,18 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { MarketplaceBadge } from "./MarketplaceBadge";
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { MarketplaceBadge } from './MarketplaceBadge';
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-export type Marketplace = "wildberries" | "ozon";
+export type Marketplace = 'wildberries' | 'ozon';
 
 export interface PositionHistoryEntry {
   date: string;
@@ -47,8 +47,8 @@ export interface KeywordTableProps {
   className?: string;
 }
 
-type SortField = "keyword" | "article" | "position" | "lastUpdated";
-type SortDirection = "asc" | "desc";
+type SortField = 'keyword' | 'article' | 'position' | 'lastUpdated';
+type SortDirection = 'asc' | 'desc';
 
 // =============================================================================
 // HELPERS
@@ -56,20 +56,20 @@ type SortDirection = "asc" | "desc";
 
 function getPositionChange(current: number, previous: number): {
   change: number;
-  direction: "up" | "down" | "neutral";
+  direction: 'up' | 'down' | 'neutral';
 } {
   const change = previous - current; // Positive = improved (moved up)
-  if (change > 0) return { change, direction: "up" };
-  if (change < 0) return { change: Math.abs(change), direction: "down" };
-  return { change: 0, direction: "neutral" };
+  if (change > 0) return { change, direction: 'up' };
+  if (change < 0) return { change: Math.abs(change), direction: 'down' };
+  return { change: 0, direction: 'neutral' };
 }
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 }
 
@@ -97,14 +97,14 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
 // CHANGE INDICATOR
 // =============================================================================
 
-const ChangeIndicator = memo(function ChangeIndicator({
+const ChangeIndicator = memo(({
   direction,
   change,
 }: {
-  direction: "up" | "down" | "neutral";
+  direction: 'up' | 'down' | 'neutral';
   change: number;
-}) {
-  if (direction === "neutral") {
+}) => {
+  if (direction === 'neutral') {
     return (
       <span className="inline-flex items-center gap-1 text-muted-foreground">
         <Minus className="h-3 w-3" />
@@ -113,7 +113,7 @@ const ChangeIndicator = memo(function ChangeIndicator({
     );
   }
 
-  if (direction === "up") {
+  if (direction === 'up') {
     return (
       <span className="inline-flex items-center gap-1 text-green-500">
         <TrendingUp className="h-3 w-3" />
@@ -141,7 +141,7 @@ function PositionHistoryContent({
   history: PositionHistoryEntry[];
   keyword: string;
 }) {
-  if (!history || history.length === 0) {
+  if (history.length === 0) {
     return (
       <div className="py-8 text-center text-muted-foreground">
         No position history available
@@ -188,16 +188,16 @@ function PositionHistoryContent({
 // MAIN COMPONENT
 // =============================================================================
 
-const KeywordTable = memo(function KeywordTable({
+const KeywordTable = memo(({
   keywords,
   isLoading = false,
   onKeywordClick,
   onRecoverClick,
   pageSize = 10,
   className,
-}: KeywordTableProps) {
-  const [sortField, setSortField] = useState<SortField>("position");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+}: KeywordTableProps) => {
+  const [sortField, setSortField] = useState<SortField>('position');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedHistory, setSelectedHistory] = useState<{
     keyword: KeywordData;
@@ -208,10 +208,10 @@ const KeywordTable = memo(function KeywordTable({
   const handleSort = useCallback(
     (field: SortField) => {
       if (sortField === field) {
-        setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+        setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
       } else {
         setSortField(field);
-        setSortDirection("asc");
+        setSortDirection('asc');
       }
     },
     [sortField]
@@ -221,21 +221,21 @@ const KeywordTable = memo(function KeywordTable({
   const sortedKeywords = [...keywords].sort((a, b) => {
     let comparison = 0;
     switch (sortField) {
-      case "keyword":
+      case 'keyword':
         comparison = a.keyword.localeCompare(b.keyword);
         break;
-      case "article":
+      case 'article':
         comparison = a.article.localeCompare(b.article);
         break;
-      case "position":
+      case 'position':
         comparison = a.position - b.position;
         break;
-      case "lastUpdated":
+      case 'lastUpdated':
         comparison =
           new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime();
         break;
     }
-    return sortDirection === "asc" ? comparison : -comparison;
+    return sortDirection === 'asc' ? comparison : -comparison;
   });
 
   // Pagination
@@ -277,7 +277,7 @@ const KeywordTable = memo(function KeywordTable({
     if (sortField !== field) {
       return <ChevronUp className="h-3 w-3 opacity-0 group-hover:opacity-50" />;
     }
-    return sortDirection === "asc" ? (
+    return sortDirection === 'asc' ? (
       <ChevronUp className="h-3 w-3" />
     ) : (
       <ChevronDown className="h-3 w-3" />
@@ -285,7 +285,7 @@ const KeywordTable = memo(function KeywordTable({
   };
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn('overflow-hidden', className)}>
       <CardHeader className="pb-3 border-b border-border">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">Keyword Rankings</CardTitle>
@@ -303,7 +303,7 @@ const KeywordTable = memo(function KeywordTable({
               <tr>
                 <th
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted transition-colors group"
-                  onClick={() => handleSort("keyword")}
+                  onClick={() => { handleSort('keyword'); }}
                 >
                   <span className="inline-flex items-center gap-1">
                     Keyword
@@ -312,7 +312,7 @@ const KeywordTable = memo(function KeywordTable({
                 </th>
                 <th
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted transition-colors group"
-                  onClick={() => handleSort("article")}
+                  onClick={() => { handleSort('article'); }}
                 >
                   <span className="inline-flex items-center gap-1">
                     Article
@@ -324,7 +324,7 @@ const KeywordTable = memo(function KeywordTable({
                 </th>
                 <th
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted transition-colors group"
-                  onClick={() => handleSort("position")}
+                  onClick={() => { handleSort('position'); }}
                 >
                   <span className="inline-flex items-center gap-1">
                     Position
@@ -336,7 +336,7 @@ const KeywordTable = memo(function KeywordTable({
                 </th>
                 <th
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted transition-colors group"
-                  onClick={() => handleSort("lastUpdated")}
+                  onClick={() => { handleSort('lastUpdated'); }}
                 >
                   <span className="inline-flex items-center gap-1">
                     Last Updated
@@ -376,7 +376,7 @@ const KeywordTable = memo(function KeywordTable({
                     <tr
                       key={keyword.id}
                       className="hover:bg-muted/30 cursor-pointer transition-colors"
-                      onClick={() => handleRowClick(keyword)}
+                      onClick={() => { handleRowClick(keyword); }}
                     >
                       <td className="px-4 py-3">
                         <span className="font-medium text-sm">{keyword.keyword}</span>
@@ -392,12 +392,12 @@ const KeywordTable = memo(function KeywordTable({
                       <td className="px-4 py-3">
                         <span
                           className={cn(
-                            "font-semibold",
+                            'font-semibold',
                             keyword.position <= 3
-                              ? "text-green-500"
+                              ? 'text-green-500'
                               : keyword.position <= 10
-                              ? "text-yellow-500"
-                              : "text-foreground"
+                                ? 'text-yellow-500'
+                                : 'text-foreground'
                           )}
                         >
                           #{keyword.position}
@@ -416,7 +416,7 @@ const KeywordTable = memo(function KeywordTable({
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={(e) => handleRecoverClick(e, keyword)}
+                            onClick={(e) => { handleRecoverClick(e, keyword); }}
                             className="text-xs h-7"
                           >
                             Recover
@@ -435,8 +435,8 @@ const KeywordTable = memo(function KeywordTable({
         {!isLoading && paginatedKeywords.length > 0 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-border">
             <span className="text-sm text-muted-foreground">
-              Showing {(currentPage - 1) * pageSize + 1} to{" "}
-              {Math.min(currentPage * pageSize, keywords.length)} of{" "}
+              Showing {(currentPage - 1) * pageSize + 1} to{' '}
+              {Math.min(currentPage * pageSize, keywords.length)} of{' '}
               {keywords.length}
             </span>
             <div className="flex items-center gap-2">
@@ -474,8 +474,7 @@ const KeywordTable = memo(function KeywordTable({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() =>
-                    setSelectedHistory((s) => (s ? { ...s, open: false } : null))
+                  onClick={() => { setSelectedHistory((s) => (s ? { ...s, open: false } : null)); }
                   }
                   className="h-8 w-8"
                 >
@@ -483,7 +482,7 @@ const KeywordTable = memo(function KeywordTable({
                 </Button>
               </div>
               <PositionHistoryContent
-                history={selectedHistory.keyword.positionHistory || []}
+                history={selectedHistory.keyword.positionHistory ?? []}
                 keyword={selectedHistory.keyword.keyword}
               />
             </div>
